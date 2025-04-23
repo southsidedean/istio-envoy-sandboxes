@@ -11,14 +11,14 @@ source vars.sh
 # Create the k3d clusters
 
 k3d cluster delete $CLUSTER_NAME
-k3d cluster create -c cluster-k3d/k3d-small.yaml
+k3d cluster create -c cluster-k3d/k3d-cluster.yaml
 k3d cluster list
 
 # Configure the kubectl context
 
-kubectx -d gloo-gw
-kubectx gloo-gw=k3d-$CLUSTER_NAME
-kubectx gloo-gw
+kubectx -d $KUBECTX_NAME
+kubectx $KUBECTX_NAME=k3d-$CLUSTER_NAME
+kubectx $KUBECTX_NAME
 kubectx
 
 exit 0

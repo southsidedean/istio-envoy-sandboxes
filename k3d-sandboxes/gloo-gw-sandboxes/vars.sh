@@ -8,4 +8,5 @@
 # Do this before executing any sandbox scripts
 
 export CLUSTER_NAME=gloo-gw-playground
+export KUBECTX_NAME=gloo-gw
 export LICENSE_KEY=<<INSERT_LICENSE_STRING_HERE>>

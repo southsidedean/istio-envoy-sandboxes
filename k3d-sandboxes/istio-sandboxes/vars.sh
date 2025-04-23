@@ -7,5 +7,6 @@
 # Set variables here and then execute or source script
 # Do this before executing any sandbox scripts
 
-export CLUSTER_NAME=gloo-gw-playground
+export CLUSTER_NAME=istio-playground
+export KUBECTX_NAME=istio
 export LICENSE_KEY=<<INSERT_LICENSE_STRING_HERE>>

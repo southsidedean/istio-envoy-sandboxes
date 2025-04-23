@@ -15,7 +15,7 @@ k3d cluster list
 
 # Remove the kubectl context
 
-kubectx -d gloo-gw
+kubectx -d $KUBECTX_NAME
 kubectx
 
 echo "Cluster deleted!"
