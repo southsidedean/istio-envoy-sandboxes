@@ -17,7 +17,7 @@ ports:
   - port: 9999:80 # same as `--port '9999:80@loadbalancer'`
     nodeFilters:
       - loadbalancer
-image: rancher/k3s:v1.32.2-rc3-k3s1-arm64
+image: rancher/k3s:v1.31.7-k3s1
 options:
   k3d:
     disableLoadbalancer: true
