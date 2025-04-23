@@ -1,0 +1,19 @@
+NAME                                 READY   STATUS             RESTARTS      AGE
+pod/discovery-59c6bd8d44-5jpps       1/1     Running            0             22m
+pod/gateway-proxy-56ff9bd878-pjbhc   0/1     CrashLoopBackOff   4 (63s ago)   2m38s
+pod/gloo-68966d7c5b-mbz6d            1/1     Running            0             22m
+
+NAME                    TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)                                                AGE
+service/gateway-proxy   LoadBalancer   10.43.33.103   <pending>     80:32590/TCP,443:31816/TCP                             22m
+service/gloo            ClusterIP      10.43.163.67   <none>        9977/TCP,9976/TCP,9988/TCP,9966/TCP,9979/TCP,443/TCP   22m
+
+NAME                            READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/discovery       1/1     1            1           22m
+deployment.apps/gateway-proxy   0/1     1            0           22m
+deployment.apps/gloo            1/1     1            1           22m
+
+NAME                                       DESIRED   CURRENT   READY   AGE
+replicaset.apps/discovery-59c6bd8d44       1         1         1       22m
+replicaset.apps/gateway-proxy-56ff9bd878   1         1         0       2m38s
+replicaset.apps/gateway-proxy-74d664f989   0         0         0       22m
+replicaset.apps/gloo-68966d7c5b            1         1         1       22m

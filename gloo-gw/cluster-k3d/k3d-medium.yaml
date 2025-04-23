@@ -1,0 +1,45 @@
+# hazl-orders-playground-k3d-medium.yaml
+# Cluster configuration using k3d for the hazl-orders-playground GitHub repository
+# https://github.com/BuoyantIO/hazl-orders-playground
+# Tom Dean
+# Last edit: 4/22/2025
+#
+# k3d configuration docs:
+# https://k3d.io/stable/usage/configfile/
+
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: gloo-gw-playground
+servers: 1
+agents: 6
+network: gloo-gw-playground
+ports:
+  - port: 9999:80 # same as `--port '9999:80@loadbalancer'`
+    nodeFilters:
+      - loadbalancer
+image: rancher/k3s:v1.32.2-rc3-k3s1-arm64
+options:
+  k3d:
+    disableLoadbalancer: true
+  k3s:
+    extraArgs:
+      - arg: --debug
+        nodeFilters:
+          - server:*
+          - agent:*
+    nodeLabels:
+      - label: topology.kubernetes.io/zone=central
+        nodeFilters: [agent:0]
+      - label: topology.kubernetes.io/zone=central
+        nodeFilters: [agent:1]
+      - label: topology.kubernetes.io/zone=west
+        nodeFilters: [agent:2]
+      - label: topology.kubernetes.io/zone=west
+        nodeFilters: [agent:3]
+      - label: topology.kubernetes.io/zone=east
+        nodeFilters: [agent:4]
+      - label: topology.kubernetes.io/zone=east
+        nodeFilters: [agent:5]
+      - label: egressgateway=true
+        nodeFilters: [agent:*]
