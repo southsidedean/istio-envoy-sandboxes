@@ -1,8 +1,7 @@
-# hazl-orders-playground-k3d-medium.yaml
-# Cluster configuration using k3d for the hazl-orders-playground GitHub repository
-# https://github.com/BuoyantIO/hazl-orders-playground
+# k3d-medium.yaml
+# Cluster configuration using k3d
 # Tom Dean
-# Last edit: 4/22/2025
+# Last edit: 4/23/2025
 #
 # k3d configuration docs:
 # https://k3d.io/stable/usage/configfile/
@@ -10,10 +9,10 @@
 apiVersion: k3d.io/v1alpha5
 kind: Simple
 metadata:
-  name: gloo-gw-playground
+  name: $CLUSTER_NAME
 servers: 1
 agents: 6
-network: gloo-gw-playground
+network: $CLUSTER_NAME
 ports:
   - port: 9999:80 # same as `--port '9999:80@loadbalancer'`
     nodeFilters:
