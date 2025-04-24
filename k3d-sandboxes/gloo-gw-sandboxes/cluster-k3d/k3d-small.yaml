@@ -1,18 +1,18 @@
 # k3d-small.yaml
 # Cluster configuration using k3d
 # Tom Dean
-# Last edit: 4/23/2025
+# Last edit: 4/24/2025
 #
 # k3d configuration docs:
 # https://k3d.io/stable/usage/configfile/
 
 apiVersion: k3d.io/v1alpha5
 kind: Simple
-metadata:
-  name: $CLUSTER_NAME
+#metadata:
+#  name: $CLUSTER_NAME
 servers: 1
 agents: 3
-network: $CLUSTER_NAME
+network: $CLUSTER_NETWORK
 ports:
   - port: 8080:80 # same as `--port '8080:80@loadbalancer'`
     nodeFilters:
