@@ -13,13 +13,13 @@ kind: Simple
 servers: 1
 agents: 3
 network: $CLUSTER_NETWORK
-ports:
-  - port: 8080:80 # same as `--port '8080:80@loadbalancer'`
-    nodeFilters:
-      - loadbalancer
-  - port: 8443:443 # same as `--port '8443:443@loadbalancer'`
-    nodeFilters:
-      - loadbalancer
+#ports:
+#  - port: 8088:80 # same as `--port '8088:80@loadbalancer'`
+#    nodeFilters:
+#      - loadbalancer
+#  - port: 8443:443 # same as `--port '8443:443@loadbalancer'`
+#    nodeFilters:
+#      - loadbalancer
 image: rancher/k3s:v1.31.7-k3s1
 options:
   k3d:
