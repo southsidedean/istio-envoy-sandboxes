@@ -12,14 +12,16 @@ source vars.sh
 
 k3d cluster delete $CLUSTER1_NAME
 k3d cluster delete $CLUSTER2_NAME
+k3d cluster delete $CLUSTER3_NAME
 k3d cluster list
 
 # Remove the kubectl context
 
 kubectx -d $KUBECTX_NAME1
 kubectx -d $KUBECTX_NAME2
+kubectx -d $KUBECTX_NAME3
 kubectx
 
-echo "Cluster deleted!"
+echo "Clusters deleted!"
 
 exit 0
