@@ -10,7 +10,7 @@
 export CLUSTER_NETWORK=gloo-network
 export CLUSTER1_NAME=cluster1
 export CLUSTER2_NAME=cluster2
-export CLUSTER2_NAME=cluster3
+export CLUSTER3_NAME=cluster3
 export KUBECTX_NAME1=cluster1
 export KUBECTX_NAME2=cluster2
 export KUBECTX_NAME3=cluster3
