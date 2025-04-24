@@ -12,7 +12,7 @@ source vars.sh
 
 k3d cluster delete $CLUSTER1_NAME
 k3d cluster delete $CLUSTER2_NAME
-k3d cluster delete $CLUSTER2_NAME
+k3d cluster delete $CLUSTER3_NAME
 k3d cluster create $CLUSTER1_NAME -c cluster-k3d/k3d-cluster.yaml --port '8088:80@loadbalancer' --port '8443:443@loadbalancer' --api-port 0.0.0.0:6550 --verbose
 k3d cluster create $CLUSTER2_NAME -c cluster-k3d/k3d-cluster.yaml --port '8089:80@loadbalancer' --port '8444:443@loadbalancer' --api-port 0.0.0.0:6551 --verbose
 k3d cluster create $CLUSTER3_NAME -c cluster-k3d/k3d-cluster.yaml --port '8090:80@loadbalancer' --port '8445:443@loadbalancer' --api-port 0.0.0.0:6552 --verbose
