@@ -12,16 +12,20 @@ source vars.sh
 
 k3d cluster delete $CLUSTER1_NAME
 k3d cluster delete $CLUSTER2_NAME
+k3d cluster delete $CLUSTER2_NAME
 k3d cluster create $CLUSTER1_NAME -c cluster-k3d/k3d-cluster.yaml --port '8088:80@loadbalancer' --port '8443:443@loadbalancer' --api-port 0.0.0.0:6550 --verbose
 k3d cluster create $CLUSTER2_NAME -c cluster-k3d/k3d-cluster.yaml --port '8089:80@loadbalancer' --port '8444:443@loadbalancer' --api-port 0.0.0.0:6551 --verbose
+k3d cluster create $CLUSTER3_NAME -c cluster-k3d/k3d-cluster.yaml --port '8090:80@loadbalancer' --port '8445:443@loadbalancer' --api-port 0.0.0.0:6552 --verbose
 k3d cluster list
 
 # Configure the kubectl context
 
 kubectx -d $KUBECTX_NAME1
 kubectx -d $KUBECTX_NAME2
+kubectx -d $KUBECTX_NAME3
 kubectx $KUBECTX_NAME1=k3d-$CLUSTER1_NAME
 kubectx $KUBECTX_NAME2=k3d-$CLUSTER2_NAME
+kubectx $KUBECTX_NAME3=k3d-$CLUSTER3_NAME
 kubectx $KUBECTX_NAME1
 kubectx
 
