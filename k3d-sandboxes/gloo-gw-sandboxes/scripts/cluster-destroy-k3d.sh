@@ -1,6 +1,6 @@
 #!/bin/bash
 # cluster-destroy-k3d.sh
-# Automates cluster deletion and cleans up the gloo-gw kubectl context
+# Automates cluster deletion and cleans up the kubectl contexts
 # Tom Dean
 # Last edit: 4/24/2025
 
