@@ -11,10 +11,10 @@ kind: Simple
 #metadata:
 #  name: $CLUSTER_NAME
 servers: 1
-agents: 6
+agents: 3
 network: $CLUSTER_NETWORK
 #ports:
-#  - port: 8080:80 # same as `--port '8088:80@loadbalancer'`
+#  - port: 8088:80 # same as `--port '8088:80@loadbalancer'`
 #    nodeFilters:
 #      - loadbalancer
 #  - port: 8443:443 # same as `--port '8443:443@loadbalancer'`
@@ -23,7 +23,7 @@ network: $CLUSTER_NETWORK
 image: rancher/k3s:v1.31.7-k3s1
 options:
   k3d:
-    disableLoadbalancer: true
+    disableLoadbalancer: false
   k3s:
     extraArgs:
       - arg: --debug
@@ -36,16 +36,10 @@ options:
     nodeLabels:
       - label: topology.kubernetes.io/zone=central
         nodeFilters: [agent:0]
-      - label: topology.kubernetes.io/zone=central
+      - label: topology.kubernetes.io/zone=west
         nodeFilters: [agent:1]
-      - label: topology.kubernetes.io/zone=west
+      - label: topology.kubernetes.io/zone=east
         nodeFilters: [agent:2]
-      - label: topology.kubernetes.io/zone=west
-        nodeFilters: [agent:3]
-      - label: topology.kubernetes.io/zone=east
-        nodeFilters: [agent:4]
-      - label: topology.kubernetes.io/zone=east
-        nodeFilters: [agent:5]
       - label: egressgateway=true
         nodeFilters: [agent:*]
   kubeconfig:
