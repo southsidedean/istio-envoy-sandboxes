@@ -31,7 +31,7 @@ k3d cluster list
 for kubectx in `seq -w 01 $NUM_CLUSTERS`
 do
 kubectxname=$KUBECTX_NAME_PREFIX$kubectx
-clustername=$CLUSTER_NAME_PREFIX$cluster
+clustername=$CLUSTER_NAME_PREFIX$kubectx
 kubectx -d $kubectxname
 kubectx $kubectxname=k3d-$clustername
 done
