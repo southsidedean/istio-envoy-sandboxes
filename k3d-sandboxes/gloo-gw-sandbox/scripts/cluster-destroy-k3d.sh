@@ -10,7 +10,7 @@ source vars.sh
 
 # Remove the k3d cluster
 
-for cluster in `seq -w 01 $NUM_CLUSTERS`
+for cluster in `seq -f %02g 1 $NUM_CLUSTERS`
 do
 clustername=$CLUSTER_NAME_PREFIX$cluster
 k3d cluster delete $clustername
@@ -20,7 +20,7 @@ k3d cluster list
 
 # Remove the kubectl context
 
-for kubectx in `seq -w 01 $NUM_CLUSTERS`
+for kubectx in `seq -f %02g 1 $NUM_CLUSTERS`
 do
 kubectxname=$KUBECTX_NAME_PREFIX$kubectx
 kubectx -d $kubectxname
