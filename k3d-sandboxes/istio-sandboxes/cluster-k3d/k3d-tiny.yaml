@@ -1,5 +1,5 @@
-# k3d-small.yaml
-# Cluster configuration using k3d
+# k3d-tiny.yaml
+# Cluster configuration using k3d (tiny)
 # Tom Dean
 # Last edit: 4/24/2025
 #
@@ -11,7 +11,7 @@ kind: Simple
 #metadata:
 #  name: $CLUSTER_NAME
 servers: 1
-agents: 2
+agents: 1
 network: $CLUSTER_NETWORK
 #ports:
 #  - port: 8088:80 # same as `--port '8088:80@loadbalancer'`
@@ -34,10 +34,8 @@ options:
         nodeFilters:
           - server:*
     nodeLabels:
-      - label: topology.kubernetes.io/zone=east
+      - label: topology.kubernetes.io/zone=central
         nodeFilters: [agent:0]
-      - label: topology.kubernetes.io/zone=west
-        nodeFilters: [agent:1]
       - label: egressgateway=true
         nodeFilters: [agent:*]
   kubeconfig:

@@ -1,4 +1,4 @@
-# k3d-small.yaml
+# k3d-medium.yaml
 # Cluster configuration using k3d
 # Tom Dean
 # Last edit: 4/24/2025
@@ -11,10 +11,10 @@ kind: Simple
 #metadata:
 #  name: $CLUSTER_NAME
 servers: 1
-agents: 2
+agents: 6
 network: $CLUSTER_NETWORK
 #ports:
-#  - port: 8088:80 # same as `--port '8088:80@loadbalancer'`
+#  - port: 8080:80 # same as `--port '8088:80@loadbalancer'`
 #    nodeFilters:
 #      - loadbalancer
 #  - port: 8443:443 # same as `--port '8443:443@loadbalancer'`
@@ -23,7 +23,7 @@ network: $CLUSTER_NETWORK
 image: rancher/k3s:v1.31.7-k3s1
 options:
   k3d:
-    disableLoadbalancer: false
+    disableLoadbalancer: true
   k3s:
     extraArgs:
       - arg: --debug
@@ -34,10 +34,18 @@ options:
         nodeFilters:
           - server:*
     nodeLabels:
-      - label: topology.kubernetes.io/zone=east
+      - label: topology.kubernetes.io/zone=central
         nodeFilters: [agent:0]
-      - label: topology.kubernetes.io/zone=west
+      - label: topology.kubernetes.io/zone=central
         nodeFilters: [agent:1]
+      - label: topology.kubernetes.io/zone=west
+        nodeFilters: [agent:2]
+      - label: topology.kubernetes.io/zone=west
+        nodeFilters: [agent:3]
+      - label: topology.kubernetes.io/zone=east
+        nodeFilters: [agent:4]
+      - label: topology.kubernetes.io/zone=east
+        nodeFilters: [agent:5]
       - label: egressgateway=true
         nodeFilters: [agent:*]
   kubeconfig:
