@@ -2,31 +2,41 @@
 # cluster-setup-k3d-naked.sh
 # Automates k3d cluster creation
 # Tom Dean
-# Last edit: 4/24/2025
+# Last edit: 4/25/2025
 
 # Set environment variables
 
 source vars.sh
 
+# Delete existing k3d clusters
+
+for cluster in `seq -w 01 $NUM_CLUSTERS`
+do
+clustername=$CLUSTER_NAME_PREFIX$cluster
+k3d cluster delete $clustername
+done
+
 # Create the k3d clusters
 
-k3d cluster delete $CLUSTER1_NAME
-k3d cluster delete $CLUSTER2_NAME
-k3d cluster delete $CLUSTER3_NAME
-k3d cluster create $CLUSTER1_NAME -c cluster-k3d/k3d-cluster.yaml --port '8000:80@loadbalancer' --port '8443:443@loadbalancer' --api-port 0.0.0.0:6550 --verbose --trace
-k3d cluster create $CLUSTER2_NAME -c cluster-k3d/k3d-cluster.yaml --port '8001:80@loadbalancer' --port '8444:443@loadbalancer' --api-port 0.0.0.0:6551 --verbose --trace
-k3d cluster create $CLUSTER3_NAME -c cluster-k3d/k3d-cluster.yaml --port '8002:80@loadbalancer' --port '8445:443@loadbalancer' --api-port 0.0.0.0:6552 --verbose --trace
+for cluster in `seq -w 01 $NUM_CLUSTERS`
+do
+clustername=$CLUSTER_NAME_PREFIX$cluster
+k3d cluster create $clustername -c cluster-k3d/k3d-cluster.yaml --port 80${cluster}:80@loadbalancer --port 84${cluster}:443@loadbalancer --api-port 0.0.0.0:86${cluster} --verbose --trace
+done
+
 k3d cluster list
 
 # Configure the kubectl context
 
-kubectx -d $KUBECTX_NAME1
-kubectx -d $KUBECTX_NAME2
-kubectx -d $KUBECTX_NAME3
-kubectx $KUBECTX_NAME1=k3d-$CLUSTER1_NAME
-kubectx $KUBECTX_NAME2=k3d-$CLUSTER2_NAME
-kubectx $KUBECTX_NAME3=k3d-$CLUSTER3_NAME
-kubectx $KUBECTX_NAME1
+for kubectx in `seq -w 01 $NUM_CLUSTERS`
+do
+kubectxname=$KUBECTX_NAME_PREFIX$kubectx
+clustername=$CLUSTER_NAME_PREFIX$kubectx
+kubectx -d $kubectxname
+kubectx $kubectxname=k3d-$clustername
+done
+
+kubectx ${KUBECTX_NAME_PREFIX}01
 kubectx
 
 exit 0
