@@ -34,7 +34,7 @@ kubectxname=$KUBECTX_NAME_PREFIX$kubectx
 clustername=$CLUSTER_NAME_PREFIX$cluster
 kubectx -d $kubectxname
 kubectx $kubectxname=k3d-$clustername
-
+done
 
 kubectx ${KUBECTX_NAME_PREFIX}01
 kubectx
