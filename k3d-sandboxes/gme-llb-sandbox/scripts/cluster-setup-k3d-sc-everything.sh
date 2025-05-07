@@ -101,6 +101,6 @@ watch -n 1 kubectl get all -n movies
 
 # Create 'gloo-mesh-ui-ingress' for off-cluster access to Gloo Dashboard
 
-kubectl apply -f manifests/gloo-mesh-ui-ingress.yaml
+#kubectl apply -f manifests/gloo-mesh-ui-ingress.yaml
 
 exit 0
