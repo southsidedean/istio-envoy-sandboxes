@@ -103,4 +103,8 @@ watch -n 1 kubectl get all -n movies
 
 #kubectl apply -f manifests/gloo-mesh-ui-ingress.yaml
 
+# Start the Gloo Dashboard in the background and suppress output
+
+meshctl dashboard > /dev/null 2>&1 &
+
 exit 0
