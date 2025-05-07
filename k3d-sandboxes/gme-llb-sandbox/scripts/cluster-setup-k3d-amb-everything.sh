@@ -1,6 +1,6 @@
 #!/bin/bash
-# cluster-setup-k3d-sc-everything.sh
-# Automates k3d cluster creation with Sidecar mesh
+# cluster-setup-k3d-amb-everything.sh
+# Automates k3d cluster creation with Ambient mesh
 # Tom Dean
 # Last edit: 5/7/2025
 
@@ -85,7 +85,7 @@ kubectl apply -f manifests/gloo-extensions-config-cm.yaml
 
 # Deploy a managed Istio installation, using the Gloo Operator
 
-kubectl apply -n gloo-mesh -f manifests/managed-istio-sidecars.yaml
+kubectl apply -n gloo-mesh -f manifests/managed-istio-ambient.yaml
 
 # Verify installation
 
