@@ -1,0 +1,93 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movieinfo-nyc
+  namespace: movies
+  labels:
+    app: movieinfo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movieinfo
+  template:
+    metadata:
+      labels:
+        app: movieinfo
+      annotations:
+        config.linkerd.io/proxy-cpu-request: "0.5"
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 5150
+        resources:
+          requests:
+            cpu: 10m # Overprovision
+            memory: 10Mi
+          limits:
+            cpu: 1000m
+            memory: 100Mi
+        livenessProbe:
+          tcpSocket:
+            port: 5150
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 5150
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        volumeMounts:
+        - name: movieinfo-config-nyc
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: movieinfo-config-nyc
+        configMap:
+          name: movieinfo-config-nyc
+          optional: false
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: topology.kubernetes.io/zone
+                operator: In
+                values: [east]
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: movieinfo-config-nyc
+  namespace: movies
+data:
+  index.html: |
+    <html>
+    <h1>Movie information returned from the movieinfo-nyc server!</h1>
+    </br>
+    </html>
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: movieinfo-nyc
+  namespace: movies
+spec:
+  maxReplicas: 3
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: movieinfo-nyc
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 25
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 90

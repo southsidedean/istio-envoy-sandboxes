@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gloo-extensions-config
+  namespace: gloo-mesh
+data:
+  beta: |
+    serviceMeshController:
+      cni:
+        confDir: /var/lib/rancher/k3s/agent/etc/cni/net.d
+        binDir: /var/lib/rancher/k3s/data/cni/
