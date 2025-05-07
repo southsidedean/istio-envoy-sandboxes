@@ -1,0 +1,10 @@
+apiVersion: operator.gloo.solo.io/v1
+kind: ServiceMeshController
+metadata:
+  name: managed-istio
+  labels:
+    app.kubernetes.io/name: managed-istio
+spec:
+  dataplaneMode: Sidecar
+  installNamespace: istio-system
+  version: 1.25.2
