@@ -22,7 +22,7 @@ spec:
       - name: nginx
         image: nginx:latest
         ports:
-        - containerPort: 5150
+        - containerPort: 80
         livenessProbe:
           httpGet:
             path: /
