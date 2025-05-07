@@ -64,6 +64,9 @@ meshctl install --profiles gloo-mesh-enterprise-single,ratelimit,extauth \
 --set glooMgmtServer.createGlobalWorkspace=true \
 --set licensing.glooMeshLicenseKey=${GLOO_MESH_LICENSE_KEY}
 
+# Check our deployment after sleeping for 60 seconds
+
+sleep 60
 meshctl check
 
 # Install Gloo Operator to the 'gloo-mesh namespace'
