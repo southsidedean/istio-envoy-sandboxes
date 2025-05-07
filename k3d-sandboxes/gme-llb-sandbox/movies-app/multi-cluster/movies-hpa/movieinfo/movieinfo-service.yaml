@@ -8,6 +8,6 @@ spec:
   type: ClusterIP
   ports:
   - port: 80
-    targetPort: 5150
+    targetPort: 80
   selector:
     app: movieinfo
