@@ -91,4 +91,16 @@ kubectl apply -n gloo-mesh -f manifests/managed-istio.yaml
 
 watch -n 1 kubectl get all -n istio-system
 
+# Rollout restart the deployments in the 'movies' namespace, in case they didn't get injected
+
+kubectl rollout restart deploy -n movies
+
+# Verify the 'movies' app is good
+
+watch -n 1 kubectl get all -n movies
+
+# Create 'gloo-mesh-ui-ingress' for off-cluster access to Gloo Dashboard
+
+kubectl apply -f manifests/gloo-mesh-ui-ingress.yaml
+
 exit 0
