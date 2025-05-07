@@ -1,0 +1,21 @@
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: movies-destination-rule
+spec:
+  host: movieinfo.movies.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      http:
+        maxRequestsPerConnection: 1
+    loadBalancer:
+      simple: ROUND_ROBIN
+      localityLbSetting:
+        enabled: true
+        failover:
+          - from: region1
+            to: region2
+    outlierDetection:
+      consecutive5xxErrors: 1
+      interval: 1s
+      baseEjectionTime: 1m
