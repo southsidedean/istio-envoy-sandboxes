@@ -9,12 +9,11 @@ spec:
       http:
         maxRequestsPerConnection: 1
     loadBalancer:
-      simple: ROUND_ROBIN
+      simple: LEAST_REQUEST
       localityLbSetting:
         enabled: true
-        failover:
-          - from: region1
-            to: region2
+        failoverPriority:
+          - "topology.kubernetes.io/zone"
     outlierDetection:
       consecutive5xxErrors: 1
       interval: 1s
