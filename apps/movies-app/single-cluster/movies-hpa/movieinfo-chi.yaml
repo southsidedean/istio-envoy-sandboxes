@@ -12,7 +12,6 @@ spec:
   selector:
     matchLabels:
       app: movieinfo
-      appzone: central
   template:
     metadata:
       labels:
