@@ -4,8 +4,8 @@ metadata:
   annotations:
     ingress.kubernetes.io/ssl-redirect: "false"
     kubernetes.io/ingress.class: traefik
-  name: gloo-mesh-ui-ingress
-  namespace: gloo-mesh
+  name: grafana-ingress
+  namespace: grafana
 spec:
   ingressClassName: traefik
   rules:
@@ -13,8 +13,8 @@ spec:
       paths:
       - backend:
           service:
-            name: gloo-mesh-ui
+            name: grafana
             port:
-              number: 8090
-        path: /ui
+              number: 3000
+        path: /grafana
         pathType: Prefix
