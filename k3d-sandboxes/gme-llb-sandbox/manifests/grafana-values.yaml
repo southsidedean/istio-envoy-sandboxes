@@ -79,6 +79,8 @@ dashboardProviders:
       options:
         path: /var/lib/grafana/dashboards/default
 
+# Install Istio dashboards from https://grafana.com/orgs/istio/dashboards
+
 dashboards:
   default:
     istio-control-plane-dashboard:
