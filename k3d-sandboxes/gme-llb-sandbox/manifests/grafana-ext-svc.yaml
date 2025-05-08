@@ -6,3 +6,6 @@ metadata:
 spec:
   type: ExternalName
   externalName: grafana.grafana.svc.cluster.local
+  ports:
+  - port: 3000
+    targetPort: 3000
