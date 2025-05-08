@@ -25,9 +25,10 @@ grafana.ini:
 ##
 service:
   enabled: true
-  type: LoadBalancer
-  loadBalancerIP: ""
-  loadBalancerClass: ""
+  type: ClusterIP
+#  type: LoadBalancer
+#  loadBalancerIP: ""
+#  loadBalancerClass: ""
   #loadBalancerSourceRanges: []
   port: 80
   targetPort: 3000
