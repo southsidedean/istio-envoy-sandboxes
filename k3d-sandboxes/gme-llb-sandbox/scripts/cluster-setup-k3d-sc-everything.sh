@@ -109,6 +109,10 @@ helm repo add grafana https://grafana.github.io/helm-charts
 helm install grafana -n grafana --create-namespace grafana/grafana \
   -f manifests/grafana-values.yaml --debug
 
+# Create ingress for UI and Grafana
+
+kubectl apply -f manifests/cluster-ingress.yaml
+
 # Start the Gloo Dashboard in the background and suppress output
 
 #meshctl dashboard > /dev/null 2>&1 &

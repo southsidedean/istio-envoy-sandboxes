@@ -1,6 +1,6 @@
 grafana.ini:
   server:
-    root_url: '%(protocol)s://%(domain)s:9999/'
+    root_url: '%(protocol)s://%(domain)s:9001/grafana'
     serve_from_sub_path: false
   auth:
     disable_login_form: true
@@ -36,19 +36,19 @@ service:
   labels: {}
   #portName: service
 
-ingress:
-  enabled: true
+#ingress:
+#  enabled: true
   # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
   # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
-  ingressClassName: "traefik"
+#  ingressClassName: "traefik"
   # Values can be templated
-  annotations:
-    kubernetes.io/ingress.class: "traefik"
-    ingress.kubernetes.io/ssl-redirect: "false"
+#  annotations:
+#    kubernetes.io/ingress.class: "traefik"
+#    ingress.kubernetes.io/ssl-redirect: "false"
     # kubernetes.io/tls-acme: "true"
-  labels: {}
-  path: /
-  hosts: {}
+#  labels: {}
+#  path: /
+#  hosts: {}
   #  - localhost
 
 datasources:
