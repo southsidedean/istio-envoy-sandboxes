@@ -6,15 +6,18 @@ metadata:
   namespace: movies
   labels:
     app: movieinfo
+    appzone: east
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: movieinfo
+      appzone: east
   template:
     metadata:
       labels:
         app: movieinfo
+        appzone: east
       annotations:
         config.linkerd.io/proxy-cpu-request: "0.5"
     spec:

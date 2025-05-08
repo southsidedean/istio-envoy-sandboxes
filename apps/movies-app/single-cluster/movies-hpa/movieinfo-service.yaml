@@ -10,5 +10,7 @@ spec:
   - port: 80
     targetPort: 80
   selector:
+    matchLabel:
+      app: movieinfo
     matchExpressions:
-      - {key: app, operator: In, values: [movieinfo-nyc, movieinfo-chi, movieinfo-lax]}
+      - {key: appzone, operator: In, values: [east, central, west]}

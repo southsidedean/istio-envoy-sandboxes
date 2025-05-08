@@ -6,15 +6,18 @@ metadata:
   namespace: movies
   labels:
     app: movieinfo
+    appzone: central
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: movieinfo
+      appzone: central
   template:
     metadata:
       labels:
         app: movieinfo
+        appzone: central
     spec:
       containers:
       - name: nginx
