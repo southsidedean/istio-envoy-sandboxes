@@ -16,5 +16,5 @@ spec:
             name: gloo-mesh-ui
             port:
               number: 8090
-        path: /gloo
+        path: /
         pathType: Prefix
