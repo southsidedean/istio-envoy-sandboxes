@@ -103,6 +103,12 @@ watch -n 1 kubectl get all -n movies
 
 #kubectl apply -f manifests/gloo-mesh-ui-ingress.yaml
 
+# Install Grafana
+
+helm repo add grafana https://grafana.github.io/helm-charts
+helm install grafana -n grafana --create-namespace grafana/grafana \
+  -f manifests/grafana-values.yaml --debug
+
 # Start the Gloo Dashboard in the background and suppress output
 
 meshctl dashboard > /dev/null 2>&1 &

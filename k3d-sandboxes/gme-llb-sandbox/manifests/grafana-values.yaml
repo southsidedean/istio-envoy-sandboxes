@@ -1,0 +1,83 @@
+grafana.ini:
+  server:
+    root_url: '%(protocol)s://%(domain)s:9999/'
+    serve_from_sub_path: false
+  auth:
+    disable_login_form: true
+  auth.anonymous:
+    enabled: true
+    org_role: Editor
+  auth.basic:
+    enabled: false
+  analytics:
+    check_for_updates: false
+  panels:
+    disable_sanitize_html: true
+  log:
+    mode: console
+  log.console:
+    format: text
+    level: info
+
+## Expose the grafana service to be accessed from outside the cluster (LoadBalancer service).
+## or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.
+## ref: http://kubernetes.io/docs/user-guide/services/
+##
+service:
+  enabled: true
+  type: LoadBalancer
+  loadBalancerIP: ""
+  loadBalancerClass: ""
+  #loadBalancerSourceRanges: []
+  port: 80
+  targetPort: 3000
+  ## Service annotations. Can be templated.
+  annotations: {}
+  labels: {}
+  #portName: service
+
+ingress:
+  enabled: true
+  # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
+  # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
+  ingressClassName: "traefik"
+  # Values can be templated
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+    ingress.kubernetes.io/ssl-redirect: "false"
+    # kubernetes.io/tls-acme: "true"
+  labels: {}
+  path: /
+  hosts: {}
+  #  - localhost
+
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+    - name: prometheus
+      label: gme-llb-01
+      type: prometheus
+      access: proxy
+      orgId: 1
+      url: http://prometheus-server.gloo-mesh.svc.cluster.local:80
+      isDefault: true
+      jsonData:
+        timeInterval: "5s"
+      editable: true
+
+# dashboardProviders:
+#   dashboardproviders.yaml:
+#     apiVersion: 1
+#     providers:
+#     - name: 'default'
+#       orgId: 1
+#       folder: ''
+#       type: file
+#       disableDeletion: false
+#       editable: true
+#       options:
+#         path: /var/lib/grafana/dashboards/default
+
+# dashboards:
+#   default:
