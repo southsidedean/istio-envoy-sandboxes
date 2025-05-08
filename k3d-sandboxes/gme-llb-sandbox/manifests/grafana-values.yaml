@@ -66,18 +66,46 @@ datasources:
         timeInterval: "5s"
       editable: true
 
-# dashboardProviders:
-#   dashboardproviders.yaml:
-#     apiVersion: 1
-#     providers:
-#     - name: 'default'
-#       orgId: 1
-#       folder: ''
-#       type: file
-#       disableDeletion: false
-#       editable: true
-#       options:
-#         path: /var/lib/grafana/dashboards/default
+dashboardProviders:
+  dashboardproviders.yaml:
+    apiVersion: 1
+    providers:
+    - name: 'default'
+      orgId: 1
+      folder: ''
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards/default
 
-# dashboards:
-#   default:
+dashboards:
+  default:
+    istio-control-plane-dashboard:
+      gnetId: 7645
+      revision: 256
+      datasource: prometheus
+    istio-mesh-dashboard:
+      gnetId: 7639
+      revision: 256
+      datasource: prometheus
+    istio-performance-dashboard:
+      gnetId: 11829
+      revision: 256
+      datasource: prometheus
+    istio-service-dashboard:
+      gnetId: 7636
+      revision: 256
+      datasource: prometheus
+    istio-wasm-extension-dashboard:
+      gnetId: 13277
+      revision: 213
+      datasource: prometheus
+    istio-workload-dashboard:
+      gnetId: 7630
+      revision: 256
+      datasource: prometheus
+    istio-ztunnel-dashboard:
+      gnetId: 21306
+      revision: 23
+      datasource: prometheus
