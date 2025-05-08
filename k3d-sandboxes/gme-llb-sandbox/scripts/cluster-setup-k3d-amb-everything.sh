@@ -111,6 +111,6 @@ helm install grafana -n grafana --create-namespace grafana/grafana \
 
 # Start the Gloo Dashboard in the background and suppress output
 
-meshctl dashboard > /dev/null 2>&1 &
+#meshctl dashboard > /dev/null 2>&1 &
 
 exit 0
