@@ -10,4 +10,10 @@ spec:
   - port: 80
     targetPort: 80
   selector:
-    app: movieinfo
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - movieinfo-nyc
+          - movieinfo-chi
+          - movieinfo-lax
