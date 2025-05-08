@@ -10,4 +10,4 @@ spec:
   - port: 80
     targetPort: 80
   selector:
-    matchLabels: 'app In (movieinfo-nyc, movieinfo-chi, movieinfo-lax)'
+    matchLabels: app In (movieinfo-*)
