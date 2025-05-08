@@ -20,7 +20,7 @@ spec:
         pathType: Prefix
       - backend:
           service:
-            name: grafana
+            name: grafana.grafana.svc.cluster.locl
             port:
               number: 80
         path: /grafana
