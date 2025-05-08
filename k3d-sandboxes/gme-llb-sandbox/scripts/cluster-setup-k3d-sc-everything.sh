@@ -2,7 +2,7 @@
 # cluster-setup-k3d-sc-everything.sh
 # Automates k3d cluster creation with Sidecar mesh
 # Tom Dean
-# Last edit: 5/7/2025
+# Last edit: 5/8/2025
 
 # Set environment variables
 

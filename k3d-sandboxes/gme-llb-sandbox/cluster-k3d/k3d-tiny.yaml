@@ -30,9 +30,9 @@ options:
         nodeFilters:
           - server:*
           - agent:*
-      - arg: --disable=traefik
-        nodeFilters:
-          - server:*
+#      - arg: --disable=traefik
+#        nodeFilters:
+#          - server:*
     nodeLabels:
       - label: topology.kubernetes.io/zone=central
         nodeFilters: [agent:0]

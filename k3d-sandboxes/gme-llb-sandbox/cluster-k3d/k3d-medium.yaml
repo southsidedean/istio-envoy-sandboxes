@@ -1,7 +1,7 @@
 # k3d-medium.yaml
 # Cluster configuration using k3d
 # Tom Dean
-# Last edit: 4/30/2025
+# Last edit: 5/8/2025
 #
 # k3d configuration docs:
 # https://k3d.io/stable/usage/configfile/
@@ -30,9 +30,9 @@ options:
         nodeFilters:
           - server:*
           - agent:*
-      - arg: --disable=traefik
-        nodeFilters:
-          - server:*
+#      - arg: --disable=traefik
+#        nodeFilters:
+#          - server:*
     nodeLabels:
       - label: topology.kubernetes.io/zone=central
         nodeFilters: [agent:0]
