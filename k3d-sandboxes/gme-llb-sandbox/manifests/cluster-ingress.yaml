@@ -13,7 +13,6 @@ spec:
       - backend:
           service:
             name: gloo-mesh-ui
-            namespace: gloo-mesh
             port:
               number: 8090
         path: /
@@ -21,7 +20,6 @@ spec:
       - backend:
           service:
             name: grafana
-            namespace: grafana
             port:
               number: 80
         path: /grafana
