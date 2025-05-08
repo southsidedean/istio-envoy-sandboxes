@@ -1,7 +1,7 @@
 grafana.ini:
   server:
     root_url: '%(protocol)s://%(domain)s:9001/grafana'
-    serve_from_sub_path: false
+    serve_from_sub_path: true
   auth:
     disable_login_form: true
   auth.anonymous:
