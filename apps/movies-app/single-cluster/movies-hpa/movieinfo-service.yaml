@@ -12,5 +12,3 @@ spec:
   selector:
     matchLabels:
       app: movieinfo
-    matchExpressions:
-      - {key: appzone, operator: In, values: [east, central, west]}
