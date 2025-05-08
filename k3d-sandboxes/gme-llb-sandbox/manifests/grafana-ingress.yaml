@@ -18,4 +18,4 @@ spec:
             port:
               number: 3000
         path: /grafana
-        pathType: Prefix
+        pathType: Exact
