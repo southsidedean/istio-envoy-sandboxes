@@ -60,7 +60,7 @@ datasources:
       type: prometheus
       access: proxy
       orgId: 1
-      url: http://prometheus-server.gloo-mesh.svc.cluster.local:9090
+      url: http://prometheus-server.gloo-mesh.svc.cluster.local:80
       isDefault: true
       jsonData:
         timeInterval: "5s"
