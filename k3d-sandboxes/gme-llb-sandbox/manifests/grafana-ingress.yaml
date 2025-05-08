@@ -4,6 +4,7 @@ metadata:
   annotations:
     ingress.kubernetes.io/ssl-redirect: "false"
     kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.entrypoints: web
   name: grafana-ingress
   namespace: grafana
 spec:
