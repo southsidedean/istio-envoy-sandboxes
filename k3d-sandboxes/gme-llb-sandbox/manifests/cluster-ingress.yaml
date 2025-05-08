@@ -5,6 +5,7 @@ metadata:
     ingress.kubernetes.io/ssl-redirect: "false"
     kubernetes.io/ingress.class: traefik
   name: gloo-mesh-ui-ingress
+  namespace: gloo-mesh
 spec:
   ingressClassName: traefik
   rules:

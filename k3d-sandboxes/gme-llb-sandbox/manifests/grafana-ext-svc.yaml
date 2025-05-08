@@ -1,0 +1,8 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: grafana
+  namespace: gloo-mesh
+spec:
+  type: ExternalName
+  externalName: grafana.grafana.svc.cluster.local
