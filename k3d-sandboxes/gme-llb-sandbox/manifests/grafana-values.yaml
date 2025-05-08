@@ -1,7 +1,8 @@
 grafana.ini:
   server:
-    root_url: '%(protocol)s://%(domain)s:9001/grafana/'
+    root_url: 'http://%(domain)s:9001/grafana'
     serve_from_sub_path: true
+    enforce_domain: false
   auth:
     disable_login_form: true
   auth.anonymous:
@@ -17,7 +18,7 @@ grafana.ini:
     mode: console
   log.console:
     format: text
-    level: info
+    level: debug
 
 ## Expose the grafana service to be accessed from outside the cluster (LoadBalancer service).
 ## or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.

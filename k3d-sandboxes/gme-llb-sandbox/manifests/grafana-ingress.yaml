@@ -16,5 +16,5 @@ spec:
             name: grafana
             port:
               number: 3000
-        path: "/grafana"
+        path: /grafana
         pathType: Prefix

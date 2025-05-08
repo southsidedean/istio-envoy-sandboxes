@@ -111,9 +111,9 @@ helm install grafana -n grafana --create-namespace grafana/grafana \
 
 # Create ingress for UI and Grafana
 
-kubectl apply -f manifests/grafana-ext-svc.yaml
-kubectl apply -f manifests/cluster-ingress.yaml
-#kubectl apply -f manifests/grafana-ingress.yaml
+#kubectl apply -f manifests/grafana-ext-svc.yaml
+#kubectl apply -f manifests/cluster-ingress.yaml
+kubectl apply -f manifests/grafana-ingress.yaml
 #kubectl apply -f manifests/gloo-mesh-ui-ingress.yaml
 
 # Start the Gloo Dashboard in the background and suppress output
