@@ -56,7 +56,7 @@ datasources:
     apiVersion: 1
     datasources:
     - name: prometheus
-      label: gme-llb-01
+      label: gloo-prometheus
       type: prometheus
       access: proxy
       orgId: 1
