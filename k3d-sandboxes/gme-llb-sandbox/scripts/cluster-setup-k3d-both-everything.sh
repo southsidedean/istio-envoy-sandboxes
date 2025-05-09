@@ -27,7 +27,7 @@ done
 for cluster in `seq -f %02g 1 $NUM_CLUSTERS`
 do
 clustername=$CLUSTER_NAME_PREFIX$cluster
-k3d cluster create $clustername -c cluster-k3d/k3d-cluster.yaml --port 90${cluster}:80@loadbalancer --port 94${cluster}:443@loadbalancer --api-port 0.0.0.0:96${cluster} --verbose --trace
+k3d cluster create $clustername -c cluster-k3d/k3d-cluster.yaml --port 90${cluster}:80@loadbalancer --port 94${cluster}:443@loadbalancer --api-port 0.0.0.0:96${cluster}
 done
 
 k3d cluster list
