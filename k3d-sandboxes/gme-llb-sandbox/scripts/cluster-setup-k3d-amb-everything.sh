@@ -47,7 +47,7 @@ kubectl apply -k movies
 # Also, enable waypoint for the 'movies' namespace
 
 kubectl label ns movies istio.io/dataplane-mode=ambient
-kubectl label ns movies istio.io/use-waypoint=waypoint
+kubectl label ns movies istio.io/use-waypoint=auto
 
 # Deploy Gloo Mesh Enterprise
 # Deploy 'meshctl'
