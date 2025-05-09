@@ -43,9 +43,9 @@ kubectx
 
 kubectl apply -k movies
 
-# Label the 'movies' namespace for Isio injection
+# Label the 'movies' namespace to enable Isio Ambient mesh
 
-#kubectl label ns movies istio.io/rev=gloo --overwrite=true
+kubectl label ns movies istio.io/dataplane-mode=ambient
 
 # Deploy Gloo Mesh Enterprise
 # Deploy 'meshctl'
@@ -93,15 +93,11 @@ watch -n 1 kubectl get all -n istio-system
 
 # Rollout restart the deployments in the 'movies' namespace, in case they didn't get injected
 
-kubectl rollout restart deploy -n movies
+#kubectl rollout restart deploy -n movies
 
 # Verify the 'movies' app is good
 
 watch -n 1 kubectl get all -n movies
-
-# Create 'gloo-mesh-ui-ingress' for off-cluster access to Gloo Dashboard
-
-#kubectl apply -f manifests/gloo-mesh-ui-ingress.yaml
 
 # Install Grafana
 
