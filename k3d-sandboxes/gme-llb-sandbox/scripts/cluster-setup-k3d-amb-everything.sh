@@ -46,6 +46,7 @@ kubectl apply -k movies
 # Label the 'movies' namespace to enable Isio Ambient mesh
 
 kubectl label ns movies istio.io/dataplane-mode=ambient
+kubectl label ns movies istio.io/use-waypoint=waypoint
 
 # Deploy Gloo Mesh Enterprise
 # Deploy 'meshctl'
