@@ -44,6 +44,11 @@ done
 
 kubectx
 
+# Deploy 'meshctl'
+
+curl -sL https://run.solo.io/meshctl/install | GLOO_MESH_VERSION=$GME_VERSION sh -
+export PATH=$HOME/.gloo-mesh/bin:$PATH
+
 # Deploy stuff to the sidecar cluster here
 
 kubectx ${KUBECTX_NAME_PREFIX}01
@@ -57,12 +62,7 @@ kubectl apply -k movies
 kubectl label ns movies istio.io/rev=gloo --overwrite=true
 
 # Deploy Gloo Mesh Enterprise
-# Deploy 'meshctl'
 
-curl -sL https://run.solo.io/meshctl/install | GLOO_MESH_VERSION=$GME_VERSION sh -
-export PATH=$HOME/.gloo-mesh/bin:$PATH
-
-# Deploy Gloo Mesh Enterprise
 export CLUSTER_NAME=${CLUSTER_NAME_PREFIX}01
 echo
 echo "Cluster name is: "$CLUSTER_NAME
@@ -144,12 +144,7 @@ kubectl label ns movies istio.io/dataplane-mode=ambient
 kubectl label ns movies istio.io/use-waypoint=auto
 
 # Deploy Gloo Mesh Enterprise
-# Deploy 'meshctl'
 
-curl -sL https://run.solo.io/meshctl/install | GLOO_MESH_VERSION=$GME_VERSION sh -
-export PATH=$HOME/.gloo-mesh/bin:$PATH
-
-# Deploy Gloo Mesh Enterprise
 export CLUSTER_NAME=${CLUSTER_NAME_PREFIX}01
 echo
 echo "Cluster name is: "$CLUSTER_NAME
