@@ -2,7 +2,7 @@
 # cluster-setup-k3d-amb-everything.sh
 # Automates k3d cluster creation with Ambient mesh
 # Tom Dean
-# Last edit: 5/8/2025
+# Last edit: 5/12/2025
 
 # Set environment variables
 
@@ -55,31 +55,75 @@ kubectl label ns movies istio.io/use-waypoint=auto
 curl -sL https://run.solo.io/meshctl/install | GLOO_MESH_VERSION=$GME_VERSION sh -
 export PATH=$HOME/.gloo-mesh/bin:$PATH
 
-# Deploy Gloo Mesh Enterprise
+# Deploy 'istioctl'
+
+curl -L https://istio.io/downloadIstio | ISTIO_VERSION=${ISTIO_VERSION} sh -
+export PATH=$PWD/istio-${ISTIO_VERSION}/bin:$PATH
+
+# Install Gateway API CRDs
+
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/$GATEWAY_API_VERSION/standard-install.yaml
+
+# Deploy GME
+
 export CLUSTER_NAME=${CLUSTER_NAME_PREFIX}01
 echo
 echo "Cluster name is: "$CLUSTER_NAME
 echo
 
-meshctl install --profiles gloo-mesh-enterprise-single,ratelimit,extauth \
---set common.cluster=${CLUSTER_NAME} \
---set glooMgmtServer.createGlobalWorkspace=true \
---set licensing.glooMeshLicenseKey=${GLOO_MESH_LICENSE_KEY}
+# Deploy Gloo Mesh Enterprise
+
+#meshctl install --profiles gloo-mesh-enterprise-single,ratelimit,extauth \
+#--set common.cluster=${CLUSTER_NAME} \
+#--set glooMgmtServer.createGlobalWorkspace=true \
+#--set licensing.glooMeshLicenseKey=${GLOO_MESH_LICENSE_KEY}
 
 # Check our deployment after sleeping for 90 seconds
 
 sleep 90
 meshctl check
 
-# Install Gloo Operator to the 'gloo-mesh namespace'
+# Install Gloo Operator to the 'gloo-mesh' namespace
 
-helm install gloo-operator oci://us-docker.pkg.dev/solo-public/gloo-operator-helm/gloo-operator \
---version 0.2.3 \
--n gloo-mesh \
+# Using Helm
+
+helm upgrade --install istio-base oci://${HELM_REPO}/base \
+--namespace istio-system \
 --create-namespace \
---set manager.env.SOLO_ISTIO_LICENSE_KEY=${GLOO_MESH_LICENSE_KEY}
+--version ${ISTIO_IMAGE} \
+-f - <<EOF
+defaultRevision: ""
+profile: ambient
+EOF
 
-kubectl get pods -n gloo-mesh -l app.kubernetes.io/name=gloo-operator
+helm upgrade --install istiod oci://${HELM_REPO}/istiod \
+--namespace istio-system \
+--version ${ISTIO_IMAGE} \
+-f  manifests/ambient-cp-values
+
+helm upgrade --install istio-cni oci://${HELM_REPO}/cni \
+--namespace istio-system \
+--version ${ISTIO_IMAGE} \
+-f - <<EOF
+ambient:
+  dnsCapture: true
+excludeNamespaces:
+  - istio-system
+  - kube-system
+global:
+  hub: ${REPO}
+  tag: ${ISTIO_IMAGE}
+profile: ambient
+EOF
+
+# Using the Gloo Mesh Operator
+#helm install gloo-operator oci://us-docker.pkg.dev/solo-public/gloo-operator-helm/gloo-operator \
+#--version 0.2.3 \
+#-n gloo-mesh \
+#--create-namespace \
+#--set manager.env.SOLO_ISTIO_LICENSE_KEY=${GLOO_MESH_LICENSE_KEY}
+
+#kubectl get pods -n gloo-mesh -l app.kubernetes.io/name=gloo-operator
 
 # Create configmap in the 'gloo-mesh' namespace to fix CNI configuration for k3d/k3s nodes
 
@@ -87,11 +131,36 @@ kubectl apply -f manifests/gloo-extensions-config-cm.yaml
 
 # Deploy a managed Istio installation, using the Gloo Operator
 
-kubectl apply -n gloo-mesh -f manifests/managed-istio-ambient.yaml
+#kubectl apply -n gloo-mesh -f manifests/managed-istio-ambient.yaml
 
 # Verify installation
 
 watch -n 1 kubectl get all -n istio-system
+
+# Deploy the Ambient data plane
+
+helm upgrade --install ztunnel oci://${HELM_REPO}/ztunnel \
+--namespace istio-system \
+--version ${ISTIO_IMAGE} \
+-f - <<EOF
+configValidation: true
+enabled: true
+env:
+  L7_ENABLED: "true"
+hub: ${REPO}
+istioNamespace: istio-system
+namespace: istio-system
+profile: ambient
+proxy:
+  clusterDomain: cluster.local
+tag: ${ISTIO_IMAGE}
+terminationGracePeriodSeconds: 29
+variant: distroless
+EOF
+
+# Verify Ambient data plane deployment
+
+watch -n 1 'kubectl get pods -A | grep ztunnel'
 
 # Rollout restart the deployments in the 'movies' namespace, in case they didn't get injected
 
