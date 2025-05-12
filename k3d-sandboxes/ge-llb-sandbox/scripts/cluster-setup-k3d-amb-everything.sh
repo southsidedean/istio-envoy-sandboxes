@@ -104,6 +104,14 @@ global:
   proxy:
     clusterDomain: cluster.local
   tag: ${ISTIO_IMAGE}
+  waypoint:
+    topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          waypoint-for:
 istio_cni:
   namespace: istio-system
   enabled: true
@@ -120,14 +128,6 @@ env:
 profile: ambient
 license:
   value: ${GLOO_MESH_LICENSE_KEY}
-waypoint:
-  topologySpreadConstraints:
-  - maxSkew: 1
-    topologyKey: topology.kubernetes.io/zone
-    whenUnsatisfiable: DoNotSchedule
-    labelSelector:
-      matchLabels:
-        waypoint-for:
 EOF
 
 helm upgrade --install istio-cni oci://${HELM_REPO}/cni \
