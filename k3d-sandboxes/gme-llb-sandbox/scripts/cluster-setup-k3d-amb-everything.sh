@@ -52,8 +52,8 @@ kubectl label ns movies istio.io/use-waypoint=auto
 # Deploy Gloo Mesh Enterprise
 # Deploy 'meshctl'
 
-curl -sL https://run.solo.io/meshctl/install | GLOO_MESH_VERSION=$GME_VERSION sh -
-export PATH=$HOME/.gloo-mesh/bin:$PATH
+#curl -sL https://run.solo.io/meshctl/install | GLOO_MESH_VERSION=$GME_VERSION sh -
+#export PATH=$HOME/.gloo-mesh/bin:$PATH
 
 # Deploy 'istioctl'
 
@@ -64,7 +64,7 @@ export PATH=$PWD/istio-${ISTIO_VERSION}/bin:$PATH
 
 kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/$GATEWAY_API_VERSION/standard-install.yaml
 
-# Deploy GME
+# Deploy Istio
 
 export CLUSTER_NAME=${CLUSTER_NAME_PREFIX}01
 echo
@@ -72,6 +72,7 @@ echo "Cluster name is: "$CLUSTER_NAME
 echo
 
 # Deploy Gloo Mesh Enterprise
+# Install Gloo Operator to the 'gloo-mesh' namespace
 
 #meshctl install --profiles gloo-mesh-enterprise-single,ratelimit,extauth \
 #--set common.cluster=${CLUSTER_NAME} \
@@ -81,9 +82,7 @@ echo
 # Check our deployment after sleeping for 90 seconds
 
 sleep 90
-meshctl check
-
-# Install Gloo Operator to the 'gloo-mesh' namespace
+istioctl check
 
 # Using Helm
 
@@ -99,7 +98,37 @@ EOF
 helm upgrade --install istiod oci://${HELM_REPO}/istiod \
 --namespace istio-system \
 --version ${ISTIO_IMAGE} \
--f  manifests/ambient-cp-values
+-f - <<EOF
+global:
+  hub: ${REPO}
+  proxy:
+    clusterDomain: cluster.local
+  tag: ${ISTIO_IMAGE}
+istio_cni:
+  namespace: istio-system
+  enabled: true
+meshConfig:
+  accessLogFile: /dev/stdout
+  defaultConfig:
+    proxyMetadata:
+      ISTIO_META_DNS_AUTO_ALLOCATE: "true"
+      ISTIO_META_DNS_CAPTURE: "true"
+env:
+  PILOT_ENABLE_IP_AUTOALLOCATE: "true"
+  PILOT_ENABLE_K8S_SELECT_WORKLOAD_ENTRIES: "false"
+  PILOT_SKIP_VALIDATE_TRUST_DOMAIN: "true"
+profile: ambient
+license:
+  value: ${GLOO_MESH_LICENSE_KEY}
+waypoint:
+  topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        waypoint-for:
+EOF
 
 helm upgrade --install istio-cni oci://${HELM_REPO}/cni \
 --namespace istio-system \
