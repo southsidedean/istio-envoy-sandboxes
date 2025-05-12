@@ -2,7 +2,7 @@
 # cluster-setup-k3d-naked.sh
 # Automates k3d cluster creation
 # Tom Dean
-# Last edit: 4/25/2025
+# Last edit: 5/12/2025
 
 # Set environment variables
 
@@ -21,7 +21,7 @@ done
 for cluster in `seq -f %02g 1 $NUM_CLUSTERS`
 do
 clustername=$CLUSTER_NAME_PREFIX$cluster
-k3d cluster create $clustername -c cluster-k3d/k3d-cluster.yaml --port 80${cluster}:80@loadbalancer --port 84${cluster}:443@loadbalancer --api-port 0.0.0.0:86${cluster} --verbose --trace
+k3d cluster create $clustername -c cluster-k3d/k3d-cluster.yaml --port 80${cluster}:80@loadbalancer --port 84${cluster}:443@loadbalancer --api-port 0.0.0.0:86${cluster}
 done
 
 k3d cluster list
