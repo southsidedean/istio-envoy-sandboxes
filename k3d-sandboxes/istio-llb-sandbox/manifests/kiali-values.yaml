@@ -4,8 +4,8 @@ spec:
       url: "http://prometheus.istio-system:9090/"
     grafana:
       enabled: true
-      # Grafana service name is "grafana" and is in the "telemetry" namespace.
-      internal_url: 'http://grafana.grafana:3000/'
+      # Grafana service name is "grafana" and is in the "grafana" namespace.
+      internal_url: 'http://grafana.grafana.svc.cluster.local:3000/'
       # Public facing URL of Grafana
       external_url: 'http://localhost:9001/grafana'
       dashboards:
