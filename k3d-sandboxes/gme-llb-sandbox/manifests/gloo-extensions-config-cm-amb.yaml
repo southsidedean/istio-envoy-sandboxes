@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gloo-extensions-config
+  namespace: gloo-mesh
+data:
+  beta: |
+    serviceMeshController:
+      cni:
+        confDir: /var/lib/rancher/k3s/agent/etc/cni/net.d
+        binDir: /var/lib/rancher/k3s/data/cni/
+  values.istiod: |
+    global:
+      waypoint:
+        topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              gateway.networking.k8s.io/gateway-name: auto

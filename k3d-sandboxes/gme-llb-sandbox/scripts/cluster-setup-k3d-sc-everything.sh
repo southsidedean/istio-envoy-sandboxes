@@ -81,7 +81,7 @@ kubectl get pods -n gloo-mesh -l app.kubernetes.io/name=gloo-operator
 
 # Create configmap in the 'gloo-mesh' namespace to fix CNI configuration for k3d/k3s nodes
 
-kubectl apply -f manifests/gloo-extensions-config-cm.yaml
+kubectl apply -f manifests/gloo-extensions-config-cm-sc.yaml
 
 # Deploy a managed Istio installation, using the Gloo Operator
 
