@@ -62,7 +62,7 @@ datasources:
       type: prometheus
       access: proxy
       orgId: 1
-      url: http://prometheus.istio-system.svc.cluster.local:80
+      url: http://prometheus.istio-system.svc.cluster.local:9090
       isDefault: true
       jsonData:
         timeInterval: "5s"
