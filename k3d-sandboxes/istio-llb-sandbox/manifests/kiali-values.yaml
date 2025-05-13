@@ -2,6 +2,14 @@ external_services:
   prometheus:
     url: "http://prometheus.istio-system:9090/"
   grafana:
+    auth:
+      ca_file: ""
+      insecure_skip_verify: true
+      password: "pwd"
+      token: ""
+      type: "basic"
+      use_kiali_token: false
+      username: "user"
     enabled: true
     internal_url: 'http://grafana.grafana:3000/'
     external_url: 'http://localhost:9001/grafana'
