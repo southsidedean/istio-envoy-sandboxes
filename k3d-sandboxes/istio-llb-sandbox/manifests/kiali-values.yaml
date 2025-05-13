@@ -1,5 +1,7 @@
 spec:
   external_services:
+    prometheus:
+      url: "http://prometheus.istio-system:9090/"
     grafana:
       enabled: true
       # Grafana service name is "grafana" and is in the "telemetry" namespace.
