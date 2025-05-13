@@ -133,6 +133,7 @@ kubectl apply -f manifests/grafana-ingress.yaml
 
 # Display the kiali login token
 
-echoecho "Kiali login token: " `kubectl -n istio-system create token kiali`
+echo
+echo "Kiali login token: " `kubectl -n istio-system create token kiali`
 
 exit 0
