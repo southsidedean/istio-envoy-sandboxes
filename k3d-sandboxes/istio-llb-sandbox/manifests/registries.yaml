@@ -1,5 +1,5 @@
 configs:
-  "docker.io":
+  "registry.hub.docker.com":
     auth:
       username: "$DOCKER_USERNAME"
       password: "$DOCKER_PASSWORD"
