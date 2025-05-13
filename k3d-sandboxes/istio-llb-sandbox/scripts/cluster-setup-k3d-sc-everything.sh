@@ -117,7 +117,6 @@ helm repo update
 
 helm install \
     --namespace istio-system \
-    --set deployment.cluster_wide_access=true \
     kiali-server \
     kiali/kiali-server -f manifests/kiali-values.yaml
 

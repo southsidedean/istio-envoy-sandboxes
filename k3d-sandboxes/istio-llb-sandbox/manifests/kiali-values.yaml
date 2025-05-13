@@ -1,3 +1,5 @@
+deployment:
+  cluster_wide_access: true
 external_services:
   prometheus:
     url: "http://prometheus.istio-system:9090/"
