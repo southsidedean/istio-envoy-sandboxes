@@ -5,7 +5,7 @@ spec:
       # Grafana service name is "grafana" and is in the "telemetry" namespace.
       internal_url: 'http://grafana.grafana:3000/'
       # Public facing URL of Grafana
-      external_url: 'http://localhost:8001/grafana'
+      external_url: 'http://localhost:9001/grafana'
       dashboards:
       - name: "Istio Service Dashboard"
         variables:

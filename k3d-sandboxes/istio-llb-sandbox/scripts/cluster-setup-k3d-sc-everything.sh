@@ -103,6 +103,10 @@ kubectl rollout restart deploy -n movies
 
 watch -n 1 kubectl get all -n movies
 
+# Install Istio's Prometheus integration
+
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.26/samples/addons/prometheus.yaml
+
 # Install Kiali dashboard
 # Add Kiali Helm charts if needed
 
@@ -115,6 +119,11 @@ helm install \
     --namespace istio-system \
     kiali-server \
     kiali/kiali-server -f manifests/kiali-values.yaml
+
+# Display the kiali login token
+
+echo
+kubectl -n istio-system create token kiali
 
 # Install Grafana
 
