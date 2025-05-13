@@ -1,21 +1,22 @@
-spec:
-  external_services:
-    prometheus:
-      url: "http://prometheus.istio-system:9090/"
-    grafana:
+external_services:
+  prometheus:
+    url: "http://prometheus.istio-system:9090/"
+  grafana:
+    enabled: true
+    internal_url: 'http://grafana.grafana:3000/'
+    external_url: 'http://localhost:9001/grafana'
+    dashboards:
+    - name: "Istio Service Dashboard"
+      variables:
+        namespace: "var-namespace"
+        service: "var-service"
+    - name: "Istio Workload Dashboard"
+      variables:
+        namespace: "var-namespace"
+        workload: "var-workload"
+    - name: "Istio Mesh Dashboard"
+    - name: "Istio Control Plane Dashboard"
+    - name: "Istio Performance Dashboard"
+    - name: "Istio Wasm Extension Dashboard"
+    custom_dashboards:
       enabled: true
-      internal_url: 'http://grafana.grafana:3000/'
-      external_url: 'http://localhost:9001/grafana'
-      dashboards:
-      - name: "Istio Service Dashboard"
-        variables:
-          namespace: "var-namespace"
-          service: "var-service"
-      - name: "Istio Workload Dashboard"
-        variables:
-          namespace: "var-namespace"
-          workload: "var-workload"
-      - name: "Istio Mesh Dashboard"
-      - name: "Istio Control Plane Dashboard"
-      - name: "Istio Performance Dashboard"
-      - name: "Istio Wasm Extension Dashboard"
