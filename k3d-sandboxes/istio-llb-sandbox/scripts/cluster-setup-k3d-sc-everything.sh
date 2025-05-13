@@ -122,8 +122,7 @@ helm install \
 
 # Display the kiali login token
 
-echo
-kubectl -n istio-system create token kiali
+echoecho "Kiali login token: " `kubectl -n istio-system create token kiali`
 
 # Install Grafana
 
