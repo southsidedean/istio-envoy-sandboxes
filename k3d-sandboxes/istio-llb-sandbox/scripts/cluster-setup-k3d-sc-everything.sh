@@ -120,10 +120,6 @@ helm install \
     kiali-server \
     kiali/kiali-server -f manifests/kiali-values.yaml
 
-# Display the kiali login token
-
-echoecho "Kiali login token: " `kubectl -n istio-system create token kiali`
-
 # Install Grafana
 
 helm repo add grafana https://grafana.github.io/helm-charts
@@ -134,5 +130,9 @@ helm install grafana -n grafana --create-namespace grafana/grafana \
 
 kubectl apply -f manifests/kiali-ingress.yaml
 kubectl apply -f manifests/grafana-ingress.yaml
+
+# Display the kiali login token
+
+echoecho "Kiali login token: " `kubectl -n istio-system create token kiali`
 
 exit 0
