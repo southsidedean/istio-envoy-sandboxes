@@ -2,7 +2,7 @@
 # Environment variables for the sandbox
 #
 # Tom Dean
-# Last edit: 4/29/2025
+# Last edit: 5/13/2025
 #
 # Set variables here and then execute or source script
 # Do this before executing any sandbox scripts
@@ -11,4 +11,4 @@ export NUM_CLUSTERS=1
 export CLUSTER_NAME_PREFIX=istio-llb-
 export KUBECTX_NAME_PREFIX=istio-llb-
 export CLUSTER_NETWORK=istio-network
-export LICENSE_KEY=<<INSERT_LICENSE_STRING_HERE>>
+export ISTIO_VERSION=1.26.0
