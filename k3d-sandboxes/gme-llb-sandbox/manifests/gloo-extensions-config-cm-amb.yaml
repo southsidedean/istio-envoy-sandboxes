@@ -18,4 +18,4 @@ data:
           whenUnsatisfiable: DoNotSchedule
           labelSelector:
             matchLabels:
-              gateway.networking.k8s.io/gateway-name: auto
+              waypoint-for:
