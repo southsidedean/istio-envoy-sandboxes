@@ -2,7 +2,6 @@ mirrors:
   docker.io:
     endpoint:
       - http://docker.io
-
 configs:
   "docker.io":
     auth:
