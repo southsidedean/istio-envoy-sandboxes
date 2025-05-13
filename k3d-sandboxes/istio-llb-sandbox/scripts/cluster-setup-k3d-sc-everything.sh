@@ -90,24 +90,31 @@ echo
 kubectl get deployments -n istio-system --output wide
 echo
 
-# Check our deployment after sleeping for 90 seconds
-
-sleep 90
-istioctl check
-echo
-
 # Verify installation
 
 watch -n 1 kubectl get all -n istio-system
 
 # Rollout restart the deployments in the 'movies' namespace, in case they didn't get injected
 
-kubectl rollout restart deploy -n movies
-echo
+#kubectl rollout restart deploy -n movies
+#echo
 
 # Verify the 'movies' app is good
 
 watch -n 1 kubectl get all -n movies
+
+# Install Kiali dashboard
+# Add Kiali Helm charts if needed
+
+helm repo add kiali https://kiali.org/helm-charts
+helm repo update
+
+# Install Kiali without the operator
+
+helm install \
+    --namespace istio-system \
+    kiali-server \
+    kiali/kiali-server
 
 # Install Grafana
 
@@ -115,8 +122,8 @@ helm repo add grafana https://grafana.github.io/helm-charts
 helm install grafana -n grafana --create-namespace grafana/grafana \
   -f manifests/grafana-values.yaml --debug
 
-# Create ingress for UI and Grafana
+# Create ingress(es) for cluster
 
-kubectl apply -f manifests/grafana-ingress.yaml
+kubectl apply -f manifests/kiali-ingress.yaml
 
 exit 0
