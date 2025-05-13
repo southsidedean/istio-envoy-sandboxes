@@ -7,7 +7,7 @@ external_services:
       insecure_skip_verify: true
       password: "pwd"
       token: ""
-      type: "basic"
+      type: "none"
       use_kiali_token: false
       username: "user"
     enabled: true
