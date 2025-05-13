@@ -58,11 +58,11 @@ datasources:
     apiVersion: 1
     datasources:
     - name: prometheus
-      label: gloo-prometheus
+      label: istio-prometheus
       type: prometheus
       access: proxy
       orgId: 1
-      url: http://prometheus-server.gloo-mesh.svc.cluster.local:80
+      url: http://prometheus.istio-system.svc.cluster.local:80
       isDefault: true
       jsonData:
         timeInterval: "5s"
