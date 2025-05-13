@@ -1,3 +1,8 @@
+mirrors:
+  registry.hub.docker.com:
+    endpoint:
+      - http://registry.hub.docker.com
+
 configs:
   "registry.hub.docker.com":
     auth:
