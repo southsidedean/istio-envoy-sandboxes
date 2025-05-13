@@ -45,7 +45,7 @@ kubectl apply -k movies
 
 # Label the 'movies' namespace for Isio injection
 
-#kubectl label ns movies istio.io/rev=gloo --overwrite=true
+kubectl label ns movies istio-injection=enabled --overwrite=true
 
 # Deploy OSS Istio
 # Deploy 'istioctl'
