@@ -96,7 +96,7 @@ watch -n 1 kubectl get all -n istio-system
 
 # Rollout restart the deployments in the 'movies' namespace, in case they didn't get injected
 
-#kubectl rollout restart deploy -n movies
+kubectl rollout restart deploy -n movies
 #echo
 
 # Verify the 'movies' app is good
@@ -114,7 +114,7 @@ helm repo update
 helm install \
     --namespace istio-system \
     kiali-server \
-    kiali/kiali-server
+    kiali/kiali-server -f manifests/kiali-values.yaml
 
 # Install Grafana
 
@@ -125,5 +125,6 @@ helm install grafana -n grafana --create-namespace grafana/grafana \
 # Create ingress(es) for cluster
 
 kubectl apply -f manifests/kiali-ingress.yaml
+kubectl apply -f manifests/grafana-ingress.yaml
 
 exit 0

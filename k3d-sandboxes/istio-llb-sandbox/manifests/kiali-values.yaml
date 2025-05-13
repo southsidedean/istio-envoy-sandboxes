@@ -1,0 +1,21 @@
+spec:
+  external_services:
+    grafana:
+      enabled: true
+      # Grafana service name is "grafana" and is in the "telemetry" namespace.
+      internal_url: 'http://grafana.grafana:3000/'
+      # Public facing URL of Grafana
+      external_url: 'http://localhost:8001/grafana'
+      dashboards:
+      - name: "Istio Service Dashboard"
+        variables:
+          namespace: "var-namespace"
+          service: "var-service"
+      - name: "Istio Workload Dashboard"
+        variables:
+          namespace: "var-namespace"
+          workload: "var-workload"
+      - name: "Istio Mesh Dashboard"
+      - name: "Istio Control Plane Dashboard"
+      - name: "Istio Performance Dashboard"
+      - name: "Istio Wasm Extension Dashboard"
