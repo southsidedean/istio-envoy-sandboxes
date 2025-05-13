@@ -16,5 +16,5 @@ spec:
             name: kiali
             port:
               number: 20001
-        path: /
+        path: /kiali
         pathType: Exact
