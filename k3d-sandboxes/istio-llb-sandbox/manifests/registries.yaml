@@ -1,10 +1,10 @@
 mirrors:
-  registry.hub.docker.com:
+  docker.io:
     endpoint:
-      - http://registry.hub.docker.com
+      - http://docker.io
 
 configs:
-  "registry.hub.docker.com":
+  "docker.io":
     auth:
       username: "$DOCKER_USERNAME"
       password: "$DOCKER_PASSWORD"
