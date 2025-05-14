@@ -6,15 +6,16 @@ external_services:
   grafana:
     auth:
       ca_file: ""
-      insecure_skip_verify: true
-      password: "pwd"
+      insecure_skip_verify: false
+      password: ""
       token: ""
       type: "none"
       use_kiali_token: false
-      username: "user"
+      username: ""
     enabled: true
     internal_url: 'http://grafana.grafana:3000/'
     external_url: 'http://localhost:9001/grafana'
+    is_core: false
     dashboards:
     - name: "Istio Service Dashboard"
       variables:
@@ -28,5 +29,5 @@ external_services:
     - name: "Istio Control Plane Dashboard"
     - name: "Istio Performance Dashboard"
     - name: "Istio Wasm Extension Dashboard"
-    custom_dashboards:
-      enabled: true
+  custom_dashboards:
+    enabled: true
