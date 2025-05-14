@@ -92,7 +92,7 @@ We see three waypoints now, one in each zone.  This is because the waypoints are
 Now that we've added two new waypoints into the mix, we should restart our `ztunnel` daemonset to pick these up.
 
 ```bash
-kubectl rollout restart ds ztunnel -n istio-system
+kubectl rollout restart daemonset ztunnel -n istio-system
 ```
 
 In order to tell Istio that you'd prefer to keep traffic in-zone, you will need to apply the `networking.istio.io/traffic-distribution=PreferClose` annotation to both the `waypoint` and `movieinfo` services.
