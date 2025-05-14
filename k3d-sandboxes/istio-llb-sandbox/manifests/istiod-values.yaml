@@ -1,7 +1,8 @@
 global:
   waypoint:
     topologySpreadConstraints:
-      - maxSkew: 3
+      - maxSkew: 1
+        minDomains: 3
         topologyKey: topology.kubernetes.io/zone
         whenUnsatisfiable: DoNotSchedule
         labelSelector:
