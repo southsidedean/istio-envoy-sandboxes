@@ -1,6 +1,6 @@
 # istio-llb-sandboxes
 
-## DRAFT - UNDER DEVELOPMENT
+## INITIAL DRAFT - UNDER DEVELOPMENT
 
 ## Introduction
 
