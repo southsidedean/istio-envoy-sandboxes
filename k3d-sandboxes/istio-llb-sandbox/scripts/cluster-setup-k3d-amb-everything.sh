@@ -80,7 +80,7 @@ kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/downloa
 
 # Install Istio discovery chart (istiod)
 
-helm install istiod istio/istiod -n istio-system --set profile=ambient --wait
+helm install istiod istio/istiod -n istio-system -f manifests/istiod-values.yaml --set profile=ambient --wait
 echo
 helm ls -n istio-system
 echo
