@@ -108,6 +108,10 @@ watch -n 1 kubectl get all -n istio-system
 kubectl rollout restart deploy -n movies
 echo
 
+# Create a waypoint proxy for the 'movies' application
+
+kubectl apply -f manifests/movies-waypoint.yaml
+
 # Verify the 'movies' app is good
 
 watch -n 1 kubectl get all -n movies
