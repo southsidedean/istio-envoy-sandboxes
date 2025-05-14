@@ -1,6 +1,6 @@
 # istio-llb-sandboxes
 
-## <<UNDER DEVELOPMENT>>
+## DRAFT - UNDER DEVELOPMENT
 
 Ok, I've been educating myself on this, and put together an OSS Istio sandbox, with scripts to deploy both sidecar and ambient.  Once the sidecar cluster is deployed, you can observe traffic with the in-cluster Kiali (`localhost:9001/kiali`, you can use IP address as well for you headless k3d users) and use the in-cluster Grafana if you wish as well (`localhost:9001/grafana`).  Apply the `DestinationRule` to the sidecar cluster and, if you're patient (set the interval and refresh to their lowest values), you'll see traffic snap into zone.
 
