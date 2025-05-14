@@ -43,9 +43,10 @@ kubectx
 
 kubectl apply -k movies
 
-# Label the 'movies' namespace for Isio injection
+# Label the 'movies' namespace for Isio injection and to use a waypoint
 
 kubectl label ns movies istio.io/dataplane-mode=ambient --overwrite=true
+kubectl label ns movies istio.io/use-waypoint=waypoint --overwrite=true
 
 # Deploy OSS Istio
 # Deploy 'istioctl'
