@@ -1,10 +1,13 @@
 # istio-llb-sandboxes
 
-## INITIAL DRAFT - UNDER DEVELOPMENT
+## Tom Dean
+## Last edit: 5/15/25
+
+## *INITIAL DRAFT - UNDER DEVELOPMENT*
 
 ## Introduction
 
-I've been educating myself on **Locality Load Balancing**, and keeping traffic in-zone in **Istio** in general, and have put together an **OSS Istio** sandbox, with scripts to deploy both **sidecar** and **ambient**.  Once the cluster is deployed, you can observe traffic with the in-cluster **Kiali** instance(`localhost:9001/kiali`, you can use IP address as well for you headless k3d users) and use the in-cluster **Grafana** if you wish as well (`localhost:9001/grafana`).  The Istio Grafana dashboards have been deployed as part of Grafana.
+I've been educating myself on **Locality Load Balancing**, and keeping traffic in-zone in **Istio** in general, and have put together an **OSS Istio** sandbox, with scripts to deploy both **sidecar** and **ambient**.  Once the cluster is deployed, you can observe traffic with the in-cluster **Kiali** instance(`localhost:9001/kiali`, you can use IP address as well for you headless k3d users) and use the in-cluster **Grafana** if you wish as well (`localhost:9001/grafana`).  The Istio Grafana dashboards have been deployed alongside Grafana.
 
 All the Helm `values` files are in the `manifest` directory.  If you want to tweak the variables for the scripts, look in the `vars.sh` file.
 
