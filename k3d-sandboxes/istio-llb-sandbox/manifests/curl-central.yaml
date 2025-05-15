@@ -1,0 +1,31 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: curl-central
+  namespace: movies
+  labels:
+    app: curl-central
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: curl-central
+  template:
+    metadata:
+      labels:
+        app: curl-central
+    spec:
+      containers:
+      - name: curl-central
+        image: alpine/curl
+        imagePullPolicy: IfNotPresent
+        args: ["http://movieinfo.movies.svc.cluster.local/index.html"]
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: topology.kubernetes.io/zone
+                operator: In
+                values: [central]
