@@ -47,13 +47,13 @@ In order to engage **Locality Load Balancing**, apply the `DestinationRule` to t
 kubectl apply -f manifests/movies-destination-rule.yaml
 ```
 
-Hint: If you'd like to undo what you just did, you can run:
+Hint: If you'd like to reverse what you just did, you can run:
 
 ```bash
 kubectl delete -f manifests/movies-destination-rule.yaml
 ```
 
-If you're patient (set the interval and refresh to the lowest values), you'll see traffic snap into zone.
+If you're patient (set the interval and refresh to the lowest values), you'll see traffic snap into zone.  You can toggle the `DestinationRule` on and off and you'll see the traffic flow change.
 
 ## Ambient: Keeping Traffic In-Zone
 
