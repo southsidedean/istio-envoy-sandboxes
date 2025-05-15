@@ -162,12 +162,14 @@ kubectl get pods -o wide
 for curlpod in `kubectl get pods -o wide | grep curl | awk {'print $1'}` ; do echo ; echo "Logs for "$curlpod":" ; echo ; kubectl logs $curlpod | grep Movie ; echo ; done
 ```
 
-```bash
-kubectl get pods -o wide
-```
+What does it look like if we remove the mechanisms keeping traffic in-zone?
 
 ```bash
 for zone in east central west ; do kubectl delete deploy curl-$zone ; done
+```
+
+```bash
+kubectl get pods -o wide
 ```
 
 ```bash
@@ -201,6 +203,11 @@ for zone in east central west ; do kubectl delete deploy curl-$zone ; done
 ## Stress Testing - FUTURE
 
 Need to add a section with some basic stress tests, see how the different implementations react.
+
+Tests:
+
+- Scale up clients in one zone
+- Kill one of the `movieinfo` deployments
 
 ## Summary
 
