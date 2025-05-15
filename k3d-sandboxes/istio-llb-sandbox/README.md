@@ -32,14 +32,29 @@ I've been educating myself on **Locality Load Balancing**, and keeping traffic i
 
 All the Helm `values` files are in the `manifest` directory.  If you want to tweak the variables for the scripts, look in the `vars.sh` file.
 
-You can use the included scripts to create one or two clusters for local testing:
+You should use the included scripts to create one or two clusters for local testing:
 
 ```bash
-
+scripts
+├── cluster-destroy-k3d-both.sh
+├── cluster-destroy-k3d.sh
+├── cluster-setup-k3d-amb-everything.sh
+├── cluster-setup-k3d-both-everything.sh
+├── cluster-setup-k3d-naked.sh
+└── cluster-setup-k3d-sc-everything.sh
 ```
 
+There are several ways you can deploy cluster(s):
 
-## Locality Load Balancing with Sidecars
+- A single cluster with Istio in sidecar mode (`cluster-setup-k3d-sc-everything.sh`)
+- A single cluster with Istio in Ambient mode (`cluster-setup-k3d-amb-everything.sh`)
+- Two clusters, one with Istio in sidecar mode, one with Ambient mode (`cluster-setup-k3d-both-everything.sh`)
+- A "naked" cluster, no Istio/Prometheus/Kiali/Grafana, but with topology zones (`cluster-setup-k3d-naked.sh`)
+  - You'll need to deploy Istio and the "extras" yourself
+
+There are two scripts to tear down your cluster(s), use the `both` script for two-cluster deployments.
+
+## Locality Load Balancing (LLB) With Sidecars
 
 First, you're going to need a cluster.  Starting in the root of the `istio-envoy-sandboxes` repository you cloned, change to the `k3d-sandboxes/istio-llb-sandbox` directory, and run your commands from there.
 
@@ -122,6 +137,66 @@ kubectl annotate service movieinfo networking.istio.io/traffic-distribution=Pref
 ```
 
 If you're patient (set the interval and refresh to the lowest values), you'll see traffic snap into zone.  There will still only be one waypoint in your traffic graph in Kiali, as this represents the `waypoint` deployment, not the individual waypoint proxies.
+
+## Verifying Traffic Stays In-Zone
+
+So, now that everything is deployed, and Kiali shows traffic flow is in-zone, how can we be sure traffic is staying in-zone?
+
+```bash
+kubens movies
+```
+
+```bash
+kubectl get pods -o wide
+```
+
+```bash
+for zone in east central west ; do kubectl apply -f manifests/curl-${zone}.yaml ; done
+```
+
+```bash
+kubectl get pods -o wide
+```
+
+```bash
+for curlpod in `kubectl get pods -o wide | grep curl | awk {'print $1'}` ; do echo ; echo "Logs for "$curlpod":" ; echo ; kubectl logs $curlpod | grep Movie ; echo ; done
+```
+
+```bash
+kubectl get pods -o wide
+```
+
+```bash
+for zone in east central west ; do kubectl delete deploy curl-$zone ; done
+```
+
+```bash
+
+```
+
+```bash
+
+```
+
+```bash
+
+```
+
+```bash
+
+```
+
+```bash
+
+```
+
+```bash
+
+```
+
+```bash
+
+```
 
 ## Stress Testing - FUTURE
 
