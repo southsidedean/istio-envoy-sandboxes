@@ -1,0 +1,31 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: curl-west
+  namespace: movies
+  labels:
+    app: curl-west
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: curl-west
+  template:
+    metadata:
+      labels:
+        app: curl-west
+    spec:
+      containers:
+      - name: curl-west
+        image: alpine/curl
+        imagePullPolicy: IfNotPresent
+        args: ["http://movieinfo.movies.svc.cluster.local/index.html"]
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: topology.kubernetes.io/zone
+                operator: In
+                values: [west]
