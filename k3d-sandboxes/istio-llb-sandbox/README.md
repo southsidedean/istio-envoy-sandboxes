@@ -7,9 +7,7 @@
 
 ## Introduction
 
-I've been educating myself on **Locality Load Balancing**, and keeping traffic in-zone in **Istio** in general, and have put together an **OSS Istio** sandbox, with scripts to deploy both **sidecar** and **ambient**.  Once the cluster is deployed, you can observe traffic with the in-cluster **Kiali** instance(`localhost:9001/kiali`, you can use IP address as well for you headless k3d users) and use the in-cluster **Grafana** if you wish as well (`localhost:9001/grafana`).  The Istio Grafana dashboards have been deployed alongside Grafana.
-
-All the Helm `values` files are in the `manifest` directory.  If you want to tweak the variables for the scripts, look in the `vars.sh` file.
+Introduction, explain zones and why keeping traffic in zone is important.
 
 ## Prerequisites
 
@@ -27,6 +25,19 @@ If you don't have the following, you're gonna have a bad time:
 - Internet access to pull containers
 
 Everything else is self-contained, just run the script to create the cluster(s).
+
+## About the Sandbox
+
+I've been educating myself on **Locality Load Balancing**, and keeping traffic in-zone in **Istio** in general, and have put together an **OSS Istio** sandbox, with scripts to deploy both **sidecar** and **ambient**.  Once the cluster is deployed, you can observe traffic with the in-cluster **Kiali** instance(`localhost:9001/kiali`, you can use IP address as well for you headless k3d users) and use the in-cluster **Grafana** if you wish as well (`localhost:9001/grafana`).  The Istio Grafana dashboards have been deployed alongside Grafana.
+
+All the Helm `values` files are in the `manifest` directory.  If you want to tweak the variables for the scripts, look in the `vars.sh` file.
+
+You can use the included scripts to create one or two clusters for local testing:
+
+```bash
+
+```
+
 
 ## Locality Load Balancing with Sidecars
 

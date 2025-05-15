@@ -20,7 +20,7 @@ spec:
       - name: curl-east
         image: alpine/curl
         imagePullPolicy: IfNotPresent
-        args: ["http://movieinfo.movies.svc.cluster.local/index.html"]
+        args: ["-s", "http://movieinfo.movies.svc.cluster.local/index.html"]
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
