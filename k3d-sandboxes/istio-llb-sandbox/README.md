@@ -57,9 +57,7 @@ If you're patient (set the interval and refresh to the lowest values), you'll se
 
 ## Ambient: Keeping Traffic In-Zone
 
-Ambient is still a work in progress.  Trying to get `waypoints` working with `topologySpreadConstraints`.    I'm applying the `topologySpreadConstraints` to the Helm installation of `istiod` through the `istio-values.yaml` file.
-
-You're going to need a cluster.  Starting in the root of the `istio-envoy-sandboxes` repository you cloned, change to the `k3d-sandboxes/istio-llb-sandbox` directory, and run your commands from there.
+Again, you're going to need a cluster.  Starting in the root of the `istio-envoy-sandboxes` repository you cloned, change to the `k3d-sandboxes/istio-llb-sandbox` directory, and run your commands from there.
 
 ```bash
 cd k3d-sandboxes/istio-llb-sandbox
