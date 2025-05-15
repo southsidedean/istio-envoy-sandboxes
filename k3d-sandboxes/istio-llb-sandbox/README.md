@@ -172,6 +172,24 @@ for zone in east central west ; do kubectl delete deploy curl-$zone ; done
 kubectl get pods -o wide
 ```
 
+Now, perform the steps to remove the mechanisms keeping traffic in-zone.  You can find the proper commands for your Istio data plane deployment mode in prior sections.
+
+```bash
+kubectl get pods -o wide
+```
+
+```bash
+for zone in east central west ; do kubectl apply -f manifests/curl-${zone}.yaml ; done
+```
+
+```bash
+kubectl get pods -o wide
+```
+
+```bash
+for curlpod in `kubectl get pods -o wide | grep curl | awk {'print $1'}` ; do echo ; echo "Logs for "$curlpod":" ; echo ; kubectl logs $curlpod | grep Movie ; echo ; done
+```
+
 ```bash
 
 ```
