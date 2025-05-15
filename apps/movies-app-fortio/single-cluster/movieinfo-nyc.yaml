@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: movieinfo-lax
+  name: movieinfo-nyc
   namespace: movies
   labels:
     app: movieinfo
@@ -21,7 +21,6 @@ spec:
       containers:
       - name: nginx
         image: nginx:latest
-        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
         resources:
@@ -45,12 +44,12 @@ spec:
           initialDelaySeconds: 3
           periodSeconds: 3
         volumeMounts:
-        - name: movieinfo-config-lax
+        - name: movieinfo-config-nyc
           mountPath: /usr/share/nginx/html
       volumes:
-      - name: movieinfo-config-lax
+      - name: movieinfo-config-nyc
         configMap:
-          name: movieinfo-config-lax
+          name: movieinfo-config-nyc
           optional: false
       affinity:
         nodeAffinity:
@@ -59,16 +58,16 @@ spec:
             - matchExpressions:
               - key: topology.kubernetes.io/zone
                 operator: In
-                values: [west]
+                values: [east]
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: movieinfo-config-lax
+  name: movieinfo-config-nyc
   namespace: movies
 data:
   index.html: |
     <html>
-    <h1>Movie information returned from the movieinfo-lax server!</h1>
+    <h1>Movie information returned from the movieinfo-nyc server!</h1>
     </br>
     </html>
