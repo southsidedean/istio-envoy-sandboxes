@@ -73,11 +73,6 @@ echo
 helm ls -n istio-system
 echo
 
-# Install the Kubernetes Gateway API CRDs
-
-kubectl get crd gateways.gateway.networking.k8s.io &> /dev/null || \
-kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0-rc.1/standard-install.yaml
-
 # Install Istio discovery chart (istiod)
 
 helm install istiod istio/istiod -n istio-system -f manifests/istiod-values.yaml --set profile=ambient --wait
@@ -144,6 +139,11 @@ helm install grafana -n grafana --create-namespace grafana/grafana \
 
 kubectl apply -f manifests/kiali-ingress.yaml
 kubectl apply -f manifests/grafana-ingress.yaml
+
+# Install the Kubernetes Gateway API CRDs
+
+kubectl get crd gateways.gateway.networking.k8s.io &> /dev/null || \
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0-rc.1/standard-install.yaml
 
 # Display the kiali login token
 
