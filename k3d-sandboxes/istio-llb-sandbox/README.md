@@ -281,4 +281,4 @@ Tests:
 
 ## Summary
 
-I still need to flesh this out a bit, and do more observability using metrics and Grafana to confirm traffic is truly staying in-zone.  Still, this will get you up and running for now.
+I still need to flesh this out a bit, and do more observability using metrics and Grafana to provide more evidence that traffic remains in-zone.  Still, this will get you up and running for now.
