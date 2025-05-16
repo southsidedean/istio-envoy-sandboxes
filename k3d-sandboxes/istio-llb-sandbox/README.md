@@ -12,6 +12,7 @@ Introduction, explain zones and why keeping traffic in zone is important.
 ## Prerequisites
 
 If you don't have the following, you're gonna have a bad time:
+
 - [`k3d`](https://k3d.io)
 - [Docker](https://www.docker.com/get-started/)
 - [Helm](https://helm.sh/docs/intro/install/)
@@ -30,7 +31,26 @@ Everything else is self-contained, just run the script to create the cluster(s).
 
 I've been educating myself on **Locality Load Balancing**, and keeping traffic in-zone in **Istio** in general, and have put together an **OSS Istio** sandbox, with scripts to deploy both **sidecar** and **ambient**.  Once the cluster is deployed, you can observe traffic with the in-cluster **Kiali** instance(`localhost:9001/kiali`, you can use IP address as well for you headless k3d users) and use the in-cluster **Grafana** if you wish as well (`localhost:9001/grafana`).  The Istio Grafana dashboards have been deployed alongside Grafana.
 
-All the Helm `values` files are in the `manifest` directory.  If you want to tweak the variables for the scripts, look in the `vars.sh` file.
+All the Helm `values` files and other YAML manifests live in the `manifest` directory:
+
+```bash
+manifests
+├── curl-central.yaml
+├── curl-east.yaml
+├── curl-west.yaml
+├── grafana-ingress.yaml
+├── grafana-values.yaml
+├── istio-cni-values.yaml
+├── istiod-values.yaml
+├── kiali-ingress.yaml
+├── kiali-values.yaml
+├── movies-destination-rule.yaml
+├── movies-waypoint.yaml
+├── registries-bak.yaml
+└── registries.yaml
+```
+
+If you want to tweak the variables for the scripts, look in the `vars.sh` file.
 
 You should use the included scripts to create one or two clusters for local testing:
 
@@ -44,17 +64,18 @@ scripts
 └── cluster-setup-k3d-sc-everything.sh
 ```
 
-There are several ways you can deploy cluster(s):
+Several options exist for deploying cluster(s):
 
-- A single cluster with Istio in sidecar mode (`cluster-setup-k3d-sc-everything.sh`)
-- A single cluster with Istio in Ambient mode (`cluster-setup-k3d-amb-everything.sh`)
-- Two clusters, one with Istio in sidecar mode, one with Ambient mode (`cluster-setup-k3d-both-everything.sh`)
+- A *single cluster* with Istio in sidecar mode (`cluster-setup-k3d-sc-everything.sh`)
+- A *single cluster* with Istio in Ambient mode (`cluster-setup-k3d-amb-everything.sh`)
+- *Two clusters*, one with Istio in sidecar mode, one with Ambient mode (`cluster-setup-k3d-both-everything.sh`)
 - A "naked" cluster, no Istio/Prometheus/Kiali/Grafana, but with topology zones (`cluster-setup-k3d-naked.sh`)
   - You'll need to deploy Istio and the "extras" yourself
+  - Great for building your own!
 
-There are two scripts to tear down your cluster(s), use the `both` script for two-cluster deployments.
+Two scripts tear down your cluster(s).  Use the `both` script for two-cluster deployments.
 
-## Locality Load Balancing (LLB) With Sidecars
+## Keeping Traffic In-Zone Using Locality Load Balancing (LLB) With Sidecars
 
 First, you're going to need a cluster.  Starting in the root of the `istio-envoy-sandboxes` repository you cloned, change to the `k3d-sandboxes/istio-llb-sandbox` directory, and run your commands from there.
 
@@ -94,7 +115,7 @@ This will deploy a single `k3d` cluster with Istio deployed in Ambient mode, and
 
 In Kiali, navigate to **Traffic Graph**, set your interval and refresh rates to minimums, and select the **Workload Graph** from the drop down.  In the **Display** drop-down, uncheck `Service Nodes`, and check `Traffic Animation`, `Waypoint Proxies` and `Security`.  This should give you a nice representation of traffic flow.  Feel free to drag items around as you see fit.
 
-There are a few things we need to do to keep traffic in-zone.
+A few things we need to do to keep traffic in-zone.
 
 First, we're going to need to put a waypoint proxy into each zone.  A freshly-deployed cluster only has a single waypoint proxy for our `movies` application, so let's scale up to three waypoints, one for each of the three zones in our cluster.  Let's take a look.
 
@@ -226,6 +247,37 @@ Tests:
 
 - Scale up clients in one zone
 - Kill one of the `movieinfo` deployments
+
+
+```bash
+
+```
+
+```bash
+
+```
+
+```bash
+
+```
+
+```bash
+
+```
+
+```bash
+
+```
+
+```bash
+
+```
+
+```bash
+
+```
+
+
 
 ## Summary
 
