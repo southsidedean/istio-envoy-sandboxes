@@ -11,4 +11,5 @@ export NUM_CLUSTERS=3
 export CLUSTER_NAME_PREFIX=gloo-
 export KUBECTX_NAME_PREFIX=gloo-
 export CLUSTER_NETWORK=gloo-network
+export GLOO_NAMESPACE=gloo-system
 export LICENSE_KEY=<<INSERT_LICENSE_STRING_HERE>>

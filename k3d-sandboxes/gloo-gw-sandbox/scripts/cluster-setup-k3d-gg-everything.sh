@@ -62,11 +62,11 @@ echo
 for cluster in `seq -f %02g 1 $NUM_CLUSTERS`
 do
 kubectxname=$KUBECTX_NAME_PREFIX$cluster
-kubectl create namespace gloo-system --context $kubectxname
+kubectl create namespace $GLOO_NAMESPACE --context $kubectxname
 echo
-helm install gloo gloo/gloo --namespace gloo-system --kube-context $kubectxname
+helm install gloo gloo/gloo --namespace $GLOO_NAMESPACE --kube-context $kubectxname
 echo
-watch -n 1 kubectl get all -n gloo-system --context $kubectxname
+watch -n 1 kubectl get all -n $GLOO_NAMESPACE --context $kubectxname
 echo
 done
 
