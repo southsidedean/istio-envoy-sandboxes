@@ -64,7 +64,7 @@ do
 kubectxname=$KUBECTX_NAME_PREFIX$cluster
 kubectl create namespace gloo-system --context $kubectxname
 echo
-helm install gloo gloo/gloo --namespace gloo-system --context $kubectxname
+helm install gloo gloo/gloo --namespace gloo-system --kube-context $kubectxname
 echo
 watch -n 1 kubectl get all -n gloo-system --context $kubectxname
 echo
