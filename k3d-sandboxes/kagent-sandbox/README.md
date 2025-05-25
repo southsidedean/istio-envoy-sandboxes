@@ -1,1 +1,1 @@
-# gloo-gw-sandboxes
+# kagent-sandboxes

@@ -1,8 +1,8 @@
 #!/bin/bash
-# cluster-setup-k3d-gg-everything.sh
+# cluster-setup-k3d-kagent-everything.sh
 # Automates k3d cluster creation
 # Tom Dean
-# Last edit: 5/21/2025
+# Last edit: 5/25/2025
 
 # Set environment variables
 
