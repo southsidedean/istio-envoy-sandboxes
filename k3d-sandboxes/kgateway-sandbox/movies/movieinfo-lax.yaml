@@ -1,0 +1,73 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: movieinfo-lax
+  namespace: movies
+  labels:
+    app: movieinfo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: movieinfo
+  template:
+    metadata:
+      labels:
+        app: movieinfo
+      annotations:
+        config.linkerd.io/proxy-cpu-request: "0.5"
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 10m
+            memory: 10Mi
+          limits:
+            cpu: 50m
+            memory: 50Mi
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+            httpHeaders:
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        readinessProbe:
+          httpGet:
+            path: /index.html
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 3
+        volumeMounts:
+        - name: movieinfo-config-lax
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: movieinfo-config-lax
+        configMap:
+          name: movieinfo-config-lax
+          optional: false
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: topology.kubernetes.io/zone
+                operator: In
+                values: [west]
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: movieinfo-config-lax
+  namespace: movies
+data:
+  index.html: |
+    <html>
+    <h1>Movie information returned from the movieinfo-lax server!</h1>
+    </br>
+    </html>
