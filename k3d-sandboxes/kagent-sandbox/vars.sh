@@ -16,5 +16,5 @@ export KAGENT_VERSION=0.3.10
 export OPENAI_API_KEY=""
 export KGATEWAY_VERSION=2.0.1
 export KGATEWAY_NAMESPACE=kgateway-system
-export GATEWAY_API_VERSION=1.2.1
+export GATEWAY_API_VERSION="v1.2.1"
 export LICENSE_KEY=""

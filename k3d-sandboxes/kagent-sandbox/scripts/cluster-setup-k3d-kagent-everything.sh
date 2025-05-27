@@ -76,7 +76,7 @@ done
 
 # Install the Kubernetes Gateway API CRDs
 
-kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v${GATEWAY_API_VERSION}/standard-install.yaml
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/${GATEWAY_API_VERSION}/standard-install.yaml
 echo
 
 # Install 'kgateway' CRDs using Helm
