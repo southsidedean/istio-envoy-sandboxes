@@ -2,7 +2,7 @@
 # cluster-setup-k3d-kagent-everything.sh
 # Automates k3d cluster creation
 # Tom Dean
-# Last edit: 5/25/2025
+# Last edit: 5/27/2025
 
 # Set environment variables
 
@@ -39,34 +39,28 @@ done
 kubectx ${KUBECTX_NAME_PREFIX}01
 kubectx
 
-# Install the 'glooctl' CLI tool
+# Install the 'kagent' CLI tool
+# Download/run the install script
 
-curl -sL https://run.solo.io/gloo/install | sh
-export PATH=$HOME/.gloo/bin:$PATH
-
-# Install GlooGateway using 'glooctl'
-#
-#for cluster in `seq -f %02g 1 $NUM_CLUSTERS`
-#do
-#kubectxname=$KUBECTX_NAME_PREFIX$cluster
-#glooctl install gateway --context $kubectxname
-#done
-
-# Install GlooGateway using Helm
-
+curl https://raw.githubusercontent.com/kagent-dev/kagent/refs/heads/main/scripts/get-kagent | bash
 echo
-helm repo add gloo https://storage.googleapis.com/solo-public-helm
-helm repo update
-echo
+
+# Install 'kagent' using Helm
 
 for cluster in `seq -f %02g 1 $NUM_CLUSTERS`
 do
 kubectxname=$KUBECTX_NAME_PREFIX$cluster
-kubectl create namespace $GLOO_NAMESPACE --context $kubectxname
+helm install kagent-crds oci://ghcr.io/kagent-dev/kagent/helm/kagent-crds \
+    --namespace $KAGENT_NAMESPACE \
+    --create-namespace \
+    --kube-context $kubectxname
 echo
-helm install gloo gloo/gloo --namespace $GLOO_NAMESPACE --kube-context $kubectxname
+helm install kagent oci://ghcr.io/kagent-dev/kagent/helm/kagent \
+    --namespace $KAGENT_NAMESPACE \
+    --set providers.openAI.apiKey=$OPENAI_API_KEY \
+    --kube-context $kubectxname
 echo
-watch -n 1 kubectl get all -n $GLOO_NAMESPACE --context $kubectxname
+watch -n 1 kubectl get all -n $KAGENT_NAMESPACE --context $kubectxname
 echo
 done
 
@@ -80,11 +74,37 @@ kubectl apply -k movies --context $kubectxname
 echo
 done
 
+# Install the Kubernetes Gateway API CRDs
+
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v${GATEWAY_API_VERSION}/standard-install.yaml
+echo
+
+# Install 'kgateway' CRDs using Helm
+
+helm upgrade -i --create-namespace --namespace $KGATEWAY_NAMESPACE --version v${KGATEWAY_VERSION} kgateway-crds oci://cr.kgateway.dev/kgateway-dev/charts/kgateway-crds
+echo
+
+# Install 'kgateway' using Helm
+
+helm upgrade -i --namespace $KGATEWAY_NAMESPACE --version v${KGATEWAY_VERSION} kgateway oci://cr.kgateway.dev/kgateway-dev/charts/kgateway
+echo
+
+# Check our 'kgateway' installation
+
+watch -n 1 kubectl get all -n $KGATEWAY_NAMESPACE
+echo
+
 # Install Grafana using Helm
 
 #helm repo add grafana https://grafana.github.io/helm-charts
 #helm repo update
+#echo
+#for cluster in `seq -f %02g 1 $NUM_CLUSTERS`
+#do
+#kubectxname=$KUBECTX_NAME_PREFIX$cluster
 #helm install grafana -n grafana --create-namespace grafana/grafana \
-#  -f manifests/grafana-values.yaml --debug
+#  -f manifests/grafana-values.yaml --debug --kube-context $kubectxname
+#echo
+#done
 
 exit 0
