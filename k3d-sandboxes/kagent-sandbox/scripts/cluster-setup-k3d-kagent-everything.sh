@@ -94,6 +94,20 @@ echo
 watch -n 1 kubectl get all -n $KGATEWAY_NAMESPACE
 echo
 
+# Create an HTTP listener
+
+kubectl apply -f manifests/http-listener.yaml
+echo
+kubectl get gateways -A
+echo
+
+# Create an HTTPRoute for 'kagent'
+
+kubectl apply -f manifests/kagent-httproute.yaml
+echo
+kubectl get httproute -A
+echo
+
 # Install Grafana using Helm
 
 #helm repo add grafana https://grafana.github.io/helm-charts
