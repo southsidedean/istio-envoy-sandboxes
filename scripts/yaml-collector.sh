@@ -1,11 +1,12 @@
 #!/bin/bash
 # Script to collect manifests for a bunch of k8s objects across all namespaces and create a zipfile
+# Grabs Solo api-resources
 # Tom Dean
 # Last edit: 6/3/2025
 
 # Set object list
 
-OBJECTS="apiproduct apidocs"
+OBJECTS=$(kubectl api-resources | grep -i solo | grep -v NAME | awk {'print $1'})
 
 # Create directory to collect all manifests
 
