@@ -1,7 +1,7 @@
-# kagent-sandboxes
+# ai-sandbox
 
 ## Tom Dean
-## Last edit: 5/27/25
+## Last edit: 7/28/25
 
 ## *INITIAL DRAFT - UNDER DEVELOPMENT*
 
@@ -50,19 +50,23 @@ You should use the included scripts to create cluster(s) for local testing:
 ```bash
 scripts
 ├── cluster-destroy-k3d.sh
-├── cluster-setup-k3d-kagent-everything.sh
+├── cluster-setup-k3d-ai-everything.sh
 └── cluster-setup-k3d-naked.sh
 ```
 
 Several options exist for deploying cluster(s):
 
 - One or more clusters (configure in `vars.sh`), with kagent and kgateway deployed (`cluster-setup-k3d-kagent-everything.sh`)
-- A "naked" cluster, no kagent or kgateway (`cluster-setup-k3d-naked.sh`)
+- A "naked" cluster, no kagent, agentgateway or kgateway (`cluster-setup-k3d-naked.sh`)
   - You'll need to deploy kagent and the "extras" yourself
   - Great for building your own!
 - A script to tear down your cluster(s).
 
 # `kagent` Stuff
+
+# `kgateway` Stuff
+
+# `agentgateway` Stuff
 
 # Summary
 
