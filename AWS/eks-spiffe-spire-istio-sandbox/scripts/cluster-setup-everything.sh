@@ -8,20 +8,12 @@
 
 source vars.sh
 
-# Delete existing k3d clusters
+# Create the eks clusters
 
 for cluster in `seq -f %02g 1 $NUM_CLUSTERS`
 do
 clustername=$CLUSTER_NAME_PREFIX$cluster
-k3d cluster delete $clustername
-done
-
-# Create the k3d clusters
-
-for cluster in `seq -f %02g 1 $NUM_CLUSTERS`
-do
-clustername=$CLUSTER_NAME_PREFIX$cluster
-k3d cluster create $clustername -c cluster-k3d/k3d-cluster.yaml --port 80${cluster}:80@loadbalancer --port 84${cluster}:443@loadbalancer --api-port 0.0.0.0:86${cluster}
+eksctl create cluster --name $clustername --profile $AWS_PROFILE --version $EKS_VERSION --region $AWS_REGION --node-type $NODE_TYPE --config-file mainfests/eks-cluster.yaml
 done
 
 k3d cluster list
@@ -39,20 +31,12 @@ done
 kubectx ${KUBECTX_NAME_PREFIX}01
 kubectx
 
-# Install the 'glooctl' CLI tool
+# Install the 'istioctl' CLI tool
 
 curl -sL https://run.solo.io/gloo/install | sh
 export PATH=$HOME/.gloo/bin:$PATH
 
-# Install GlooGateway using 'glooctl'
-#
-#for cluster in `seq -f %02g 1 $NUM_CLUSTERS`
-#do
-#kubectxname=$KUBECTX_NAME_PREFIX$cluster
-#glooctl install gateway --context $kubectxname
-#done
-
-# Install GlooGateway using Helm
+# Install Istio using Helm - USE SOLO IMAGES!
 
 echo
 helm repo add gloo https://storage.googleapis.com/solo-public-helm

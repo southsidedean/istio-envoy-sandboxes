@@ -1,1 +1,14 @@
-# This is where the EKS cluster configuration goes
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+nodeGroups:
+  - name: ng-1
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 3
+    volumeSize: 80 # Optional: specify the disk size in GiB
+    ssh:
+      allow: true # Set to true to allow SSH access to nodes
+      # publicKeyPath: ~/.ssh/id_rsa.pub # Optional: specify if not using the default key
+cloudWatch:
+  clusterLogging:
+    enableTypes: ["api", "audit", "authenticator", "controllerManager", "scheduler"] # Enables all control plane logs

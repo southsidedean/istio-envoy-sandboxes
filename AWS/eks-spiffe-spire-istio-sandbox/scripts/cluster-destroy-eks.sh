@@ -13,10 +13,10 @@ source vars.sh
 for cluster in `seq -f %02g 1 $NUM_CLUSTERS`
 do
 clustername=$CLUSTER_NAME_PREFIX$cluster
-k3d cluster delete $clustername
+eksctl delete cluster --name $clustername --profile $AWS_PROFILE
 done
 
-k3d cluster list
+eksctl get cluster --profile $AWS_PROFILE
 
 # Remove the kubectl context
 
