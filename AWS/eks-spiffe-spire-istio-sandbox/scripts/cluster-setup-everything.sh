@@ -211,7 +211,9 @@ echo "Installing Grafana..."
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
 helm install grafana -n grafana --create-namespace grafana/grafana \
-  -f manifests/grafana-values.yaml
+  -f manifests/grafana-values.yaml \
+  --set adminUser="${GRAFANA_ADMIN_USER}" \
+  --set adminPassword="${GRAFANA_ADMIN_PASSWORD}"
 echo
 
 # Expose Grafana via kgateway (Gateway + HTTPRoute)
@@ -235,7 +237,9 @@ echo "============================================"
 echo "Grafana is available at:"
 echo "  http://${GRAFANA_LB}:8080/grafana"
 echo ""
-echo "No login required (anonymous access enabled)."
+echo "Login credentials:"
+echo "  Username: ${GRAFANA_ADMIN_USER}"
+echo "  Password: ${GRAFANA_ADMIN_PASSWORD}"
 echo "============================================"
 echo
 

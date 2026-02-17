@@ -13,10 +13,11 @@ AWS EKS sandbox for testing SPIFFE/SPIRE identity with Istio Ambient mode, using
 
 ## Configuration
 
-Edit `vars.sh` before running any scripts. Three values require manual insertion (marked with `<<INSERT_..._HERE>>`):
+Edit `vars.sh` before running any scripts. Four values require manual insertion (marked with `<<INSERT_..._HERE>>`):
 - `AWS_PROFILE` - AWS CLI profile name
 - `REPO_KEY` - Solo.io container registry key (used to construct `REPO` and `HELM_REPO` URLs)
 - `SOLO_ISTIO_LICENSE_KEY` - Solo enterprise Istio license
+- `GRAFANA_ADMIN_PASSWORD` - Grafana admin password (username defaults to `admin` via `GRAFANA_ADMIN_USER`)
 
 Other configurable values: `AWS_REGION`, `NODE_TYPE`, `EKS_VERSION`, `ISTIO_VERSION`, `SPIRE_VERSION`, `KGATEWAY_VERSION`, `GATEWAY_API_VERSION`.
 
@@ -58,7 +59,7 @@ kubectl apply -k movies                 # Deploy movies app independently
 - `manifests/istio-values.yaml` - Placeholder for Istio Helm overrides (currently minimal; most values are inline in the setup script)
 - `manifests/istio-gateway-spiffeid.yaml` - ClusterSPIFFEID registrations for ztunnel, ambient workloads, waypoint proxies, and ingress gateway
 - `manifests/prometheus-values.yaml` - Prometheus server config (service named `prometheus` on port 9090, sub-charts disabled)
-- `manifests/grafana-values.yaml` - Grafana with 7 pre-configured Istio/ztunnel dashboards
+- `manifests/grafana-values.yaml` - Grafana with 7 pre-configured Istio/ztunnel dashboards (admin credentials passed via `--set` from `vars.sh`)
 - `manifests/grafana-gateway.yaml` - Gateway + HTTPRoute to expose Grafana on `/grafana` via kgateway
 
 ### SPIRE-Istio Integration

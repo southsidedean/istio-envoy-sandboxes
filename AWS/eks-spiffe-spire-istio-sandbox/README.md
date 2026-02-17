@@ -46,13 +46,14 @@ The following tools must be installed and available on your `PATH`:
 
 ## Configuration
 
-Copy or edit `vars.sh` and fill in the three placeholder values:
+Copy or edit `vars.sh` and fill in the four placeholder values:
 
 | Variable | Description |
 |---|---|
 | `AWS_PROFILE` | Your AWS CLI profile name |
 | `REPO_KEY` | Solo.io container registry key (constructs the OCI image and Helm chart URLs) |
 | `SOLO_ISTIO_LICENSE_KEY` | Solo enterprise Istio license string |
+| `GRAFANA_ADMIN_PASSWORD` | Grafana admin password |
 
 ### Optional Tuning
 
@@ -66,12 +67,13 @@ Copy or edit `vars.sh` and fill in the three placeholder values:
 | `SPIRE_VERSION` | `0.24.1` | SPIRE Helm chart version |
 | `KGATEWAY_VERSION` | `v2.2.0` | kgateway Helm chart version |
 | `GATEWAY_API_VERSION` | `1.4.0` | Gateway API CRD version |
+| `GRAFANA_ADMIN_USER` | `admin` | Grafana admin username |
 
 ## Quick Start
 
 ```bash
 # 1. Configure your environment
-vi vars.sh  # Set AWS_PROFILE, REPO_KEY, and SOLO_ISTIO_LICENSE_KEY
+vi vars.sh  # Set AWS_PROFILE, REPO_KEY, SOLO_ISTIO_LICENSE_KEY, and GRAFANA_ADMIN_PASSWORD
 
 # 2. Deploy the full stack (EKS + SPIRE + Istio Ambient + movies app)
 ./scripts/cluster-setup-everything.sh
@@ -176,7 +178,7 @@ kubectl get svc -n kgateway-system http
 # http://<external-address>:8080/grafana
 ```
 
-No login is required — Grafana is configured with anonymous access enabled (Editor role). Seven pre-configured dashboards are included:
+Login with the credentials configured in `vars.sh` (`GRAFANA_ADMIN_USER` / `GRAFANA_ADMIN_PASSWORD`). The deploy script prints these at the end. Seven pre-configured dashboards are included:
 - Istio Mesh, Control Plane, Service, Workload, Performance, and Wasm Extension dashboards
 - Ztunnel dashboard
 
