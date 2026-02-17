@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: movieinfo-chi
+  name: movieinfo-nyc
   namespace: movies
   labels:
     app: movieinfo
@@ -15,6 +15,8 @@ spec:
     metadata:
       labels:
         app: movieinfo
+      annotations:
+        config.linkerd.io/proxy-cpu-request: "0.5"
     spec:
       containers:
       - name: nginx
@@ -42,30 +44,22 @@ spec:
           initialDelaySeconds: 3
           periodSeconds: 3
         volumeMounts:
-        - name: movieinfo-config-chi
+        - name: movieinfo-config-nyc
           mountPath: /usr/share/nginx/html
       volumes:
-      - name: movieinfo-config-chi
+      - name: movieinfo-config-nyc
         configMap:
-          name: movieinfo-config-chi
+          name: movieinfo-config-nyc
           optional: false
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: topology.kubernetes.io/zone
-                operator: In
-                values: [central]
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: movieinfo-config-chi
+  name: movieinfo-config-nyc
   namespace: movies
 data:
   index.html: |
     <html>
-    <h1>Movie information returned from the movieinfo-chi server!</h1>
+    <h1>Movie information returned from the movieinfo-nyc server!</h1>
     </br>
     </html>

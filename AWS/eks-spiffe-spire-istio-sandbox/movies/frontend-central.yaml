@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend-east
+  name: frontend-central
   namespace: movies
   labels:
     app: frontend
@@ -21,11 +21,3 @@ spec:
         image: fortio/fortio
         imagePullPolicy: Always
         args: ["load", "-t", "0", "-qps", "500", "http://movieinfo.movies.svc.cluster.local/index.html"]
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: topology.kubernetes.io/zone
-                operator: In
-                values: [east]

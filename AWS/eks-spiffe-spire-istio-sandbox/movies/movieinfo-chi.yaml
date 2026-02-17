@@ -49,14 +49,6 @@ spec:
         configMap:
           name: movieinfo-config-chi
           optional: false
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: topology.kubernetes.io/zone
-                operator: In
-                values: [central]
 ---
 apiVersion: v1
 kind: ConfigMap
