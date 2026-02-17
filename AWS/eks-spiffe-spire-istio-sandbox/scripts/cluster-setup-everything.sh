@@ -53,6 +53,10 @@ helm upgrade --install -n spire-server spire-crds spire-h/spire-crds --create-na
 
 envsubst < manifests/spire-values.yaml | helm upgrade --install -n spire-server spire spire-h/spire --version $SPIRE_VERSION -f -
 
+# Register SPIRE workload identities (ClusterSPIFFEID resources)
+
+kubectl apply -f manifests/istio-gateway-spiffeid.yaml
+
 # Install Istio using Helm - USE SOLO IMAGES!
 # Install Istio CRDs
 
@@ -92,6 +96,9 @@ pilot:
   cni:
     namespace: istio-system
     enabled: true
+gateways:
+  spire:
+    workloads: true
 profile: ambient
 license:
   value: ${SOLO_ISTIO_LICENSE_KEY}
@@ -134,6 +141,8 @@ namespace: istio-system
 profile: ambient
 proxy:
   clusterDomain: cluster.local
+spire:
+  enabled: true
 tag: ${ISTIO_IMAGE}
 terminationGracePeriodSeconds: 29
 variant: distroless

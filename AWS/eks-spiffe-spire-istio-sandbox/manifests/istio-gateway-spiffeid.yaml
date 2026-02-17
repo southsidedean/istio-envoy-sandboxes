@@ -1,9 +1,44 @@
+---
+# ClusterSPIFFEID for ztunnel (required for DelegatedIdentity API)
+apiVersion: spire.spiffe.io/v1alpha1
+kind: ClusterSPIFFEID
+metadata:
+  name: istio-ztunnel-reg
+spec:
+  spiffeIDTemplate: "spiffe://{{ .TrustDomain }}/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}"
+  podSelector:
+    matchLabels:
+      app: ztunnel
+---
+# ClusterSPIFFEID for ambient workloads
+apiVersion: spire.spiffe.io/v1alpha1
+kind: ClusterSPIFFEID
+metadata:
+  name: istio-ambient-reg
+spec:
+  spiffeIDTemplate: "spiffe://{{ .TrustDomain }}/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}"
+  namespaceSelector:
+    matchLabels:
+      istio.io/dataplane-mode: ambient
+---
+# ClusterSPIFFEID for waypoint proxies (L7)
+apiVersion: spire.spiffe.io/v1alpha1
+kind: ClusterSPIFFEID
+metadata:
+  name: istio-waypoint-reg
+spec:
+  spiffeIDTemplate: "spiffe://{{ .TrustDomain }}/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}"
+  podSelector:
+    matchLabels:
+      istio.io/gateway-name: waypoint
+---
+# ClusterSPIFFEID for Istio ingress gateway
 apiVersion: spire.spiffe.io/v1alpha1
 kind: ClusterSPIFFEID
 metadata:
   name: istio-ingressgateway-reg
 spec:
   spiffeIDTemplate: "spiffe://{{ .TrustDomain }}/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}"
-  workloadSelectorTemplates:
-    - "k8s:ns:istio-system"
-    - "k8s:sa:istio-ingressgateway-service-account"
+  podSelector:
+    matchLabels:
+      istio: ingressgateway

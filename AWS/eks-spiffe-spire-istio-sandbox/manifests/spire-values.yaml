@@ -13,3 +13,26 @@ global:
       country: ARPA
       organization: Example
       commonName: example.org
+spire-agent:
+  authorizedDelegates:
+    - "spiffe://example.org/ns/istio-system/sa/ztunnel"
+  sockets:
+    admin:
+      enabled: true
+      mountOnHost: true
+    hostBasePath: /run/spire/agent/sockets
+  tolerations:
+    - effect: NoSchedule
+      operator: Exists
+    - key: CriticalAddonsOnly
+      operator: Exists
+    - effect: NoExecute
+      operator: Exists
+spiffe-csi-driver:
+  tolerations:
+    - effect: NoSchedule
+      operator: Exists
+    - key: CriticalAddonsOnly
+      operator: Exists
+    - effect: NoExecute
+      operator: Exists
