@@ -16,17 +16,17 @@ clustername=$CLUSTER_NAME_PREFIX$cluster
 eksctl create cluster --profile $AWS_PROFILE --config-file manifests/eks-cluster.yaml
 done
 
-k3d cluster list
+eksctl get cluster
 
 # Configure the kubectl context
 
-for kubectx in `seq -f %02g 1 $NUM_CLUSTERS`
-do
-kubectxname=$KUBECTX_NAME_PREFIX$kubectx
-clustername=$CLUSTER_NAME_PREFIX$kubectx
-kubectx -d $kubectxname
-kubectx $kubectxname=k3d-$clustername
-done
+#for kubectx in `seq -f %02g 1 $NUM_CLUSTERS`
+#do
+#kubectxname=$KUBECTX_NAME_PREFIX$kubectx
+#clustername=$CLUSTER_NAME_PREFIX$kubectx
+#kubectx -d $kubectxname
+#kubectx $kubectxname=k3d-$clustername
+#done
 
 kubectx ${KUBECTX_NAME_PREFIX}01
 kubectx
