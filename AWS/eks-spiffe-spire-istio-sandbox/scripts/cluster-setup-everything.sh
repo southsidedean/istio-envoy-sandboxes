@@ -40,6 +40,20 @@ echo "Istio "`istioctl version --remote=false`" installed!"
 
 kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.4.0/standard-install.yaml
 
+# Install kgateway (Gateway API controller)
+
+echo
+echo "Installing kgateway ${KGATEWAY_VERSION}..."
+helm upgrade --install kgateway-crds oci://cr.kgateway.dev/kgateway-dev/charts/kgateway-crds \
+  --namespace kgateway-system \
+  --create-namespace \
+  --version ${KGATEWAY_VERSION}
+
+helm upgrade --install kgateway oci://cr.kgateway.dev/kgateway-dev/charts/kgateway \
+  --namespace kgateway-system \
+  --version ${KGATEWAY_VERSION}
+echo
+
 # Add and update the SPIRE Helm Repository
 
 echo
@@ -173,9 +187,35 @@ echo
 
 # Install Grafana using Helm
 
-#helm repo add grafana https://grafana.github.io/helm-charts
-#helm repo update
-#helm install grafana -n grafana --create-namespace grafana/grafana \
-#  -f manifests/grafana-values.yaml --debug
+echo
+echo "Installing Grafana..."
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+helm install grafana -n grafana --create-namespace grafana/grafana \
+  -f manifests/grafana-values.yaml
+echo
+
+# Expose Grafana via kgateway (Gateway + HTTPRoute)
+
+kubectl apply -f manifests/grafana-gateway.yaml
+
+# Wait for the Gateway to be programmed
+
+echo
+echo "Waiting for Gateway to be programmed..."
+kubectl wait --for=condition=Programmed gateway/http -n kgateway-system --timeout=120s
+echo
+
+# Print the Grafana external URL
+
+GRAFANA_LB=$(kubectl get svc -n kgateway-system http -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+if [ -z "$GRAFANA_LB" ]; then
+  GRAFANA_LB=$(kubectl get svc -n kgateway-system http -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+fi
+echo "============================================"
+echo "Grafana is available at:"
+echo "  http://${GRAFANA_LB}:8080/grafana"
+echo "============================================"
+echo
 
 exit 0

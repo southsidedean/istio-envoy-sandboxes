@@ -8,6 +8,9 @@ The full deployment stack builds up in layers:
 
 ```
 ┌─────────────────────────────────────────────────┐
+│      Grafana Observability (7 dashboards)       │
+│         exposed on /grafana via kgateway        │
+├─────────────────────────────────────────────────┤
 │              Movies Sample App                  │
 │   (3x movieinfo backends + 3x Fortio clients)   │
 ├─────────────────────────────────────────────────┤
@@ -16,6 +19,8 @@ The full deployment stack builds up in layers:
 ├─────────────────────────────────────────────────┤
 │              SPIRE Identity                     │
 │         (Server + Agent + CRDs)                 │
+├─────────────────────────────────────────────────┤
+│     kgateway (Gateway API controller, OSS)      │
 ├─────────────────────────────────────────────────┤
 │              AWS EKS Cluster                    │
 │      (managed node group, t3a.large x2)         │
@@ -57,6 +62,7 @@ Copy or edit `vars.sh` and fill in the three placeholder values:
 | `EKS_VERSION` | `1.33` | Kubernetes version |
 | `ISTIO_VERSION` | `1.25.3` | Solo Istio version |
 | `SPIRE_VERSION` | `0.24.1` | SPIRE Helm chart version |
+| `KGATEWAY_VERSION` | `2.2.0` | kgateway Helm chart version |
 
 ## Quick Start
 
@@ -88,14 +94,16 @@ This is useful for manually installing and experimenting with individual compone
 1. **EKS cluster** - Creates the cluster using `eksctl` with the templated `manifests/eks-cluster.yaml` (2 nodes, autoscaling 1-4)
 2. **istioctl CLI** - Downloads Solo's `istioctl` binary to `~/.istioctl/bin`
 3. **Gateway API CRDs** - Installs Kubernetes Gateway API v1.4.0 standard resources
-4. **SPIRE** - Installs CRDs, server, and agent via the `spire-h` Helm repo with configuration from `manifests/spire-values.yaml`. The agent authorizes ztunnel as a delegate and exposes its socket on the host at `/run/spire/agent/sockets`
-5. **ClusterSPIFFEID registrations** - Registers four workload classes with SPIRE: ztunnel, ambient-labeled namespaces, waypoint proxies, and the ingress gateway
-6. **Istio Ambient** - Installs four Helm charts from Solo's OCI registry:
+4. **kgateway** - Installs the OSS Gateway API controller (`kgateway-crds` + `kgateway`) from `oci://cr.kgateway.dev/kgateway-dev/charts`
+5. **SPIRE** - Installs CRDs, server, and agent via the `spire-h` Helm repo with configuration from `manifests/spire-values.yaml`. The agent authorizes ztunnel as a delegate and exposes its socket on the host at `/run/spire/agent/sockets`
+6. **ClusterSPIFFEID registrations** - Registers four workload classes with SPIRE: ztunnel, ambient-labeled namespaces, waypoint proxies, and the ingress gateway
+7. **Istio Ambient** - Installs four Helm charts from Solo's OCI registry:
    - `base` - Istio CRDs
    - `istiod` - Control plane (with DNS capture, access logging, SPIRE gateway support via `gateways.spire.workloads: true`)
    - `cni` - Ambient CNI plugin (excludes `istio-system` and `kube-system`)
    - `ztunnel` - Layer 4 data plane (SPIRE enabled, distroless variant, L7 enabled)
-7. **Movies app** - Deploys via Kustomize and labels the namespace for ambient mode
+8. **Movies app** - Deploys via Kustomize and labels the namespace for ambient mode
+9. **Grafana** - Installs via Helm with 7 pre-configured Istio dashboards, exposed on `/grafana` via a kgateway Gateway + HTTPRoute
 
 ### Movies Sample Application
 
@@ -139,7 +147,7 @@ kubectl label ns movies istio.io/dataplane-mode=ambient
 │   ├── istio-values.yaml                # Istio Helm overrides (placeholder)
 │   ├── istio-gateway-spiffeid.yaml      # ClusterSPIFFEID registrations (4 workload classes)
 │   ├── grafana-values.yaml              # Grafana with 7 Istio dashboards
-│   └── grafana-ingress.yaml             # Traefik ingress for Grafana
+│   └── grafana-gateway.yaml             # Gateway + HTTPRoute for Grafana via kgateway
 └── movies/
     ├── kustomization.yaml               # Kustomize overlay
     ├── namespace.yaml                   # movies namespace
@@ -149,18 +157,21 @@ kubectl label ns movies istio.io/dataplane-mode=ambient
     └── frontend-{central,east,west}.yaml # Fortio load generators
 ```
 
-## Observability (Optional)
+## Observability
 
-Grafana configuration is included but commented out in the setup script. To enable it:
+Grafana is installed automatically by `cluster-setup-everything.sh` and exposed externally on `/grafana` via a kgateway Gateway + HTTPRoute. After deployment, the script prints the external URL.
+
+To access Grafana manually:
 
 ```bash
-helm repo add grafana https://grafana.github.io/helm-charts
-helm repo update
-helm install grafana -n grafana --create-namespace grafana/grafana \
-  -f manifests/grafana-values.yaml
+# Get the LoadBalancer hostname/IP
+kubectl get svc -n kgateway-system http
+
+# Open in browser
+# http://<external-address>:8080/grafana
 ```
 
-This installs Grafana with anonymous access enabled and seven pre-configured dashboards:
+Grafana is configured with anonymous access enabled (Editor role) and seven pre-configured dashboards:
 - Istio Mesh, Control Plane, Service, Workload, Performance, and Wasm Extension dashboards
 - Ztunnel dashboard
 

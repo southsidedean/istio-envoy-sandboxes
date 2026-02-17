@@ -1,0 +1,32 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: http
+  namespace: kgateway-system
+spec:
+  gatewayClassName: kgateway
+  listeners:
+  - name: http
+    protocol: HTTP
+    port: 8080
+    allowedRoutes:
+      namespaces:
+        from: All
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: grafana-route
+  namespace: grafana
+spec:
+  parentRefs:
+  - name: http
+    namespace: kgateway-system
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /grafana
+    backendRefs:
+    - name: grafana
+      port: 3000

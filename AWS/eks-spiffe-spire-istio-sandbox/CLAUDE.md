@@ -18,7 +18,7 @@ Edit `vars.sh` before running any scripts. Three values require manual insertion
 - `REPO_KEY` - Solo.io container registry key (used to construct `REPO` and `HELM_REPO` URLs)
 - `SOLO_ISTIO_LICENSE_KEY` - Solo enterprise Istio license
 
-Other configurable values: `AWS_REGION`, `NODE_TYPE`, `EKS_VERSION`, `ISTIO_VERSION`, `SPIRE_VERSION`.
+Other configurable values: `AWS_REGION`, `NODE_TYPE`, `EKS_VERSION`, `ISTIO_VERSION`, `SPIRE_VERSION`, `KGATEWAY_VERSION`.
 
 ## Common Commands
 
@@ -37,10 +37,12 @@ kubectl apply -k movies                 # Deploy movies app independently
 1. **EKS cluster** via `eksctl` using `manifests/eks-cluster.yaml` (template with envsubst)
 2. **istioctl CLI** installed from Solo.io's private binaries to `~/.istioctl/bin`
 3. **Gateway API CRDs** (v1.4.0)
-4. **SPIRE** via Helm (`spire-h/spire-crds` + `spire-h/spire`), configured in `manifests/spire-values.yaml`
-5. **ClusterSPIFFEID registrations** applied from `manifests/istio-gateway-spiffeid.yaml` (ztunnel, ambient workloads, waypoints, ingress gateway)
-6. **Istio Ambient mode** via 4 Helm charts from Solo OCI registry: `base`, `istiod`, `cni`, `ztunnel` (values inline in script)
-7. **Movies app** via Kustomize, then labeled for ambient mode (`istio.io/dataplane-mode=ambient`)
+4. **kgateway** (OSS Gateway API controller) via Helm from `oci://cr.kgateway.dev/kgateway-dev/charts` (`kgateway-crds` + `kgateway`)
+5. **SPIRE** via Helm (`spire-h/spire-crds` + `spire-h/spire`), configured in `manifests/spire-values.yaml`
+6. **ClusterSPIFFEID registrations** applied from `manifests/istio-gateway-spiffeid.yaml` (ztunnel, ambient workloads, waypoints, ingress gateway)
+7. **Istio Ambient mode** via 4 Helm charts from Solo OCI registry: `base`, `istiod`, `cni`, `ztunnel` (values inline in script)
+8. **Movies app** via Kustomize, then labeled for ambient mode (`istio.io/dataplane-mode=ambient`)
+9. **Grafana** via Helm with 7 pre-configured Istio dashboards, exposed on `/grafana` via kgateway Gateway + HTTPRoute
 
 ### Movies Sample App (`movies/`)
 
@@ -54,7 +56,8 @@ kubectl apply -k movies                 # Deploy movies app independently
 - `manifests/spire-values.yaml` - SPIRE config with trust domain `example.org`, ztunnel authorized as delegate, agent socket on host
 - `manifests/istio-values.yaml` - Placeholder for Istio Helm overrides (currently minimal; most values are inline in the setup script)
 - `manifests/istio-gateway-spiffeid.yaml` - ClusterSPIFFEID registrations for ztunnel, ambient workloads, waypoint proxies, and ingress gateway
-- `manifests/grafana-values.yaml` - Grafana with 7 pre-configured Istio/ztunnel dashboards (installation currently commented out)
+- `manifests/grafana-values.yaml` - Grafana with 7 pre-configured Istio/ztunnel dashboards
+- `manifests/grafana-gateway.yaml` - Gateway + HTTPRoute to expose Grafana on `/grafana` via kgateway
 
 ### SPIRE-Istio Integration
 
@@ -67,6 +70,4 @@ SPIRE is wired into Istio Ambient so that ztunnel fetches workload certificates 
 
 ## Known Issues
 
-- Grafana installation is commented out in `cluster-setup-everything.sh`
 - `manifests/istio-values.yaml` is mostly empty; Istio Helm values are defined inline in the setup script
-- `EKS_VERSION` in vars.sh has escaped quotes (`\"1.33\"`) which may cause issues
