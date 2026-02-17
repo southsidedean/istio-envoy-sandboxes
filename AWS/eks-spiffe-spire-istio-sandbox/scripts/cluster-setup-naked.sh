@@ -10,6 +10,14 @@ set -e
 
 source vars.sh
 
+# Validate that required placeholders have been filled in
+
+if [[ "$AWS_PROFILE" == *"INSERT"* ]]; then
+  echo "ERROR: Edit vars.sh and fill in all required values before running."
+  echo "Look for <<INSERT_..._HERE>> placeholders."
+  exit 1
+fi
+
 # Create the eks cluster
 
 echo

@@ -21,3 +21,10 @@ spec:
         image: fortio/fortio
         imagePullPolicy: Always
         args: ["load", "-t", "0", "-qps", "500", "http://movieinfo.movies.svc.cluster.local/index.html"]
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi

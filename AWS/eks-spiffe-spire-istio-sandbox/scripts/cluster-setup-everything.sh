@@ -10,6 +10,15 @@ set -e
 
 source vars.sh
 
+# Validate that required placeholders have been filled in
+
+if [[ "$REPO_KEY" == *"INSERT"* ]] || [[ "$AWS_PROFILE" == *"INSERT"* ]] || \
+   [[ "$SOLO_ISTIO_LICENSE_KEY" == *"INSERT"* ]] || [[ "$GRAFANA_ADMIN_PASSWORD" == *"INSERT"* ]]; then
+  echo "ERROR: Edit vars.sh and fill in all required values before running."
+  echo "Look for <<INSERT_..._HERE>> placeholders."
+  exit 1
+fi
+
 # Create the eks cluster
 
 echo
@@ -56,29 +65,43 @@ echo
 helm upgrade --install kgateway-crds oci://cr.kgateway.dev/kgateway-dev/charts/kgateway-crds \
   --namespace kgateway-system \
   --create-namespace \
-  --version ${KGATEWAY_VERSION} \
-  --set controller.image.pullPolicy=Always
+  --version ${KGATEWAY_VERSION}
 helm upgrade --install kgateway oci://cr.kgateway.dev/kgateway-dev/charts/kgateway \
   --namespace kgateway-system \
   --version ${KGATEWAY_VERSION} \
   --set controller.image.pullPolicy=Always \
   --set controller.extraEnv.KGW_ENABLE_GATEWAY_API_EXPERIMENTAL_FEATURES=true
 echo
-sleep 30
+echo "Waiting for kgateway pods to be ready..."
+kubectl wait --for=condition=Ready pods --all -n kgateway-system --timeout=120s
+echo "kgateway pods are ready!"
 kubectl get pods -n kgateway-system
 echo
 
 # Install SPIRE CRDs
 
-helm upgrade --install -n spire-system spire-crds spire-crds --repo https://spiffe.github.io/helm-charts-hardened/
+helm upgrade --install -n spire-mgmt --create-namespace spire-crds spire-crds \
+  --repo https://spiffe.github.io/helm-charts-hardened/ \
+  --version ${SPIRE_VERSION}
 
 # Install SPIRE Server/Agent
 
-envsubst < manifests/spire-values.yaml | helm upgrade --install spire --repo https://spiffe.github.io/helm-charts-hardened/ -f -
+envsubst < manifests/spire-values.yaml | helm upgrade --install -n spire-mgmt spire \
+  --repo https://spiffe.github.io/helm-charts-hardened/ \
+  --version ${SPIRE_VERSION} \
+  -f -
 
 # Wait for SPIRE CRDs to be established
 
 kubectl wait --for=condition=Established crd clusterspiffeids.spire.spiffe.io --timeout=60s
+
+# Wait for SPIRE components to be ready
+
+echo "Waiting for SPIRE server pods to be ready..."
+kubectl wait --for=condition=Ready pods --all -n spire-server --timeout=300s
+echo "Waiting for SPIRE system pods to be ready..."
+kubectl wait --for=condition=Ready pods --all -n spire-system --timeout=300s
+echo "SPIRE pods are ready!"
 
 # Register SPIRE workload identities (ClusterSPIFFEID resources)
 
