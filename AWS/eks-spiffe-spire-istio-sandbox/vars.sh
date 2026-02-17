@@ -9,7 +9,6 @@
 
 export CLUSTER_NAME="spire-01"
 export KUBECTX_NAME_PREFIX="spire-"
-export CLUSTER_NETWORK="spire-network"
 export ISTIO_NAMESPACE="istio-system"
 export ISTIOCTL_VERSION="1.25.3"
 export ISTIO_VERSION="1.25.3"
