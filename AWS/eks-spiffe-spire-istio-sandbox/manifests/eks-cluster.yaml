@@ -2,11 +2,11 @@ apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 metadata:
   name: $clustername
-  region: $AWS_REGION
-  version: $EKS_VERSION
+  region: us-east-1
+  version: 1.33.7
 managedNodeGroups:
   - name: managed-ng-1
-    instanceType: $NODE_TYPE
+    instanceType: t3.small
     desiredCapacity: 2
     minSize: 1
     maxSize: 4
