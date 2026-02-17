@@ -9,9 +9,13 @@
 source vars.sh
 
 # Create the eks cluster
-# eksctl create cluster --profile $AWS_PROFILE --config-file manifests/eks-cluster.yaml
+
+echo
+echo "Creating EKS Cluster..."
 envsubst < manifests/eks-cluster.yaml | eksctl create cluster --profile $AWS_PROFILE --config-file -
+echo
 eksctl get cluster
+echo
 
 # Display the kubectl contexts
 

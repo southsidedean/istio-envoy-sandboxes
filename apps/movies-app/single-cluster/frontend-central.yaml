@@ -21,11 +21,3 @@ spec:
         image: fortio/fortio
         imagePullPolicy: Always
         args: ["load", "-t", "0", "-qps", "500", "http://movieinfo.movies.svc.cluster.local/index.html"]
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: topology.kubernetes.io/zone
-                operator: In
-                values: [central]
