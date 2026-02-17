@@ -13,7 +13,7 @@ source vars.sh
 # Remove the eks cluster
 
 eksctl delete cluster --name $CLUSTER_NAME --profile $AWS_PROFILE --region $AWS_REGION
-eksctl get cluster --profile $AWS_PROFILE --region $AWS_REGION
+eksctl get cluster --profile $AWS_PROFILE --region $AWS_REGION || true
 
 kubectx
 
