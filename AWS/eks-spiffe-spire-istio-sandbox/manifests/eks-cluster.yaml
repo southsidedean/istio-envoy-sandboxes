@@ -1,14 +1,30 @@
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
-nodeGroups:
-  - name: ng-1
+metadata:
+  name: example-cluster
+  region: us-east-1
+  version: "1.29" # Specify your desired Kubernetes version
+vpc:
+  # Optionally use an existing VPC and subnets
+  # If omitted, eksctl automatically creates a new VPC
+  # subnets:
+  #   private:
+  #     us-east-1a: { id: subnet-xxxxxxxxxxxxxxxxx }
+  #     us-east-1b: { id: subnet-xxxxxxxxxxxxxxxxx }
+  #   public:
+  #     us-east-1a: { id: subnet-xxxxxxxxxxxxxxxxx }
+  #     us-east-1b: { id: subnet-xxxxxxxxxxxxxxxxx }
+managedNodeGroups:
+  - name: managed-ng-1
+    instanceType: t3.medium
     desiredCapacity: 2
     minSize: 1
-    maxSize: 3
-    volumeSize: 80 # Optional: specify the disk size in GiB
-    ssh:
-      allow: true # Set to true to allow SSH access to nodes
-      # publicKeyPath: ~/.ssh/id_rsa.pub # Optional: specify if not using the default key
-cloudWatch:
-  clusterLogging:
-    enableTypes: ["api", "audit", "authenticator", "controllerManager", "scheduler"] # Enables all control plane logs
+    maxSize: 4
+    # Optional: Enable SSH access to nodes
+    # ssh:
+    #   allow: true
+    #   publicKeyPath: ~/.ssh/id_rsa.pub
+    labels: { role: worker }
+    tags:
+      # Optional: Add custom tags to your nodes
+      created-by: eksctl
