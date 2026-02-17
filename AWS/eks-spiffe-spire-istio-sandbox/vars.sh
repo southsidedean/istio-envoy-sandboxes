@@ -19,6 +19,7 @@ export REPO=us-docker.pkg.dev/gloo-mesh/istio-${REPO_KEY}
 export HELM_REPO=us-docker.pkg.dev/gloo-mesh/istio-helm-${REPO_KEY}
 export EKS_VERSION="1.33"
 export KGATEWAY_VERSION="2.2.0"
+export GATEWAY_API_VERSION="1.4.0"
 export SPIRE_VERSION="0.24.1"
 export SPIRE_APP_VERSION="1.11.0"
 export AWS_PROFILE="<<INSERT_AWS_PROFILE_HERE>>"

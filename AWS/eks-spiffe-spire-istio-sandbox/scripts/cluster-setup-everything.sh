@@ -36,9 +36,10 @@ export PATH=${HOME}/.istioctl/bin:${PATH}
 
 echo "Istio "`istioctl version --remote=false`" installed!"
 
-# Install Gateway API CRDs
+# Install Gateway API CRDs (standard + experimental)
 
-kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.4.0/standard-install.yaml
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v$GATEWAY_API_VERSION/standard-install.yaml
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v$GATEWAY_API_VERSION/experimental-install.yaml
 
 # Install kgateway (Gateway API controller)
 
