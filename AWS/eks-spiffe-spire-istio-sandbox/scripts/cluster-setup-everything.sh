@@ -65,7 +65,7 @@ echo
 
 # Install SPIRE CRDs
 
-helm upgrade --install -n spire-mgmt spire-crds spire-crds --repo https://spiffe.github.io/helm-charts-hardened/ --create-namespace --version $SPIRE_VERSION
+helm upgrade --install -n spire-mgmt spire-crds spire-crds --repo https://spiffe.github.io/helm-charts-hardened/ --create-namespace
 
 # Install SPIRE Server/Agent
 
