@@ -18,7 +18,7 @@ Edit `vars.sh` before running any scripts. Three values require manual insertion
 - `REPO_KEY` - Solo.io container registry key (used to construct `REPO` and `HELM_REPO` URLs)
 - `SOLO_ISTIO_LICENSE_KEY` - Solo enterprise Istio license
 
-Other configurable values: `AWS_REGION`, `NODE_TYPE`, `EKS_VERSION`, `ISTIO_VERSION`, `SPIRE_VERSION`, `KGATEWAY_VERSION`.
+Other configurable values: `AWS_REGION`, `NODE_TYPE`, `EKS_VERSION`, `ISTIO_VERSION`, `SPIRE_VERSION`, `KGATEWAY_VERSION`, `GATEWAY_API_VERSION`.
 
 ## Common Commands
 
@@ -36,8 +36,8 @@ kubectl apply -k movies                 # Deploy movies app independently
 
 1. **EKS cluster** via `eksctl` using `manifests/eks-cluster.yaml` (template with envsubst)
 2. **istioctl CLI** installed from Solo.io's private binaries to `~/.istioctl/bin`
-3. **Gateway API CRDs** (v1.4.0)
-4. **kgateway** (OSS Gateway API controller) via Helm from `oci://cr.kgateway.dev/kgateway-dev/charts` (`kgateway-crds` + `kgateway`)
+3. **Gateway API CRDs** (standard + experimental, version configurable via `GATEWAY_API_VERSION`)
+4. **kgateway** (OSS Gateway API controller) via Helm from `oci://cr.kgateway.dev/kgateway-dev/charts` (`kgateway-crds` + `kgateway`), with experimental Gateway API features enabled
 5. **SPIRE** via Helm (`spire-h/spire-crds` + `spire-h/spire`), configured in `manifests/spire-values.yaml`
 6. **ClusterSPIFFEID registrations** applied from `manifests/istio-gateway-spiffeid.yaml` (ztunnel, ambient workloads, waypoints, ingress gateway)
 7. **Istio Ambient mode** via 4 Helm charts from Solo OCI registry: `base`, `istiod`, `cni`, `ztunnel` (values inline in script)

@@ -234,6 +234,8 @@ fi
 echo "============================================"
 echo "Grafana is available at:"
 echo "  http://${GRAFANA_LB}:8080/grafana"
+echo ""
+echo "No login required (anonymous access enabled)."
 echo "============================================"
 echo
 

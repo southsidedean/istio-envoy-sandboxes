@@ -64,7 +64,8 @@ Copy or edit `vars.sh` and fill in the three placeholder values:
 | `EKS_VERSION` | `1.33` | Kubernetes version |
 | `ISTIO_VERSION` | `1.25.3` | Solo Istio version |
 | `SPIRE_VERSION` | `0.24.1` | SPIRE Helm chart version |
-| `KGATEWAY_VERSION` | `2.2.0` | kgateway Helm chart version |
+| `KGATEWAY_VERSION` | `v2.2.0` | kgateway Helm chart version |
+| `GATEWAY_API_VERSION` | `1.4.0` | Gateway API CRD version |
 
 ## Quick Start
 
@@ -95,8 +96,8 @@ This is useful for manually installing and experimenting with individual compone
 
 1. **EKS cluster** - Creates the cluster using `eksctl` with the templated `manifests/eks-cluster.yaml` (2 nodes, autoscaling 1-4)
 2. **istioctl CLI** - Downloads Solo's `istioctl` binary to `~/.istioctl/bin`
-3. **Gateway API CRDs** - Installs Kubernetes Gateway API v1.4.0 standard resources
-4. **kgateway** - Installs the OSS Gateway API controller (`kgateway-crds` + `kgateway`) from `oci://cr.kgateway.dev/kgateway-dev/charts`
+3. **Gateway API CRDs** - Installs Kubernetes Gateway API standard and experimental CRDs (version configurable via `GATEWAY_API_VERSION`)
+4. **kgateway** - Installs the OSS Gateway API controller (`kgateway-crds` + `kgateway`) from `oci://cr.kgateway.dev/kgateway-dev/charts`, with experimental Gateway API features enabled
 5. **SPIRE** - Installs CRDs, server, and agent via the `spire-h` Helm repo with configuration from `manifests/spire-values.yaml`. The agent authorizes ztunnel as a delegate and exposes its socket on the host at `/run/spire/agent/sockets`
 6. **ClusterSPIFFEID registrations** - Registers four workload classes with SPIRE: ztunnel, ambient-labeled namespaces, waypoint proxies, and the ingress gateway
 7. **Istio Ambient** - Installs four Helm charts from Solo's OCI registry:
@@ -175,7 +176,7 @@ kubectl get svc -n kgateway-system http
 # http://<external-address>:8080/grafana
 ```
 
-Grafana is configured with anonymous access enabled (Editor role) and seven pre-configured dashboards:
+No login is required — Grafana is configured with anonymous access enabled (Editor role). Seven pre-configured dashboards are included:
 - Istio Mesh, Control Plane, Service, Workload, Performance, and Wasm Extension dashboards
 - Ztunnel dashboard
 
