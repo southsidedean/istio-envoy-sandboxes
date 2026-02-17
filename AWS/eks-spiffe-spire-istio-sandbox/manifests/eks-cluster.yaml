@@ -1,22 +1,12 @@
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 metadata:
-  name: example-cluster
-  region: us-east-1
-  version: "1.29" # Specify your desired Kubernetes version
-vpc:
-  # Optionally use an existing VPC and subnets
-  # If omitted, eksctl automatically creates a new VPC
-  # subnets:
-  #   private:
-  #     us-east-1a: { id: subnet-xxxxxxxxxxxxxxxxx }
-  #     us-east-1b: { id: subnet-xxxxxxxxxxxxxxxxx }
-  #   public:
-  #     us-east-1a: { id: subnet-xxxxxxxxxxxxxxxxx }
-  #     us-east-1b: { id: subnet-xxxxxxxxxxxxxxxxx }
+  name: $clustername
+  region: $AWS_REGION
+  version: $EKS_VERSION
 managedNodeGroups:
   - name: managed-ng-1
-    instanceType: t3.medium
+    instanceType: $NODE_TYPE
     desiredCapacity: 2
     minSize: 1
     maxSize: 4

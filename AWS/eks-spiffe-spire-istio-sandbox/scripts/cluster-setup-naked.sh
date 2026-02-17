@@ -13,7 +13,7 @@ source vars.sh
 for cluster in `seq -f %02g 1 $NUM_CLUSTERS`
 do
 clustername=$CLUSTER_NAME_PREFIX$cluster
-eksctl create cluster --name $clustername --profile $AWS_PROFILE --version $EKS_VERSION --region $AWS_REGION --node-type $NODE_TYPE --config-file manifests/eks-cluster.yaml
+eksctl create cluster --profile $AWS_PROFILE --config-file manifests/eks-cluster.yaml
 done
 
 k3d cluster list
