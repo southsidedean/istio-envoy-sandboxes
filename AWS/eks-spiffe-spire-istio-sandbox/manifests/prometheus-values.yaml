@@ -1,0 +1,21 @@
+# Prometheus server configuration for Istio Ambient metrics
+# Istio components (istiod, ztunnel) are discovered automatically
+# via prometheus.io/* pod annotations - no custom scrape configs needed.
+
+server:
+  fullnameOverride: prometheus
+  service:
+    servicePort: 9090
+  persistentVolume:
+    size: 10Gi
+  retention: "7d"
+
+# Disable components not needed for this sandbox
+alertmanager:
+  enabled: false
+kube-state-metrics:
+  enabled: false
+prometheus-node-exporter:
+  enabled: false
+prometheus-pushgateway:
+  enabled: false

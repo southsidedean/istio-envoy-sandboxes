@@ -177,6 +177,16 @@ echo "Istio pods are ready!"
 echo
 kubectl get pods -n istio-system
 
+# Install Prometheus for Istio metrics
+
+echo
+echo "Installing Prometheus..."
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install prometheus -n istio-system prometheus-community/prometheus \
+  -f manifests/prometheus-values.yaml
+echo
+
 # Deploy the 'movies' application
 
 echo

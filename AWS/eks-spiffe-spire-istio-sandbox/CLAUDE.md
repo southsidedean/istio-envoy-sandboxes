@@ -41,8 +41,9 @@ kubectl apply -k movies                 # Deploy movies app independently
 5. **SPIRE** via Helm (`spire-h/spire-crds` + `spire-h/spire`), configured in `manifests/spire-values.yaml`
 6. **ClusterSPIFFEID registrations** applied from `manifests/istio-gateway-spiffeid.yaml` (ztunnel, ambient workloads, waypoints, ingress gateway)
 7. **Istio Ambient mode** via 4 Helm charts from Solo OCI registry: `base`, `istiod`, `cni`, `ztunnel` (values inline in script)
-8. **Movies app** via Kustomize, then labeled for ambient mode (`istio.io/dataplane-mode=ambient`)
-9. **Grafana** via Helm with 7 pre-configured Istio dashboards, exposed on `/grafana` via kgateway Gateway + HTTPRoute
+8. **Prometheus** via `prometheus-community/prometheus` Helm chart into `istio-system`, configured in `manifests/prometheus-values.yaml`
+9. **Movies app** via Kustomize, then labeled for ambient mode (`istio.io/dataplane-mode=ambient`)
+10. **Grafana** via Helm with 7 pre-configured Istio dashboards, exposed on `/grafana` via kgateway Gateway + HTTPRoute
 
 ### Movies Sample App (`movies/`)
 
@@ -56,6 +57,7 @@ kubectl apply -k movies                 # Deploy movies app independently
 - `manifests/spire-values.yaml` - SPIRE config with trust domain `example.org`, ztunnel authorized as delegate, agent socket on host
 - `manifests/istio-values.yaml` - Placeholder for Istio Helm overrides (currently minimal; most values are inline in the setup script)
 - `manifests/istio-gateway-spiffeid.yaml` - ClusterSPIFFEID registrations for ztunnel, ambient workloads, waypoint proxies, and ingress gateway
+- `manifests/prometheus-values.yaml` - Prometheus server config (service named `prometheus` on port 9090, sub-charts disabled)
 - `manifests/grafana-values.yaml` - Grafana with 7 pre-configured Istio/ztunnel dashboards
 - `manifests/grafana-gateway.yaml` - Gateway + HTTPRoute to expose Grafana on `/grafana` via kgateway
 

@@ -14,6 +14,8 @@ The full deployment stack builds up in layers:
 │              Movies Sample App                  │
 │   (3x movieinfo backends + 3x Fortio clients)   │
 ├─────────────────────────────────────────────────┤
+│         Prometheus (metrics collection)         │
+├─────────────────────────────────────────────────┤
 │          Istio Ambient Mode (Solo)              │
 │   (istiod, CNI, ztunnel + Gateway API CRDs)     │
 ├─────────────────────────────────────────────────┤
@@ -102,8 +104,9 @@ This is useful for manually installing and experimenting with individual compone
    - `istiod` - Control plane (with DNS capture, access logging, SPIRE gateway support via `gateways.spire.workloads: true`)
    - `cni` - Ambient CNI plugin (excludes `istio-system` and `kube-system`)
    - `ztunnel` - Layer 4 data plane (SPIRE enabled, distroless variant, L7 enabled)
-8. **Movies app** - Deploys via Kustomize and labels the namespace for ambient mode
-9. **Grafana** - Installs via Helm with 7 pre-configured Istio dashboards, exposed on `/grafana` via a kgateway Gateway + HTTPRoute
+8. **Prometheus** - Installs via `prometheus-community/prometheus` Helm chart into `istio-system` with values from `manifests/prometheus-values.yaml`. Automatically discovers Istio metrics via pod annotations.
+9. **Movies app** - Deploys via Kustomize and labels the namespace for ambient mode
+10. **Grafana** - Installs via Helm with 7 pre-configured Istio dashboards, exposed on `/grafana` via a kgateway Gateway + HTTPRoute
 
 ### Movies Sample Application
 
@@ -146,6 +149,7 @@ kubectl label ns movies istio.io/dataplane-mode=ambient
 │   ├── spire-values.yaml                # SPIRE Helm values with ztunnel delegate auth
 │   ├── istio-values.yaml                # Istio Helm overrides (placeholder)
 │   ├── istio-gateway-spiffeid.yaml      # ClusterSPIFFEID registrations (4 workload classes)
+│   ├── prometheus-values.yaml            # Prometheus server config (metrics collection)
 │   ├── grafana-values.yaml              # Grafana with 7 Istio dashboards
 │   └── grafana-gateway.yaml             # Gateway + HTTPRoute for Grafana via kgateway
 └── movies/
@@ -175,7 +179,7 @@ Grafana is configured with anonymous access enabled (Editor role) and seven pre-
 - Istio Mesh, Control Plane, Service, Workload, Performance, and Wasm Extension dashboards
 - Ztunnel dashboard
 
-The dashboards pull metrics from a Prometheus instance expected at `prometheus.istio-system.svc.cluster.local:9090`.
+Prometheus is deployed into `istio-system` and automatically discovers Istio metrics (istiod, ztunnel) via `prometheus.io/*` pod annotations. No custom scrape configuration is needed.
 
 ## SPIRE Identity Integration
 
