@@ -25,16 +25,21 @@ kubectx
 
 # Install the 'istioctl' CLI tool
 
+echo
+echo "Installing the istioctl CLI..."
+echo
 OS=$(uname | tr '[:upper:]' '[:lower:]' | sed -E 's/darwin/osx/')
 ARCH=$(uname -m | sed -E 's/aarch/arm/; s/x86_64/amd64/; s/armv7l/armv7/')
-echo $OS
-echo $ARCH
+echo "Operating system detected: "$OS
+echo "Architecture detected: "$ARCH
+echo
 mkdir -p ~/.istioctl/bin
 curl -sSL https://storage.googleapis.com/istio-binaries-$REPO_KEY/$ISTIO_IMAGE/istioctl-$ISTIO_IMAGE-$OS-$ARCH.tar.gz | tar xzf - -C ~/.istioctl/bin
 chmod +x ~/.istioctl/bin/istioctl
 export PATH=${HOME}/.istioctl/bin:${PATH}
-
+echo
 echo "Istio "`istioctl version --remote=false`" installed!"
+echo
 
 # Install Gateway API CRDs (standard + experimental)
 echo
