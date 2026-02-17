@@ -38,8 +38,9 @@ kubectl apply -k movies                 # Deploy movies app independently
 2. **istioctl CLI** installed from Solo.io's private binaries to `~/.istioctl/bin`
 3. **Gateway API CRDs** (v1.4.0)
 4. **SPIRE** via Helm (`spire-h/spire-crds` + `spire-h/spire`), configured in `manifests/spire-values.yaml`
-5. **Istio Ambient mode** via 4 Helm charts from Solo OCI registry: `base`, `istiod`, `cni`, `ztunnel` (values inline in script)
-6. **Movies app** via Kustomize, then labeled for ambient mode (`istio.io/dataplane-mode=ambient`)
+5. **ClusterSPIFFEID registrations** applied from `manifests/istio-gateway-spiffeid.yaml` (ztunnel, ambient workloads, waypoints, ingress gateway)
+6. **Istio Ambient mode** via 4 Helm charts from Solo OCI registry: `base`, `istiod`, `cni`, `ztunnel` (values inline in script)
+7. **Movies app** via Kustomize, then labeled for ambient mode (`istio.io/dataplane-mode=ambient`)
 
 ### Movies Sample App (`movies/`)
 
@@ -50,10 +51,19 @@ kubectl apply -k movies                 # Deploy movies app independently
 ### Key Manifests
 
 - `manifests/eks-cluster.yaml` - eksctl template using env vars (cluster name, region, version, node type)
-- `manifests/spire-values.yaml` - SPIRE config with trust domain `example.org`, uses envsubst for cluster name
+- `manifests/spire-values.yaml` - SPIRE config with trust domain `example.org`, ztunnel authorized as delegate, agent socket on host
 - `manifests/istio-values.yaml` - Placeholder for Istio Helm overrides (currently minimal; most values are inline in the setup script)
-- `manifests/istio-gateway-spiffeid.yaml` - ClusterSPIFFEID mapping for Istio ingress gateway
+- `manifests/istio-gateway-spiffeid.yaml` - ClusterSPIFFEID registrations for ztunnel, ambient workloads, waypoint proxies, and ingress gateway
 - `manifests/grafana-values.yaml` - Grafana with 7 pre-configured Istio/ztunnel dashboards (installation currently commented out)
+
+### SPIRE-Istio Integration
+
+SPIRE is wired into Istio Ambient so that ztunnel fetches workload certificates from SPIRE (via the DelegatedIdentity API) instead of Istio's built-in CA. Key integration points:
+
+- **SPIRE agent** authorizes ztunnel as a delegate (`spiffe://example.org/ns/istio-system/sa/ztunnel`) and exposes its socket at `/run/spire/agent/sockets`
+- **ztunnel** has `spire.enabled: true` in its Helm values (inline in setup script)
+- **istiod** has `gateways.spire.workloads: true` so waypoint proxies use the SPIRE CSI driver for identity
+- **ClusterSPIFFEID resources** register four workload classes with SPIRE: ztunnel, ambient-labeled namespaces, waypoint proxies, and the ingress gateway
 
 ## Known Issues
 

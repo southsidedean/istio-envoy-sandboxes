@@ -24,7 +24,7 @@ The full deployment stack builds up in layers:
 
 **Istio Ambient mode** provides a sidecar-less service mesh using ztunnel for Layer 4 encryption and routing, avoiding the per-pod proxy overhead of traditional sidecar injection.
 
-**SPIRE** provides cryptographic workload identities (SPIFFE IDs) to all workloads, with the trust domain `example.org`. A `ClusterSPIFFEID` resource maps identities to Istio's ingress gateway.
+**SPIRE** provides cryptographic workload identities (SPIFFE IDs) to all workloads, with the trust domain `example.org`. Ztunnel acts as a trusted delegate of SPIRE, fetching workload certificates via the DelegatedIdentity API instead of Istio's built-in CA. This means workloads get SPIRE-issued mTLS identities automatically without mounting sockets or volumes into each pod.
 
 ## Prerequisites
 
@@ -88,13 +88,14 @@ This is useful for manually installing and experimenting with individual compone
 1. **EKS cluster** - Creates the cluster using `eksctl` with the templated `manifests/eks-cluster.yaml` (2 nodes, autoscaling 1-4)
 2. **istioctl CLI** - Downloads Solo's `istioctl` binary to `~/.istioctl/bin`
 3. **Gateway API CRDs** - Installs Kubernetes Gateway API v1.4.0 standard resources
-4. **SPIRE** - Installs CRDs, server, and agent via the `spire-h` Helm repo with configuration from `manifests/spire-values.yaml`
-5. **Istio Ambient** - Installs four Helm charts from Solo's OCI registry:
+4. **SPIRE** - Installs CRDs, server, and agent via the `spire-h` Helm repo with configuration from `manifests/spire-values.yaml`. The agent authorizes ztunnel as a delegate and exposes its socket on the host at `/run/spire/agent/sockets`
+5. **ClusterSPIFFEID registrations** - Registers four workload classes with SPIRE: ztunnel, ambient-labeled namespaces, waypoint proxies, and the ingress gateway
+6. **Istio Ambient** - Installs four Helm charts from Solo's OCI registry:
    - `base` - Istio CRDs
-   - `istiod` - Control plane (with DNS capture, access logging, SPIRE trust domain skip)
+   - `istiod` - Control plane (with DNS capture, access logging, SPIRE gateway support via `gateways.spire.workloads: true`)
    - `cni` - Ambient CNI plugin (excludes `istio-system` and `kube-system`)
-   - `ztunnel` - Layer 4 data plane (distroless variant, L7 enabled)
-6. **Movies app** - Deploys via Kustomize and labels the namespace for ambient mode
+   - `ztunnel` - Layer 4 data plane (SPIRE enabled, distroless variant, L7 enabled)
+7. **Movies app** - Deploys via Kustomize and labels the namespace for ambient mode
 
 ### Movies Sample Application
 
@@ -134,9 +135,9 @@ kubectl label ns movies istio.io/dataplane-mode=ambient
 │   └── cluster-destroy-eks.sh           # Cluster teardown
 ├── manifests/
 │   ├── eks-cluster.yaml                 # eksctl cluster config (envsubst template)
-│   ├── spire-values.yaml                # SPIRE Helm values (envsubst template)
+│   ├── spire-values.yaml                # SPIRE Helm values with ztunnel delegate auth
 │   ├── istio-values.yaml                # Istio Helm overrides (placeholder)
-│   ├── istio-gateway-spiffeid.yaml      # ClusterSPIFFEID for ingress gateway
+│   ├── istio-gateway-spiffeid.yaml      # ClusterSPIFFEID registrations (4 workload classes)
 │   ├── grafana-values.yaml              # Grafana with 7 Istio dashboards
 │   └── grafana-ingress.yaml             # Traefik ingress for Grafana
 └── movies/
@@ -167,13 +168,26 @@ The dashboards pull metrics from a Prometheus instance expected at `prometheus.i
 
 ## SPIRE Identity Integration
 
-The `manifests/istio-gateway-spiffeid.yaml` defines a `ClusterSPIFFEID` resource that assigns SPIFFE identities to the Istio ingress gateway:
+SPIRE is fully integrated with Istio Ambient mode using Solo.io's enterprise feature set. The integration works as follows:
+
+1. **SPIRE agent** runs on each node and is configured to authorize ztunnel as a trusted delegate (`authorizedDelegates` in `spire-values.yaml`)
+2. **Ztunnel** connects to the SPIRE agent socket on the host and uses the DelegatedIdentity API to request certificates on behalf of workloads, replacing Istio's built-in CA
+3. **ClusterSPIFFEID resources** tell SPIRE which workloads should receive identities, using the template:
 
 ```
 spiffe://<trust-domain>/ns/<namespace>/sa/<service-account>
 ```
 
-To apply it:
+Four workload classes are registered in `manifests/istio-gateway-spiffeid.yaml`:
+
+| Registration | Selector | Purpose |
+|---|---|---|
+| `istio-ztunnel-reg` | `app: ztunnel` | Ztunnel's own identity for DelegatedIdentity API |
+| `istio-ambient-reg` | namespace label `istio.io/dataplane-mode: ambient` | All ambient workloads (e.g. movies app) |
+| `istio-waypoint-reg` | `istio.io/gateway-name: waypoint` | L7 waypoint proxies |
+| `istio-ingressgateway-reg` | `istio: ingressgateway` | Istio ingress gateway |
+
+The registrations are applied automatically by `cluster-setup-everything.sh` after SPIRE is installed and before Istio is deployed. To apply them manually:
 
 ```bash
 kubectl apply -f manifests/istio-gateway-spiffeid.yaml
