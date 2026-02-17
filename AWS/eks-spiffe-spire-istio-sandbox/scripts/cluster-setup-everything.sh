@@ -37,22 +37,30 @@ export PATH=${HOME}/.istioctl/bin:${PATH}
 echo "Istio "`istioctl version --remote=false`" installed!"
 
 # Install Gateway API CRDs (standard + experimental)
-
+echo
+echo "Installing Gateway API v"$GATEWAY_API_VERSION" CRDs (standard + experimental)..."
 kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v$GATEWAY_API_VERSION/standard-install.yaml
-kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v$GATEWAY_API_VERSION/experimental-install.yaml
+kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v$GATEWAY_API_VERSION/experimental-install.yaml
+echo
 
 # Install kgateway (Gateway API controller)
 
 echo
 echo "Installing kgateway ${KGATEWAY_VERSION}..."
+echo
 helm upgrade --install kgateway-crds oci://cr.kgateway.dev/kgateway-dev/charts/kgateway-crds \
   --namespace kgateway-system \
   --create-namespace \
-  --version ${KGATEWAY_VERSION}
-
+  --version ${KGATEWAY_VERSION} \
+  --set controller.image.pullPolicy=Always
 helm upgrade --install kgateway oci://cr.kgateway.dev/kgateway-dev/charts/kgateway \
   --namespace kgateway-system \
-  --version ${KGATEWAY_VERSION}
+  --version ${KGATEWAY_VERSION} \
+  --set controller.image.pullPolicy=Always \
+  --set controller.extraEnv.KGW_ENABLE_GATEWAY_API_EXPERIMENTAL_FEATURES=true
+echo
+sleep 30
+kubectl get pods -n kgateway-system
 echo
 
 # Add and update the SPIRE Helm Repository
