@@ -15,8 +15,6 @@ spec:
     metadata:
       labels:
         app: movieinfo
-      annotations:
-        config.linkerd.io/proxy-cpu-request: "0.5"
     spec:
       containers:
       - name: nginx

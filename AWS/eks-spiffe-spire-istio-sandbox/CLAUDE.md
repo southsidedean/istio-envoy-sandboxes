@@ -4,51 +4,59 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an AWS EKS sandbox environment for experimenting with SPIFFE/SPIRE and Istio service mesh. The sandbox automates EKS cluster creation and configuration for testing identity and service mesh technologies.
+AWS EKS sandbox for testing SPIFFE/SPIRE identity with Istio Ambient mode, using Solo.io's enterprise Istio distribution. The full stack deploys: EKS cluster -> SPIRE (identity) -> Istio Ambient (mesh) -> movies sample app (load test).
 
 ## Prerequisites
 
-- AWS CLI configured with appropriate profile
-- `eksctl` for EKS cluster management
-- `kubectl` and `kubectx` for Kubernetes context management
-- Helm for chart installations
+- AWS CLI configured with a named profile
+- `eksctl`, `kubectl`, `kubectx`, `helm`, `envsubst`
 
 ## Configuration
 
-Before running any scripts, edit `vars.sh` to set:
-- `AWS_PROFILE` - Your AWS CLI profile name
-- `LICENSE_KEY` - Solo.io license key (if using Solo Enterprise)
-- Optionally adjust: `AWS_REGION`, `NODE_TYPE`, `EKS_VERSION`, `ISTIO_VERSION`, `SPIRE_VERSION`
+Edit `vars.sh` before running any scripts. Three values require manual insertion (marked with `<<INSERT_..._HERE>>`):
+- `AWS_PROFILE` - AWS CLI profile name
+- `REPO_KEY` - Solo.io container registry key (used to construct `REPO` and `HELM_REPO` URLs)
+- `SOLO_ISTIO_LICENSE_KEY` - Solo enterprise Istio license
+
+Other configurable values: `AWS_REGION`, `NODE_TYPE`, `EKS_VERSION`, `ISTIO_VERSION`, `SPIRE_VERSION`.
 
 ## Common Commands
 
 ```bash
-# Source environment variables (required before running scripts)
-source vars.sh
-
-# Create EKS cluster with full stack (Istio, Gloo, sample apps)
-./scripts/cluster-setup-everything.sh
-
-# Create bare EKS cluster only (no additional components)
-./scripts/cluster-setup-naked.sh
-
-# Destroy cluster and clean up kubectl contexts
-./scripts/cluster-destroy-eks.sh
+source vars.sh                          # Required before any script
+./scripts/cluster-setup-everything.sh   # Full stack: EKS + SPIRE + Istio Ambient + movies app
+./scripts/cluster-setup-naked.sh        # Bare EKS cluster only
+./scripts/cluster-destroy-eks.sh        # Delete cluster and clean up kubectl contexts
+kubectl apply -k movies                 # Deploy movies app independently
 ```
 
 ## Architecture
 
-- **vars.sh** - Central configuration file for all environment variables
-- **scripts/** - Cluster lifecycle scripts (create, destroy)
-- **manifests/** - Kubernetes/Helm configuration files:
-  - `eks-cluster.yaml` - eksctl cluster configuration
-  - `istio-values.yaml` - Istio Helm values (customize here)
-  - `grafana-values.yaml` - Grafana with Istio dashboards pre-configured
-  - `grafana-ingress.yaml` - Traefik ingress for Grafana
+### Deployment Stack (cluster-setup-everything.sh order)
 
-## Notes
+1. **EKS cluster** via `eksctl` using `manifests/eks-cluster.yaml` (template with envsubst)
+2. **istioctl CLI** installed from Solo.io's private binaries to `~/.istioctl/bin`
+3. **Gateway API CRDs** (v1.4.0)
+4. **SPIRE** via Helm (`spire-h/spire-crds` + `spire-h/spire`), configured in `manifests/spire-values.yaml`
+5. **Istio Ambient mode** via 4 Helm charts from Solo OCI registry: `base`, `istiod`, `cni`, `ztunnel` (values inline in script)
+6. **Movies app** via Kustomize, then labeled for ambient mode (`istio.io/dataplane-mode=ambient`)
 
-- Scripts currently have a typo: `mainfests/` should be `manifests/` in cluster setup scripts
-- Scripts contain k3d references that need updating to EKS equivalents (leftover from conversion)
-- Default cluster naming: `spire-01`, `spire-02`, etc. based on `NUM_CLUSTERS`
-- kubectl contexts are configured as `spire-01`, `spire-02`, etc.
+### Movies Sample App (`movies/`)
+
+- **movieinfo-{chi,lax,nyc}** - Nginx pods serving location-specific HTML responses, with HPA (1-3 replicas, 25% CPU target)
+- **frontend-{central,east,west}** - Fortio load generators sending 500 QPS each to `movieinfo.movies.svc.cluster.local`
+- All resources deployed via Kustomize (`movies/kustomization.yaml`) into `movies` namespace
+
+### Key Manifests
+
+- `manifests/eks-cluster.yaml` - eksctl template using env vars (cluster name, region, version, node type)
+- `manifests/spire-values.yaml` - SPIRE config with trust domain `example.org`, uses envsubst for cluster name
+- `manifests/istio-values.yaml` - Placeholder for Istio Helm overrides (currently minimal; most values are inline in the setup script)
+- `manifests/istio-gateway-spiffeid.yaml` - ClusterSPIFFEID mapping for Istio ingress gateway
+- `manifests/grafana-values.yaml` - Grafana with 7 pre-configured Istio/ztunnel dashboards (installation currently commented out)
+
+## Known Issues
+
+- Grafana installation is commented out in `cluster-setup-everything.sh`
+- `manifests/istio-values.yaml` is mostly empty; Istio Helm values are defined inline in the setup script
+- `EKS_VERSION` in vars.sh has escaped quotes (`\"1.33\"`) which may cause issues
