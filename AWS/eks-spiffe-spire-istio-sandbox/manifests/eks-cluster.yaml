@@ -3,7 +3,7 @@ kind: ClusterConfig
 metadata:
   name: spire-01
   region: us-east-1
-  version: 1.33
+  version: "1.33"
 managedNodeGroups:
   - name: managed-ng-1
     instanceType: t3.small
