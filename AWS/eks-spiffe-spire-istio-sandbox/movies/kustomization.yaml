@@ -9,4 +9,5 @@ resources:
   - movieinfo-nyc.yaml
   - movieinfo-chi.yaml
   - movieinfo-lax.yaml
+  - movieinfo-hpa.yaml
 namespace: movies

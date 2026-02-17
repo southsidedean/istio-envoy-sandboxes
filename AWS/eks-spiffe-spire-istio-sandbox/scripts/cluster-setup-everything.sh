@@ -4,6 +4,8 @@
 # Tom Dean
 # Last edit: 2/16/2026
 
+set -e
+
 # Set environment variables
 
 source vars.sh
@@ -14,7 +16,7 @@ echo
 echo "Creating EKS Cluster..."
 envsubst < manifests/eks-cluster.yaml | eksctl create cluster --profile $AWS_PROFILE --config-file -
 echo
-eksctl get cluster
+eksctl get cluster --profile $AWS_PROFILE --region $AWS_REGION
 echo
 
 # Display the kubectl contexts
@@ -52,6 +54,10 @@ helm upgrade --install -n spire-server spire-crds spire-h/spire-crds --create-na
 # Install SPIRE Server/Agent
 
 envsubst < manifests/spire-values.yaml | helm upgrade --install -n spire-server spire spire-h/spire --version $SPIRE_VERSION -f -
+
+# Wait for SPIRE CRDs to be established
+
+kubectl wait --for=condition=Established crd clusterspiffeids.spire.spiffe.io --timeout=60s
 
 # Register SPIRE workload identities (ClusterSPIFFEID resources)
 
@@ -149,9 +155,13 @@ variant: distroless
 EOF
 echo
 
-# Verify Istio installation
+# Wait for Istio components to be ready
 
-watch -n 1 kubectl get pods -A | grep -E "istio|ztunnel"
+echo "Waiting for Istio pods to be ready..."
+kubectl wait --for=condition=Ready pods --all -n istio-system --timeout=300s
+echo "Istio pods are ready!"
+echo
+kubectl get pods -n istio-system
 
 # Deploy the 'movies' application
 
