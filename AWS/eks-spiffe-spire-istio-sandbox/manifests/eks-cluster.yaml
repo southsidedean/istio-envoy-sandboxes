@@ -1,9 +1,9 @@
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 metadata:
-  name: $clustername
+  name: spire-01
   region: us-east-1
-  version: 1.33.7
+  version: 1.33
 managedNodeGroups:
   - name: managed-ng-1
     instanceType: t3.small
