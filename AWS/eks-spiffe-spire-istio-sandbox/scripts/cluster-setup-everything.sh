@@ -38,8 +38,22 @@ echo "Istio "`istioctl version --remote=false`" installed!"
 
 kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.4.0/standard-install.yaml
 
-# Install Istio using Helm - USE SOLO IMAGES!
+# Add and update the SPIRE Helm Repository
 
+echo
+helm repo add spire-h https://spiffe.github.io/helm-charts-hardened/
+helm repo update
+echo
+
+# Install SPIRE CRDs
+
+helm upgrade --install -n spire-server spire-crds spire-h/spire-crds --create-namespace --version $SPIRE_VERSION
+
+# Install SPIRE Server/Agent
+
+envsubst < manifests/spire-values.yaml | helm upgrade --install -n spire-server spire spire-h/spire --version $SPIRE_VERSION -f -
+
+# Install Istio using Helm - USE SOLO IMAGES!
 # Install Istio CRDs
 
 echo
@@ -128,12 +142,14 @@ echo
 
 # Verify Istio installation
 
-kubectl get pods -A | grep -E "istio|ztunnel"
+watch -n 1 kubectl get pods -A | grep -E "istio|ztunnel"
 
 # Deploy the 'movies' application
 
 echo
 kubectl apply -k movies
+echo
+kubectl label ns movies istio.io/dataplane-mode=ambient
 echo
 
 # Install Grafana using Helm

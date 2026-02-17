@@ -1,0 +1,15 @@
+global:
+  openshift: false # If running on openshift, set to true
+  spire:
+    recommendations:
+      enabled: true
+    namespaces:
+      create: true
+    ingressControllerType: "" # If not openshift, and want to expose services, set to a supported option [ingress-nginx]
+    # Update these
+    clusterName: $CLUSTER_NAME
+    trustDomain: example.org
+    caSubject:
+      country: ARPA
+      organization: Example
+      commonName: example.org
