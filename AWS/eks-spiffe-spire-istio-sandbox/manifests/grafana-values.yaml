@@ -37,21 +37,6 @@ service:
   labels: {}
   #portName: service
 
-#ingress:
-#  enabled: true
-  # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
-  # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
-#  ingressClassName: "traefik"
-  # Values can be templated
-#  annotations:
-#    kubernetes.io/ingress.class: "traefik"
-#    ingress.kubernetes.io/ssl-redirect: "false"
-    # kubernetes.io/tls-acme: "true"
-#  labels: {}
-#  path: /
-#  hosts: {}
-  #  - localhost
-
 datasources:
   datasources.yaml:
     apiVersion: 1
