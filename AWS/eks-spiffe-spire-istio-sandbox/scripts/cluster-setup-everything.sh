@@ -8,61 +8,129 @@
 
 source vars.sh
 
-# Create the eks clusters
+# Create the eks cluster
+# eksctl create cluster --profile $AWS_PROFILE --config-file manifests/eks-cluster.yaml
+envsubst < manifests/eks-cluster.yaml | eksctl create cluster --profile $AWS_PROFILE --config-file -
+eksctl get cluster
 
-for cluster in `seq -f %02g 1 $NUM_CLUSTERS`
-do
-clustername=$CLUSTER_NAME_PREFIX$cluster
-eksctl create cluster --name $clustername --profile $AWS_PROFILE --version $EKS_VERSION --region $AWS_REGION --node-type $NODE_TYPE --config-file mainfests/eks-cluster.yaml
-done
+# Display the kubectl contexts
 
-k3d cluster list
-
-# Configure the kubectl context
-
-for kubectx in `seq -f %02g 1 $NUM_CLUSTERS`
-do
-kubectxname=$KUBECTX_NAME_PREFIX$kubectx
-clustername=$CLUSTER_NAME_PREFIX$kubectx
-kubectx -d $kubectxname
-kubectx $kubectxname=k3d-$clustername
-done
-
-kubectx ${KUBECTX_NAME_PREFIX}01
 kubectx
 
 # Install the 'istioctl' CLI tool
 
-curl -sL https://run.solo.io/gloo/install | sh
-export PATH=$HOME/.gloo/bin:$PATH
+OS=$(uname | tr '[:upper:]' '[:lower:]' | sed -E 's/darwin/osx/')
+ARCH=$(uname -m | sed -E 's/aarch/arm/; s/x86_64/amd64/; s/armv7l/armv7/')
+echo $OS
+echo $ARCH
+mkdir -p ~/.istioctl/bin
+curl -sSL https://storage.googleapis.com/istio-binaries-$REPO_KEY/$ISTIO_IMAGE/istioctl-$ISTIO_IMAGE-$OS-$ARCH.tar.gz | tar xzf - -C ~/.istioctl/bin
+chmod +x ~/.istioctl/bin/istioctl
+export PATH=${HOME}/.istioctl/bin:${PATH}
+
+echo "Istio "`istioctl version --remote=false`" installed!"
+
+# Install Gateway API CRDs
+
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.4.0/standard-install.yaml
 
 # Install Istio using Helm - USE SOLO IMAGES!
 
+# Install Istio CRDs
+
 echo
-helm repo add gloo https://storage.googleapis.com/solo-public-helm
-helm repo update
+helm upgrade --install istio-base oci://${HELM_REPO}/base \
+  --namespace istio-system \
+  --create-namespace \
+  --version ${ISTIO_IMAGE} \
+  -f - <<EOF
+defaultRevision: ""
+profile: ambient
+EOF
 echo
 
-for cluster in `seq -f %02g 1 $NUM_CLUSTERS`
-do
-kubectxname=$KUBECTX_NAME_PREFIX$cluster
-kubectl create namespace $GLOO_NAMESPACE --context $kubectxname
+# Install istiod control plane
+
 echo
-helm install gloo gloo/gloo --namespace $GLOO_NAMESPACE --kube-context $kubectxname
+helm upgrade --install istiod oci://${HELM_REPO}/istiod \
+  --namespace istio-system \
+  --version ${ISTIO_IMAGE} \
+  -f - <<EOF
+global:
+  hub: ${REPO}
+  proxy:
+    clusterDomain: cluster.local
+  tag: ${ISTIO_IMAGE}
+meshConfig:
+  accessLogFile: /dev/stdout
+  defaultConfig:
+    proxyMetadata:
+      ISTIO_META_DNS_AUTO_ALLOCATE: "true"
+      ISTIO_META_DNS_CAPTURE: "true"
+env:
+  PILOT_ENABLE_IP_AUTOALLOCATE: "true"
+  PILOT_SKIP_VALIDATE_TRUST_DOMAIN: "true"
+pilot:
+  cni:
+    namespace: istio-system
+    enabled: true
+profile: ambient
+license:
+  value: ${SOLO_ISTIO_LICENSE_KEY}
+EOF
 echo
-watch -n 1 kubectl get all -n $GLOO_NAMESPACE --context $kubectxname
+
+# Install Istio CNI
+
 echo
-done
+helm upgrade --install istio-cni oci://${HELM_REPO}/cni \
+  --namespace istio-system \
+  --version ${ISTIO_IMAGE} \
+  -f - <<EOF
+ambient:
+  dnsCapture: true
+excludeNamespaces:
+  - istio-system
+  - kube-system
+global:
+  hub: ${REPO}
+  tag: ${ISTIO_IMAGE}
+profile: ambient
+EOF
+echo
+
+# Install ztunnel
+
+echo
+helm upgrade --install ztunnel oci://${HELM_REPO}/ztunnel \
+  --namespace istio-system \
+  --version ${ISTIO_IMAGE} \
+  -f - <<EOF
+configValidation: true
+enabled: true
+env:
+  L7_ENABLED: "true"
+hub: ${REPO}
+istioNamespace: istio-system
+namespace: istio-system
+profile: ambient
+proxy:
+  clusterDomain: cluster.local
+tag: ${ISTIO_IMAGE}
+terminationGracePeriodSeconds: 29
+variant: distroless
+EOF
+echo
+
+# Verify Istio installation
+
+kubectl get pods -A | grep -E "istio|ztunnel"
 
 # Deploy the 'movies' application
 
-for cluster in `seq -f %02g 1 $NUM_CLUSTERS`
-do
-kubectxname=$KUBECTX_NAME_PREFIX$cluster
 echo
-kubectl apply -k movies --context $kubectxname
+kubectl apply -k movies
 echo
-done
 
 # Install Grafana using Helm
 

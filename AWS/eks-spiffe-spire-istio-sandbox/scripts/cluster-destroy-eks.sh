@@ -13,10 +13,7 @@ source vars.sh
 eksctl delete cluster --name $CLUSTER_NAME --profile $AWS_PROFILE
 eksctl get cluster --profile $AWS_PROFILE
 
-# Remove the kubectl context
-
-#kubectx -d $kubectxname
-#kubectx
+kubectx
 
 echo "Cluster deleted!"
 
