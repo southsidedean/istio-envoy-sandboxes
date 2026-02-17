@@ -63,13 +63,6 @@ sleep 30
 kubectl get pods -n kgateway-system
 echo
 
-# Add and update the SPIRE Helm Repository
-
-#echo
-#helm repo add spire-h https://spiffe.github.io/helm-charts-hardened/
-#helm repo update
-#echo
-
 # Install SPIRE CRDs
 
 helm upgrade --install -n spire-mgmt spire-crds spire-crds --repo https://spiffe.github.io/helm-charts-hardened/ --create-namespace --version $SPIRE_VERSION

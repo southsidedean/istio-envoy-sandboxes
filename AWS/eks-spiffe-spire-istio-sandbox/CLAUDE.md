@@ -39,7 +39,7 @@ kubectl apply -k movies                 # Deploy movies app independently
 2. **istioctl CLI** installed from Solo.io's private binaries to `~/.istioctl/bin`
 3. **Gateway API CRDs** (standard + experimental, version configurable via `GATEWAY_API_VERSION`)
 4. **kgateway** (OSS Gateway API controller) via Helm from `oci://cr.kgateway.dev/kgateway-dev/charts` (`kgateway-crds` + `kgateway`), with experimental Gateway API features enabled
-5. **SPIRE** via Helm (`spire-h/spire-crds` + `spire-h/spire`), configured in `manifests/spire-values.yaml`
+5. **SPIRE** via Helm (`spire-crds` + `spire`) using `--repo` from `https://spiffe.github.io/helm-charts-hardened/` into `spire-mgmt` namespace, configured in `manifests/spire-values.yaml`
 6. **ClusterSPIFFEID registrations** applied from `manifests/istio-gateway-spiffeid.yaml` (ztunnel, ambient workloads, waypoints, ingress gateway)
 7. **Istio Ambient mode** via 4 Helm charts from Solo OCI registry: `base`, `istiod`, `cni`, `ztunnel` (values inline in script)
 8. **Prometheus** via `prometheus-community/prometheus` Helm chart into `istio-system`, configured in `manifests/prometheus-values.yaml`

@@ -100,7 +100,7 @@ This is useful for manually installing and experimenting with individual compone
 2. **istioctl CLI** - Downloads Solo's `istioctl` binary to `~/.istioctl/bin`
 3. **Gateway API CRDs** - Installs Kubernetes Gateway API standard and experimental CRDs (version configurable via `GATEWAY_API_VERSION`)
 4. **kgateway** - Installs the OSS Gateway API controller (`kgateway-crds` + `kgateway`) from `oci://cr.kgateway.dev/kgateway-dev/charts`, with experimental Gateway API features enabled
-5. **SPIRE** - Installs CRDs, server, and agent via the `spire-h` Helm repo with configuration from `manifests/spire-values.yaml`. The agent authorizes ztunnel as a delegate and exposes its socket on the host at `/run/spire/agent/sockets`
+5. **SPIRE** - Installs CRDs, server, and agent into `spire-mgmt` namespace via `--repo https://spiffe.github.io/helm-charts-hardened/` with configuration from `manifests/spire-values.yaml`. The agent authorizes ztunnel as a delegate and exposes its socket on the host at `/run/spire/agent/sockets`
 6. **ClusterSPIFFEID registrations** - Registers four workload classes with SPIRE: ztunnel, ambient-labeled namespaces, waypoint proxies, and the ingress gateway
 7. **Istio Ambient** - Installs four Helm charts from Solo's OCI registry:
    - `base` - Istio CRDs
