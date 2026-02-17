@@ -1,6 +1,6 @@
 #!/bin/bash
 # cluster-destroy-eks.sh
-# Automates cluster deletion and cleans up the kubectl contexts
+# Automates cluster deletion and cleans up the kubectl context
 # Tom Dean
 # Last edit: 2/16/2026
 
@@ -10,24 +10,14 @@ source vars.sh
 
 # Remove the eks cluster
 
-for cluster in `seq -f %02g 1 $NUM_CLUSTERS`
-do
-clustername=$CLUSTER_NAME_PREFIX$cluster
-eksctl delete cluster --name $clustername --profile $AWS_PROFILE
-done
-
+eksctl delete cluster --name $CLUSTER_NAME --profile $AWS_PROFILE
 eksctl get cluster --profile $AWS_PROFILE
 
 # Remove the kubectl context
 
-for kubectx in `seq -f %02g 1 $NUM_CLUSTERS`
-do
-kubectxname=$KUBECTX_NAME_PREFIX$kubectx
-kubectx -d $kubectxname
-done
+#kubectx -d $kubectxname
+#kubectx
 
-kubectx
-
-echo "Clusters deleted!"
+echo "Cluster deleted!"
 
 exit 0

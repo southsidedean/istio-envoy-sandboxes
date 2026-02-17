@@ -8,14 +8,9 @@
 
 source vars.sh
 
-# Create the eks clusters
-
-for cluster in `seq -f %02g 1 $NUM_CLUSTERS`
-do
-clustername=$CLUSTER_NAME_PREFIX$cluster
-eksctl create cluster --profile $AWS_PROFILE --config-file manifests/eks-cluster.yaml
-done
-
+# Create the eks cluster
+# eksctl create cluster --profile $AWS_PROFILE --config-file manifests/eks-cluster.yaml
+envsubst < manifests/eks-cluster.yaml | eksctl create cluster --profile $AWS_PROFILE --config-file -
 eksctl get cluster
 
 # Configure the kubectl context
@@ -28,7 +23,7 @@ eksctl get cluster
 #kubectx $kubectxname=k3d-$clustername
 #done
 
-kubectx ${KUBECTX_NAME_PREFIX}01
+kubectx $CLUSTER_NAME
 kubectx
 
 exit 0
