@@ -8,31 +8,8 @@ global:
     ingressControllerType: "" # If not openshift, and want to expose services, set to a supported option [ingress-nginx]
     # Update these
     clusterName: $CLUSTER_NAME
-    trustDomain: "example.org"
+    trustDomain: example.org
     caSubject:
       country: ARPA
       organization: Example
       commonName: example.org
-spire-agent:
-  authorizedDelegates:
-    - "spiffe://example.org/ns/istio-system/sa/ztunnel"
-  sockets:
-    admin:
-      enabled: true
-      mountOnHost: true
-    hostBasePath: /run/spire/agent/sockets
-  tolerations:
-    - effect: NoSchedule
-      operator: Exists
-    - key: CriticalAddonsOnly
-      operator: Exists
-    - effect: NoExecute
-      operator: Exists
-spiffe-csi-driver:
-  tolerations:
-    - effect: NoSchedule
-      operator: Exists
-    - key: CriticalAddonsOnly
-      operator: Exists
-    - effect: NoExecute
-      operator: Exists
