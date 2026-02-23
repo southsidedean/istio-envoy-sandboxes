@@ -2,28 +2,30 @@
 # cluster-destroy-k3d.sh
 # Automates cluster deletion and cleans up the kubectl contexts
 # Tom Dean
-# Last edit: 5/8/2025
+# Last edit: 4/25/2025
+
+set -e
 
 # Set environment variables
 
 source vars.sh
 
-# Remove the k3d cluster(s)
+# Remove the k3d cluster
 
-for cluster in `seq -f %02g 1 $NUM_CLUSTERS`
+for cluster in $(seq -f %02g 1 "$NUM_CLUSTERS")
 do
-clustername=$CLUSTER_NAME_PREFIX$cluster
-k3d cluster delete $clustername
+clustername="$CLUSTER_NAME_PREFIX$cluster"
+k3d cluster delete "$clustername"
 done
 
 k3d cluster list
 
 # Remove the kubectl context
 
-for kubectx in `seq -f %02g 1 $NUM_CLUSTERS`
+for kubectx in $(seq -f %02g 1 "$NUM_CLUSTERS")
 do
-kubectxname=$KUBECTX_NAME_PREFIX$kubectx
-kubectx -d $kubectxname
+kubectxname="$KUBECTX_NAME_PREFIX$kubectx"
+kubectx -d "$kubectxname" || true
 done
 
 kubectx

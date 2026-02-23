@@ -1,0 +1,21 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Kubernetes
+kubeconfig*
+*.kubeconfig
+
+# Temporary files
+*.tmp
+*.log
+
+# Gloo Mesh downloads
+.gloo-mesh/
