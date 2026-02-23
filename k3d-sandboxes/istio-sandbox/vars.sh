@@ -1,3 +1,4 @@
+#!/bin/bash
 # vars.sh
 # Environment variables for the sandbox
 #
