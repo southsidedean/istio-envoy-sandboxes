@@ -1,0 +1,35 @@
+# agentgateway-values.yaml
+# Agentgateway configuration for agent-to-agent communication
+#
+# Tom Dean
+# Last edit: 2/23/2026
+
+# Enable MCP multiplexing for Model Context Protocol
+mcp:
+  enabled: true
+  multiplexing: true
+
+# Enable A2A protocol for agent-to-agent communication
+a2a:
+  enabled: true
+
+# Enable observability with OpenTelemetry
+observability:
+  enabled: true
+  otel:
+    enabled: true
+    endpoint: "http://otel-collector.istio-system.svc.cluster.local:4317"
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 8080
+
+# Resource limits
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

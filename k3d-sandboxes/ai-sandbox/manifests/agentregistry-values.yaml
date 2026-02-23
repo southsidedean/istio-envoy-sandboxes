@@ -1,0 +1,42 @@
+# agentregistry-values.yaml
+# Agentregistry configuration for agent discovery and governance
+#
+# Tom Dean
+# Last edit: 2/23/2026
+
+# Registry configuration
+registry:
+  # Use Kubernetes CRDs for persistent storage
+  storage: kubernetes
+
+  # Enable MCP server registry
+  mcp:
+    enabled: true
+
+  # Enable governance features
+  governance:
+    enabled: true
+    validation: true
+    scoring: true
+
+# Observability
+observability:
+  enabled: true
+  metrics:
+    enabled: true
+  tracing:
+    enabled: true
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 8080
+
+# Resource limits
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
