@@ -4,9 +4,6 @@
 # Tom Dean
 # Last edit: 5/12/2025
 
-# Set environment variables
-
-
 set -e
 
 # Set environment variables
@@ -36,7 +33,7 @@ k3d cluster list
 for kubectx in $(seq -f %02g 1 "$NUM_CLUSTERS")
 do
 kubectxname="$KUBECTX_NAME_PREFIX$kubectx"
-clustername=$CLUSTER_NAME_PREFIX$kubectx
+clustername="$CLUSTER_NAME_PREFIX$kubectx"
 kubectx -d "$kubectxname" || true
 kubectx "$kubectxname=k3d-$clustername"
 done
@@ -61,8 +58,14 @@ kubectl label ns movies istio.io/use-waypoint=auto
 #export PATH=$HOME/.gloo-mesh/bin:$PATH
 
 # Deploy 'istioctl'
+# WARNING: The following command downloads and executes code from the internet without verification.
+# This is a security risk (MITM attacks, compromised binaries).
+# For production, download the binary manually and verify its checksum.
+# Uncomment only if you accept the security risk:
+# curl -L https://istio.io/downloadIstio | ISTIO_VERSION=${ISTIO_VERSION} sh -
+# export PATH=$PWD/istio-${ISTIO_VERSION}/bin:$PATH
 
-curl -L https://istio.io/downloadIstio | ISTIO_VERSION=${ISTIO_VERSION} sh -
+# For now, assuming istioctl is already installed
 export PATH=$PWD/istio-${ISTIO_VERSION}/bin:$PATH
 
 # Install Gateway API CRDs
@@ -196,7 +199,9 @@ EOF
 
 # Verify Ambient data plane deployment
 
-watch -n 1 'kubectl get pods -A | grep ztunnel'
+echo "Waiting for ztunnel daemonset to be ready..."
+kubectl rollout status daemonset/ztunnel -n istio-system --timeout=300s
+kubectl get pods -A | grep ztunnel
 
 # Rollout restart the deployments in the 'movies' namespace, in case they didn't get injected
 

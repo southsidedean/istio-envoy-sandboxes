@@ -20,21 +20,20 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:latest
+        image: nginx:1.27-alpine
         ports:
         - containerPort: 80
         resources:
           requests:
-            cpu: 10m # Overprovision
-            memory: 10Mi
+            cpu: 50m
+            memory: 64Mi
           limits:
-            cpu: 1000m
-            memory: 100Mi
+            cpu: 200m
+            memory: 128Mi
         livenessProbe:
           httpGet:
             path: /
             port: 80
-            httpHeaders:
           initialDelaySeconds: 3
           periodSeconds: 3
         readinessProbe:

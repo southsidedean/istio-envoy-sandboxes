@@ -4,9 +4,6 @@
 # Tom Dean
 # Last edit: 5/12/2025
 
-# Set environment variables
-
-
 set -e
 
 # Set environment variables
@@ -36,7 +33,7 @@ k3d cluster list
 for kubectx in $(seq -f %02g 1 "$NUM_CLUSTERS")
 do
 kubectxname="$KUBECTX_NAME_PREFIX$kubectx"
-clustername=$CLUSTER_NAME_PREFIX$kubectx
+clustername="$CLUSTER_NAME_PREFIX$kubectx"
 kubectx -d "$kubectxname" || true
 kubectx "$kubectxname=k3d-$clustername"
 done
