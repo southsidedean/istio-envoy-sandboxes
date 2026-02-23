@@ -1,41 +1,33 @@
 global:
-  openshift: false
   spire:
-    recommendations:
-      enabled: true
-    namespaces:
-      create: true
-      system:
-        name: "spire-system"
-      server:
-        name: "spire-server"
-    ingressControllerType: ""
-    clusterName: $CLUSTER_NAME
     trustDomain: example.org
-    caSubject:
-      country: ARPA
-      organization: Example
-      commonName: example.org
 spire-agent:
-  authorizedDelegates:
-    - "spiffe://example.org/ns/istio-system/sa/ztunnel"
-  sockets:
-    admin:
+    authorizedDelegates:
+        - "spiffe://example.org/ns/istio-system/sa/ztunnel"
+    sockets:
+        admin:
+            enabled: true
+            mountOnHost: true
+        hostBasePath: /run/spire/agent/sockets
+    tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - effect: NoExecute
+        operator: Exists
+spire-server:
+  upstreamAuthority:
+    disk:
       enabled: true
-      mountOnHost: true
-    hostBasePath: /run/spire/agent/sockets
-  tolerations:
-    - effect: NoSchedule
-      operator: Exists
-    - key: CriticalAddonsOnly
-      operator: Exists
-    - effect: NoExecute
-      operator: Exists
+      secret:
+        create: false
+        name: spiffe-upstream-ca
 spiffe-csi-driver:
-  tolerations:
-    - effect: NoSchedule
-      operator: Exists
-    - key: CriticalAddonsOnly
-      operator: Exists
-    - effect: NoExecute
-      operator: Exists
+    tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      - key: CriticalAddonsOnly
+        operator: Exists
+      - effect: NoExecute
+        operator: Exists

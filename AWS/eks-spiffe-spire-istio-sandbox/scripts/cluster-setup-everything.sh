@@ -23,9 +23,9 @@ fi
 
 echo
 echo "Creating EKS Cluster..."
-envsubst < manifests/eks-cluster.yaml | eksctl create cluster --profile $AWS_PROFILE --config-file -
+envsubst < manifests/eks-cluster.yaml | eksctl create cluster --profile "$AWS_PROFILE" --config-file -
 echo
-eksctl get cluster --profile $AWS_PROFILE --region $AWS_REGION
+eksctl get cluster --profile "$AWS_PROFILE" --region "$AWS_REGION"
 echo
 
 # Display the kubectl contexts
@@ -43,7 +43,7 @@ echo "Operating system detected: "$OS
 echo "Architecture detected: "$ARCH
 echo
 mkdir -p ~/.istioctl/bin
-curl -sSL https://storage.googleapis.com/istio-binaries-$REPO_KEY/$ISTIO_IMAGE/istioctl-$ISTIO_IMAGE-$OS-$ARCH.tar.gz | tar xzf - -C ~/.istioctl/bin
+curl -sSL https://storage.googleapis.com/istio-binaries-"$REPO_KEY"/"$ISTIO_IMAGE"/istioctl-"$ISTIO_IMAGE"-"$OS"-"$ARCH".tar.gz | tar xzf - -C ~/.istioctl/bin
 chmod +x ~/.istioctl/bin/istioctl
 export PATH=${HOME}/.istioctl/bin:${PATH}
 echo
@@ -52,9 +52,9 @@ echo
 
 # Install Gateway API CRDs (standard + experimental)
 echo
-echo "Installing Gateway API v"$GATEWAY_API_VERSION" CRDs (standard + experimental)..."
-kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v$GATEWAY_API_VERSION/standard-install.yaml
-kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v$GATEWAY_API_VERSION/experimental-install.yaml
+echo "Installing Gateway API v${GATEWAY_API_VERSION} CRDs (standard + experimental)..."
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v"${GATEWAY_API_VERSION}"/standard-install.yaml
+kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v"${GATEWAY_API_VERSION}"/experimental-install.yaml
 echo
 
 # Install kgateway (Gateway API controller)
@@ -78,18 +78,94 @@ echo "kgateway pods are ready!"
 kubectl get pods -n kgateway-system
 echo
 
+# SPIRE Prerequisites
+# Create namespace
+
+kubectl create namespace spire-server
+
+# Create certificates
+
+mkdir -p certs/{root-ca,intermediate-ca}
+cd certs
+
+cat >root-ca.cnf <<EOF
+[req]
+distinguished_name = req_distinguished_name
+req_extensions = v3_req
+prompt = no
+
+[req_distinguished_name]
+CN = SPIRE Root CA
+
+[v3_req]
+keyUsage = critical, keyCertSign, cRLSign
+basicConstraints = critical, CA:true, pathlen:2
+subjectKeyIdentifier = hash
+EOF
+
+cat >intermediate-ca.cnf <<EOF
+[req]
+distinguished_name = req_distinguished_name
+req_extensions = v3_req
+prompt = no
+
+[req_distinguished_name]
+CN = SPIRE Intermediate CA
+
+[v3_req]
+keyUsage = critical, keyCertSign, cRLSign
+basicConstraints = critical, CA:true, pathlen:1
+subjectKeyIdentifier = hash
+EOF
+
+# Create root CA
+
+openssl genrsa -out root-ca/root-ca.key 2048
+openssl req -new -x509 -key root-ca/root-ca.key -out root-ca/root-ca.crt -config root-ca.cnf -days 3650
+
+# Create intermediate CA
+
+openssl genrsa -out intermediate-ca/ca.key 2048
+openssl req -new -key intermediate-ca/ca.key -out intermediate-ca/ca.csr -config intermediate-ca.cnf -subj "/CN=SPIRE INTERMEDIATE CA"
+
+# Sign CSR with root CA
+
+openssl x509 -req -in intermediate-ca/ca.csr -CA root-ca/root-ca.crt -CAkey root-ca/root-ca.key -CAcreateserial \
+  -out intermediate-ca/ca.crt -days 1825 -extensions v3_req -extfile intermediate-ca.cnf
+
+# Create the bundle file (intermediate + root)
+
+cat intermediate-ca/ca.crt root-ca/root-ca.crt > intermediate-ca/ca-chain.pem
+
+# Create the root CA bundle
+
+cp root-ca/root-ca.crt root-ca-bundle.pem
+cd ..
+
+# Create a secret from the certificate
+
+kubectl create secret generic spiffe-upstream-ca \
+  --namespace spire-server \
+  --from-file=tls.crt=certs/intermediate-ca/ca.crt \
+  --from-file=tls.key=certs/intermediate-ca/ca.key \
+  --from-file=bundle.crt=certs/intermediate-ca/ca-chain.pem
+
+# Add Helm repository
+
+helm repo add spire https://spiffe.github.io/helm-charts-hardened/
+helm repo update spire
+
 # Install SPIRE CRDs
 
-helm upgrade --install -n spire-mgmt --create-namespace spire-crds spire-crds \
-  --repo https://spiffe.github.io/helm-charts-hardened/ \
-  --version ${SPIRE_VERSION}
+helm upgrade -i spire-crds spire/spire-crds \
+  --namespace spire-server \
+  --create-namespace \
+  --version ${SPIRE_CRD_VERSION} \
+  --wait
 
 # Install SPIRE Server/Agent
 
-envsubst < manifests/spire-values.yaml | helm upgrade --install -n spire-mgmt spire \
-  --repo https://spiffe.github.io/helm-charts-hardened/ \
-  --version ${SPIRE_VERSION} \
-  -f -
+envsubst < manifests/spire-values.yaml | helm upgrade -i spire spire/spire --namespace spire-server --version "${SPIRE_VERSION}" -f -
 
 # Wait for SPIRE CRDs to be established
 
@@ -99,9 +175,6 @@ kubectl wait --for=condition=Established crd clusterspiffeids.spire.spiffe.io --
 
 echo "Waiting for SPIRE server pods to be ready..."
 kubectl wait --for=condition=Ready pods --all -n spire-server --timeout=300s
-echo "Waiting for SPIRE system pods to be ready..."
-kubectl wait --for=condition=Ready pods --all -n spire-system --timeout=300s
-echo "SPIRE pods are ready!"
 
 # Register SPIRE workload identities (ClusterSPIFFEID resources)
 

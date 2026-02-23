@@ -1,0 +1,19 @@
+# Generated SPIRE certificates
+certs/
+*.crt
+*.key
+*.pem
+*.csr
+*.srl
+*.cnf
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/

@@ -22,9 +22,9 @@ fi
 
 echo
 echo "Creating EKS Cluster..."
-envsubst < manifests/eks-cluster.yaml | eksctl create cluster --profile $AWS_PROFILE --config-file -
+envsubst < manifests/eks-cluster.yaml | eksctl create cluster --profile "$AWS_PROFILE" --config-file -
 echo
-eksctl get cluster --profile $AWS_PROFILE --region $AWS_REGION
+eksctl get cluster --profile "$AWS_PROFILE" --region "$AWS_REGION"
 echo
 
 # Display the kubectl contexts

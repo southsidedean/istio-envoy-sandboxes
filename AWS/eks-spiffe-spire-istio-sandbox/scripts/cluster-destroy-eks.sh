@@ -12,10 +12,18 @@ source vars.sh
 
 # Remove the eks cluster
 
-eksctl delete cluster --name $CLUSTER_NAME --profile $AWS_PROFILE --region $AWS_REGION
-eksctl get cluster --profile $AWS_PROFILE --region $AWS_REGION || true
+eksctl delete cluster --name "$CLUSTER_NAME" --profile "$AWS_PROFILE" --region "$AWS_REGION"
+eksctl get cluster --profile "$AWS_PROFILE" --region "$AWS_REGION" || true
 
 kubectx
+
+# Clean up generated certificates
+
+if [ -d "certs" ]; then
+  echo "Removing generated certificates..."
+  rm -rf certs
+  echo "Certificates removed!"
+fi
 
 echo "Cluster deleted!"
 

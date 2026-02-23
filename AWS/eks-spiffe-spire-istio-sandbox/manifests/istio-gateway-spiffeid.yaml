@@ -1,5 +1,4 @@
 ---
-# ClusterSPIFFEID for ztunnel (required for DelegatedIdentity API)
 apiVersion: spire.spiffe.io/v1alpha1
 kind: ClusterSPIFFEID
 metadata:
@@ -8,20 +7,8 @@ spec:
   spiffeIDTemplate: "spiffe://{{ .TrustDomain }}/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}"
   podSelector:
     matchLabels:
-      app: ztunnel
+      app: "ztunnel"
 ---
-# ClusterSPIFFEID for ambient workloads
-apiVersion: spire.spiffe.io/v1alpha1
-kind: ClusterSPIFFEID
-metadata:
-  name: istio-ambient-reg
-spec:
-  spiffeIDTemplate: "spiffe://{{ .TrustDomain }}/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}"
-  namespaceSelector:
-    matchLabels:
-      istio.io/dataplane-mode: ambient
----
-# ClusterSPIFFEID for waypoint proxies (L7)
 apiVersion: spire.spiffe.io/v1alpha1
 kind: ClusterSPIFFEID
 metadata:
@@ -32,13 +19,12 @@ spec:
     matchLabels:
       istio.io/gateway-name: waypoint
 ---
-# ClusterSPIFFEID for Istio ingress gateway
 apiVersion: spire.spiffe.io/v1alpha1
 kind: ClusterSPIFFEID
 metadata:
-  name: istio-ingressgateway-reg
+  name: istio-ambient-reg
 spec:
   spiffeIDTemplate: "spiffe://{{ .TrustDomain }}/ns/{{ .PodMeta.Namespace }}/sa/{{ .PodSpec.ServiceAccountName }}"
-  podSelector:
+  namespaceSelector:
     matchLabels:
-      istio: ingressgateway
+      istio.io/dataplane-mode: ambient
