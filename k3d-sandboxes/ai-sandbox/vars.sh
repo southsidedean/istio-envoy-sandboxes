@@ -9,9 +9,9 @@
 # Do this before executing any sandbox scripts
 
 export NUM_CLUSTERS=1
-export CLUSTER_NAME_PREFIX=kagent-
-export KUBECTX_NAME_PREFIX=kagent-
-export CLUSTER_NETWORK=kagent-network
+export CLUSTER_NAME_PREFIX=ai-sandbox-
+export KUBECTX_NAME_PREFIX=ai-sandbox-
+export CLUSTER_NETWORK=ai-sandbox-network
 
 # Kagent (AI Agent Framework)
 export KAGENT_NAMESPACE=kagent
