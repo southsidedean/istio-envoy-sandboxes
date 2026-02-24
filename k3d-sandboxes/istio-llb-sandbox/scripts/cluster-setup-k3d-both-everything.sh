@@ -40,7 +40,7 @@ for kubectx in $(seq -f %02g 1 "$NUM_CLUSTERS")
 do
 kubectxname="$KUBECTX_NAME_PREFIX$kubectx"
 clustername="$CLUSTER_NAME_PREFIX$kubectx"
-kubectx -d "$kubectxname" || true
+kubectx -d "$kubectxname" 2>/dev/null || true
 kubectx "$kubectxname=k3d-$clustername"
 done
 
@@ -68,7 +68,7 @@ echo
 
 kubectl apply -k movies
 
-# Label the 'movies' namespace for Isio injection
+# Label the 'movies' namespace for Istio injection
 
 kubectl label ns movies istio.io/rev=gloo --overwrite=true
 
@@ -139,7 +139,7 @@ kubectl apply -f manifests/gloo-mesh-ui-ingress.yaml
 
 #meshctl dashboard > /dev/null 2>&1 &
 
-# Deploy stuff to the Ambiect cluster here
+# Deploy stuff to the Ambient cluster here
 
 kubectx "${KUBECTX_NAME_PREFIX}02"
 
@@ -152,7 +152,7 @@ echo
 
 kubectl apply -k movies
 
-# Label the 'movies' namespace to enable Isio Ambient mesh
+# Label the 'movies' namespace to enable Istio Ambient mesh
 # Also, enable waypoint for the 'movies' namespace
 
 kubectl label ns movies istio.io/dataplane-mode=ambient

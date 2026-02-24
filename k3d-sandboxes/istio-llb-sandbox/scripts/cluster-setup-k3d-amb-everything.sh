@@ -34,7 +34,7 @@ for kubectx in $(seq -f %02g 1 "$NUM_CLUSTERS")
 do
 kubectxname="$KUBECTX_NAME_PREFIX$kubectx"
 clustername="$CLUSTER_NAME_PREFIX$kubectx"
-kubectx -d "$kubectxname" || true
+kubectx -d "$kubectxname" 2>/dev/null || true
 kubectx "$kubectxname=k3d-$clustername"
 done
 
@@ -45,7 +45,7 @@ kubectx
 
 kubectl apply -k movies
 
-# Label the 'movies' namespace for Isio injection and to use a waypoint
+# Label the 'movies' namespace for Istio injection and to use a waypoint
 
 kubectl label ns movies istio.io/dataplane-mode=ambient --overwrite=true
 kubectl label ns movies istio.io/use-waypoint=waypoint --overwrite=true

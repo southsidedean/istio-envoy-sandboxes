@@ -1,1 +1,28 @@
+# OS files
 .DS_Store
+Thumbs.db
+
+# Environment overrides (vars.sh is tracked with placeholders; use .env for local secrets)
+.env
+.env.*
+
+# Certificates and keys
+*.pem
+*.crt
+*.key
+*.p12
+*.p8
+certs/
+
+# IDE and editor artifacts
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Build and temporary files
+*.bak
+*.orig
+*.backup
+*.tmp

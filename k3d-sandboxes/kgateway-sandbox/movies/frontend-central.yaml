@@ -21,6 +21,13 @@ spec:
         image: fortio/fortio:1.63.0
         imagePullPolicy: IfNotPresent
         args: ["load", "-t", "0", "-qps", "500", "http://movieinfo.movies.svc.cluster.local/index.html"]
+        resources:
+          requests:
+            cpu: 25m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

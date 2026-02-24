@@ -49,7 +49,7 @@ for kubectx in $(seq -f %02g 1 "$NUM_CLUSTERS")
 do
 kubectxname="$KUBECTX_NAME_PREFIX$kubectx"
 clustername="$CLUSTER_NAME_PREFIX$kubectx"
-kubectx -d "$kubectxname" || true
+kubectx -d "$kubectxname" 2>/dev/null || true
 kubectx "$kubectxname=k3d-$clustername"
 done
 

@@ -20,7 +20,7 @@ network: $CLUSTER_NETWORK
 #  - port: 8443:443 # same as `--port '8443:443@loadbalancer'`
 #    nodeFilters:
 #      - loadbalancer
-image: rancher/k3s:v1.32.3-k3s1
+image: rancher/k3s:v1.35.1-k3s1
 options:
   k3d:
     disableLoadbalancer: false
@@ -30,9 +30,9 @@ options:
         nodeFilters:
           - server:*
           - agent:*
-#      - arg: --disable=traefik
-#        nodeFilters:
-#          - server:*
+      - arg: --disable=traefik
+        nodeFilters:
+          - server:*
     nodeLabels:
       - label: topology.kubernetes.io/zone=central
         nodeFilters: [agent:0]

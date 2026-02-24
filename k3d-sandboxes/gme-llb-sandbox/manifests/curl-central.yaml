@@ -18,9 +18,16 @@ spec:
     spec:
       containers:
       - name: curl-central
-        image: alpine/curl
+        image: alpine/curl:8.12.1
         imagePullPolicy: IfNotPresent
         args: ["-s", "http://movieinfo.movies.svc.cluster.local/index.html"]
+        resources:
+          requests:
+            cpu: 25m
+            memory: 32Mi
+          limits:
+            cpu: 100m
+            memory: 64Mi
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
