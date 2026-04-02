@@ -1,7 +1,7 @@
 # istio-llb-sandbox
 
 ## Tom Dean
-## Last edit: 2/23/2026
+## Last edit: 3/27/2026
 
 ## Introduction
 
@@ -25,7 +25,7 @@ Everything else is self-contained, just run the script to create the cluster(s).
 
 ## About the Sandbox
 
-This sandbox focuses on **Locality Load Balancing** and keeping traffic in-zone in **Istio**, with scripts to deploy both **sidecar** and **ambient** modes. Once the cluster is deployed, you can observe traffic with the in-cluster **Kiali** instance (`localhost:9001/kiali`) and use the in-cluster **Grafana** (`localhost:9001/grafana`). The Istio Grafana dashboards are deployed alongside Grafana.
+This sandbox focuses on **Locality Load Balancing** and keeping traffic in-zone in **Istio**, with scripts to deploy both **sidecar** and **ambient** modes. Once the cluster is deployed, you can observe traffic with the in-cluster **Kiali** instance (`localhost:7201/kiali`) and use the in-cluster **Grafana** (`localhost:7201/grafana`). The Istio Grafana dashboards are deployed alongside Grafana.
 
 All the Helm `values` files and other YAML manifests live in the `manifests` directory:
 
@@ -80,7 +80,7 @@ cd k3d-sandboxes/istio-llb-sandbox
 ./scripts/cluster-setup-k3d-sc-everything.sh
 ```
 
-This will deploy a single `k3d` cluster with Istio deployed in sidecar mode, and the `movies` app deployed.  Open [`http://localhost:9001/kiali`](http://localhost:9001/kiali) in your browser, and log in with the token provided at the end of the script output.  If you need to retrieve a fresh token, use `kubectl -n istio-system create token kiali`.  You can use the in-cluster **Grafana** if you wish as well (`localhost:9001/grafana`).
+This will deploy a single `k3d` cluster with Istio deployed in sidecar mode, and the `movies` app deployed.  Open [`http://localhost:7201/kiali`](http://localhost:7201/kiali) in your browser, and log in with the token provided at the end of the script output.  If you need to retrieve a fresh token, use `kubectl -n istio-system create token kiali`.  You can use the in-cluster **Grafana** if you wish as well (`localhost:7201/grafana`).
 
 In Kiali, navigate to **Traffic Graph**, set your interval and refresh rates to minimums, and select the **Workload Graph** from the drop down.  In the **Display** drop-down, uncheck `Service Nodes`, and check `Traffic Animation` and `Security`.  This should give you a nice representation of traffic flow.  Feel free to drag items around as you see fit.
 
@@ -107,7 +107,7 @@ cd k3d-sandboxes/istio-llb-sandbox
 ./scripts/cluster-setup-k3d-amb-everything.sh
 ```
 
-This will deploy a single `k3d` cluster with Istio deployed in Ambient mode, and the `movies` app deployed.  Open [`http://localhost:9001/kiali`](http://localhost:9001/kiali) in your browser, and log in with the token provided at the end of the script output.  If you need to retrieve a fresh token, use `kubectl -n istio-system create token kiali`.  You can use the in-cluster **Grafana** if you wish as well (`localhost:9001/grafana`).
+This will deploy a single `k3d` cluster with Istio deployed in Ambient mode, and the `movies` app deployed.  Open [`http://localhost:7201/kiali`](http://localhost:7201/kiali) in your browser, and log in with the token provided at the end of the script output.  If you need to retrieve a fresh token, use `kubectl -n istio-system create token kiali`.  You can use the in-cluster **Grafana** if you wish as well (`localhost:7201/grafana`).
 
 In Kiali, navigate to **Traffic Graph**, set your interval and refresh rates to minimums, and select the **Workload Graph** from the drop down.  In the **Display** drop-down, uncheck `Service Nodes`, and check `Traffic Animation`, `Waypoint Proxies` and `Security`.  This should give you a nice representation of traffic flow.  Feel free to drag items around as you see fit.
 

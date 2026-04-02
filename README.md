@@ -3,7 +3,7 @@
 **Comprehensive Collection of Service Mesh, API Gateway, and AI Agent Testing Environments**
 
 Tom Dean
-Last edit: 2/23/2026
+Last edit: 4/1/2026
 
 ## Overview
 
@@ -83,12 +83,12 @@ Local Kubernetes sandboxes using k3d for rapid iteration and testing.
 The most complete AI agent testing environment, combining service mesh, API gateway, agent gateway, and agent discovery.
 
 **Technology Stack:**
-- Istio 1.29.0 (Ambient Mode with mTLS)
-- Kagent 0.7.17 (AI agent framework)
-- Kgateway 2.2.1 (API gateway)
-- Agentgateway 0.12.0 (agent-to-agent gateway)
-- Agentregistry 0.1.26 (agent discovery)
-- Gateway API v1.4.1
+- Istio 1.29.1 (Ambient Mode with mTLS)
+- Kagent 0.8.1 (AI agent framework)
+- Kgateway 2.2.2 (API gateway)
+- Agentgateway 1.0.1 (agent-to-agent gateway)
+- Agentregistry 0.3.2 (agent discovery)
+- Gateway API v1.5.1
 
 **Use Cases:**
 - AI agent development and testing
@@ -106,6 +106,37 @@ vi vars.sh  # Set OPENAI_API_KEY
 ```
 
 [Full Documentation](k3d-sandboxes/ai-sandbox/README.md)
+
+---
+
+### ent-ai-sandbox
+**Enterprise AI Agent Platform**
+
+Enterprise versions of the AI platform stack with Solo.io commercial distributions, licensing, and FIPS compliance.
+
+**Technology Stack:**
+- Solo Istio 1.29.1 (Ambient Mode with mTLS)
+- Enterprise Kagent 0.3.12 (AI agent framework)
+- Enterprise Kgateway 2.1.4 (API gateway)
+- Enterprise Agentgateway 2.1.1 (agent-to-agent gateway)
+- Agentregistry 0.3.2 (agent discovery)
+- Gateway API v1.5.1
+
+**Use Cases:**
+- Enterprise AI agent development with commercial support
+- Licensed agent-to-agent communication
+- FIPS-compliant service mesh with AI workloads
+- Production-grade AI infrastructure testing
+
+**Quick Start:**
+```bash
+cd k3d-sandboxes/ent-ai-sandbox
+vi vars.sh  # Set OPENAI_API_KEY, LICENSE_KEY, AGENTGATEWAY_LICENSE_KEY
+./scripts/cluster-setup-k3d-ent-ai-everything.sh
+# Access: http://localhost:6001
+```
+
+[Full Documentation](k3d-sandboxes/ent-ai-sandbox/README.md)
 
 ---
 
@@ -134,8 +165,8 @@ cd k3d-sandboxes/istio-llb-sandbox
 ./scripts/cluster-setup-k3d-amb-everything.sh  # Ambient mode
 # OR
 ./scripts/cluster-setup-k3d-sc-everything.sh   # Sidecar mode
-# Access Kiali: http://localhost:9001/kiali
-# Access Grafana: http://localhost:9001/grafana
+# Access Kiali: http://localhost:7201/kiali
+# Access Grafana: http://localhost:7201/grafana
 ```
 
 [Full Documentation](k3d-sandboxes/istio-llb-sandbox/README.md)
@@ -160,7 +191,8 @@ Lightweight Istio sandbox for learning and testing core service mesh features.
 **Quick Start:**
 ```bash
 cd k3d-sandboxes/istio-sandbox
-./scripts/cluster-setup-k3d-istio-everything.sh
+./scripts/cluster-setup-k3d-naked.sh
+# Install Istio manually (see sandbox README for details)
 ```
 
 [Full Documentation](k3d-sandboxes/istio-sandbox/README.md)
@@ -188,8 +220,8 @@ Enterprise service mesh testing with Gloo Mesh, supporting multi-cluster deploym
 **Quick Start:**
 ```bash
 cd k3d-sandboxes/gme-llb-sandbox
-vi vars.sh  # Set LICENSE_KEY
-./scripts/cluster-setup-k3d-gme-everything.sh
+vi vars.sh  # Set GLOO_MESH_LICENSE_KEY
+./scripts/cluster-setup-k3d-amb-everything.sh
 ```
 
 [Full Documentation](k3d-sandboxes/gme-llb-sandbox/README.md)
@@ -216,10 +248,33 @@ Testing environment for Kgateway (formerly Gloo Gateway OSS), implementing the K
 **Quick Start:**
 ```bash
 cd k3d-sandboxes/kgateway-sandbox
-./scripts/cluster-setup-k3d-gg-everything.sh
+./scripts/cluster-setup-k3d-kgw-everything.sh
 ```
 
 [Full Documentation](k3d-sandboxes/kgateway-sandbox/README.md)
+
+---
+
+### ent-kgateway-sandbox
+**Solo Enterprise for Kgateway**
+
+Enterprise API gateway with commercial features, licensing, and support.
+
+**Technology Stack:**
+- Enterprise Kgateway 2.1.4
+- Gateway API v1.5.1
+
+**Use For:** Enterprise API gateway with advanced features, rate limiting, authentication, FIPS compliance
+
+**Quick Start:**
+```bash
+cd k3d-sandboxes/ent-kgateway-sandbox
+vi vars.sh  # Set LICENSE_KEY
+./scripts/cluster-setup-k3d-ent-kgw-everything.sh
+# Access: http://localhost:6101
+```
+
+[Full Documentation](k3d-sandboxes/ent-kgateway-sandbox/README.md)
 
 ---
 
@@ -271,7 +326,7 @@ Enterprise API gateway with Envoy-based data plane.
 ```bash
 cd k3d-sandboxes/glooe-gw-sandbox
 vi vars.sh  # Set LICENSE_KEY
-./scripts/cluster-setup-k3d-gg-everything.sh
+./scripts/cluster-setup-k3d-glooe-everything.sh
 ```
 
 [Full Documentation](k3d-sandboxes/glooe-gw-sandbox/README.md)
@@ -296,8 +351,8 @@ Gloo Edge testing with locality-aware routing and multi-zone deployments.
 **Quick Start:**
 ```bash
 cd k3d-sandboxes/ge-llb-sandbox
-vi vars.sh  # Set LICENSE_KEY
-./scripts/cluster-setup-k3d-gg-everything.sh
+vi vars.sh  # Set GLOO_MESH_LICENSE_KEY
+./scripts/cluster-setup-k3d-amb-everything.sh
 ```
 
 [Full Documentation](k3d-sandboxes/ge-llb-sandbox/README.md)
@@ -326,7 +381,7 @@ Dedicated environment for testing Kagent, the CNCF AI agent framework for Kubern
 cd k3d-sandboxes/kagent-sandbox
 vi vars.sh  # Set OPENAI_API_KEY
 ./scripts/cluster-setup-k3d-kagent-everything.sh
-# Access: http://localhost:7001
+# Access: http://localhost:7301
 ```
 
 [Full Documentation](k3d-sandboxes/kagent-sandbox/README.md)
@@ -433,9 +488,9 @@ export CLUSTER_NAME_PREFIX=my-cluster-
 export KUBECTX_NAME_PREFIX=my-cluster-
 
 # Component versions
-export KAGENT_VERSION=0.7.17
-export KGATEWAY_VERSION=2.2.1
-export ISTIO_VERSION=1.29.0
+export KAGENT_VERSION=0.8.1
+export KGATEWAY_VERSION=2.2.2
+export ISTIO_VERSION=1.29.1
 
 # Credentials (set before running)
 export OPENAI_API_KEY=""
@@ -483,18 +538,22 @@ Quick reference for finding sandboxes by technology:
 
 ### Service Mesh
 - **Istio OSS Ambient**: ai-sandbox, istio-llb-sandbox, eks-spiffe-spire-istio-sandbox
+- **Solo Istio Ambient**: ent-ai-sandbox
 - **Istio OSS Sidecar**: istio-llb-sandbox, istio-sandbox
 - **Gloo Mesh Enterprise**: gme-llb-sandbox
 
 ### API Gateway
 - **Kgateway (OSS)**: ai-sandbox, kgateway-sandbox, kagent-sandbox, eks-spiffe-spire-istio-sandbox
+- **Enterprise Kgateway**: ent-ai-sandbox, ent-kgateway-sandbox
 - **Gloo Gateway v2**: gloo-gw-sandbox
 - **Gloo Edge**: glooe-gw-sandbox, ge-llb-sandbox
 
 ### AI & Agents
 - **Kagent**: ai-sandbox, kagent-sandbox
+- **Enterprise Kagent**: ent-ai-sandbox
 - **Agentgateway**: ai-sandbox
-- **Agentregistry**: ai-sandbox
+- **Enterprise Agentgateway**: ent-ai-sandbox
+- **Agentregistry**: ai-sandbox, ent-ai-sandbox
 
 ### Identity & Security
 - **SPIFFE/SPIRE**: eks-spiffe-spire-istio-sandbox
@@ -523,12 +582,18 @@ This repository is actively maintained with the latest stable versions:
 
 | Component | Version | Updated |
 |-----------|---------|---------|
-| Istio | 1.29.0 | Feb 2026 |
-| Kagent | 0.7.17 | Feb 2026 |
-| Kgateway | 2.2.1 | Feb 2026 |
-| Gateway API | v1.4.1 | Feb 2026 |
-| Agentgateway | 0.12.0 | Feb 2026 |
-| Agentregistry | 0.1.26 | Feb 2026 |
+| Istio | 1.29.1 | Mar 2026 |
+| Solo Istio | 1.29.1-solo | Mar 2026 |
+| Kagent | 0.8.1 | Mar 2026 |
+| Enterprise Kagent | 0.3.12 | Mar 2026 |
+| Kgateway | 2.2.2 | Mar 2026 |
+| Enterprise Kgateway | 2.1.4 | Mar 2026 |
+| Gateway API | v1.5.1 | Mar 2026 |
+| Agentgateway | 1.0.1 | Mar 2026 |
+| Enterprise Agentgateway | 2.1.1 | Mar 2026 |
+| Agentregistry | 0.3.2 | Mar 2026 |
+| Gloo Mesh Enterprise | v2.12.1 | Mar 2026 |
+| Gloo Edge | 1.21.1 | Mar 2026 |
 
 ---
 
@@ -567,4 +632,4 @@ Built with technologies from:
 ---
 
 **Tom Dean**
-Last updated: February 23, 2026
+Last updated: April 1, 2026

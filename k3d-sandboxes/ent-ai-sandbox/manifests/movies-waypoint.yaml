@@ -1,0 +1,19 @@
+# movies-waypoint.yaml
+# Waypoint proxy for movies namespace L7 processing
+#
+# Tom Dean
+# Last edit: 2/23/2026
+
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  labels:
+    istio.io/waypoint-for: service
+  name: waypoint
+  namespace: movies
+spec:
+  gatewayClassName: istio-waypoint
+  listeners:
+  - name: mesh
+    port: 15008
+    protocol: HBONE

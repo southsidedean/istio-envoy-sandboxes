@@ -3,7 +3,7 @@
 **Local Kubernetes Testing Environments for Service Mesh and API Gateway Technologies**
 
 Tom Dean
-Last edit: 2/23/2026
+Last edit: 3/27/2026
 
 ## Overview
 
@@ -16,14 +16,21 @@ This directory contains production-ready k3d-based sandbox environments for rapi
 #### [ai-sandbox](ai-sandbox/)
 Comprehensive AI agent platform combining Istio Ambient, Kagent, Kgateway, Agentgateway, and Agentregistry.
 
-**Stack:** Istio 1.29.0 (Ambient) • Kagent 0.7.17 • Kgateway 2.2.1 • Agentgateway 0.12.0 • Agentregistry 0.1.26
+**Stack:** Istio 1.29.1 (Ambient) • Kagent 0.8.1 • Kgateway 2.2.2 • Agentgateway 1.0.1 • Agentregistry 0.3.2
 
 **Use For:** AI agent development, agent-to-agent communication, service mesh integration with AI workloads
+
+#### [ent-ai-sandbox](ent-ai-sandbox/)
+Enterprise AI agent platform with Solo.io commercial distributions of Istio, Kagent, Kgateway, and Agentgateway.
+
+**Stack:** Solo Istio 1.29.1 (Ambient) • Enterprise Kagent 0.3.12 • Enterprise Kgateway 2.1.4 • Enterprise Agentgateway 2.1.1 • Agentregistry 0.3.2
+
+**Use For:** Enterprise AI agent development with commercial support, licensing, and FIPS compliance
 
 #### [kagent-sandbox](kagent-sandbox/)
 Dedicated Kagent testing environment with Kgateway ingress.
 
-**Stack:** Kagent • Kgateway • Gateway API
+**Stack:** Kagent 0.8.1 • Kgateway 2.2.2 • Gateway API v1.5.1
 
 **Use For:** AI agent framework testing, multi-LLM provider integration, agent lifecycle management
 
@@ -57,11 +64,18 @@ Gloo Mesh Enterprise with locality load balancing and multi-cluster support.
 ### API Gateway
 
 #### [kgateway-sandbox](kgateway-sandbox/)
-Kgateway (Gloo Gateway OSS) implementing the Kubernetes Gateway API specification.
+Kgateway OSS 2.x implementing the Kubernetes Gateway API specification.
 
-**Stack:** Kgateway • Gateway API CRDs
+**Stack:** Kgateway 2.2.2 • Gateway API v1.5.1
 
 **Use For:** Gateway API learning, cloud-native ingress patterns, HTTP routing
+
+#### [ent-kgateway-sandbox](ent-kgateway-sandbox/)
+Solo Enterprise for Kgateway with commercial features and licensing.
+
+**Stack:** Enterprise Kgateway 2.1.4 • Gateway API v1.5.1
+
+**Use For:** Enterprise API gateway with advanced features, rate limiting, authentication
 
 #### [gloo-gw-sandbox](gloo-gw-sandbox/)
 Gloo Gateway v2 for advanced API gateway use cases.
@@ -134,9 +148,9 @@ export CLUSTER_NAME_PREFIX=my-cluster-
 export KUBECTX_NAME_PREFIX=my-cluster-
 
 # Component versions
-export KAGENT_VERSION=0.7.17
-export KGATEWAY_VERSION=2.2.1
-export ISTIO_VERSION=1.29.0
+export KAGENT_VERSION=0.8.1
+export KGATEWAY_VERSION=2.2.2
+export ISTIO_VERSION=1.29.1
 
 # Credentials (set before running)
 export OPENAI_API_KEY=""
@@ -153,15 +167,21 @@ export LICENSE_KEY=""
 
 ### Port Mappings
 
-Most sandboxes expose services on `localhost`:
+Each sandbox has unique port prefixes to avoid conflicts. Ports are `${PREFIX}${CLUSTER_NUM}` (e.g., prefix `70` + cluster `01` = `7001`):
 
-| Service | Port | Access |
-|---------|------|--------|
-| Kagent UI | 7001 | http://localhost:7001 |
-| Kiali | 9001 | http://localhost:9001/kiali |
-| Grafana | 9001 | http://localhost:9001/grafana |
-| Kgateway HTTP | 7001-9001 | http://localhost:port |
-| Kgateway HTTPS | 7401-9401 | https://localhost:port |
+| Sandbox | HTTP Prefix | HTTPS Prefix | API Prefix | Example HTTP Port |
+|---------|-------------|--------------|------------|-------------------|
+| ent-ai-sandbox | 60 | 64 | 68 | 6001 |
+| ent-kgateway-sandbox | 61 | 65 | 69 | 6101 |
+| ai-sandbox | 70 | 74 | 76 | 7001 |
+| istio-sandbox | 71 | 75 | 79 | 7101 |
+| istio-llb-sandbox | 72 | 82 | 92 | 7201 |
+| kagent-sandbox | 73 | 83 | 93 | 7301 |
+| kgateway-sandbox | 80 | 84 | 86 | 8001 |
+| gloo-gw-sandbox | 81 | 85 | 87 | 8101 |
+| glooe-gw-sandbox | 88 | 89 | 98 | 8801 |
+| gme-llb-sandbox | 90 | 94 | 96 | 9001 |
+| ge-llb-sandbox | 91 | 95 | 97 | 9101 |
 
 ### Directory Structure
 
@@ -182,11 +202,13 @@ sandbox-name/
 | Sandbox | Service Mesh | API Gateway | AI Agents | Observability | Locality LB |
 |---------|--------------|-------------|-----------|---------------|-------------|
 | ai-sandbox | Istio Ambient | Kgateway | ✓ | Basic | - |
+| ent-ai-sandbox | Solo Istio Ambient | Ent Kgateway | ✓ | Basic | - |
 | istio-llb-sandbox | Istio (both modes) | - | - | Full | ✓ |
 | istio-sandbox | Istio | - | - | Basic | - |
 | gme-llb-sandbox | Gloo Mesh | - | - | Basic | ✓ |
 | kagent-sandbox | - | Kgateway | ✓ | - | - |
 | kgateway-sandbox | - | Kgateway | - | - | - |
+| ent-kgateway-sandbox | - | Ent Kgateway | - | - | - |
 | gloo-gw-sandbox | - | Gloo Gateway v2 | - | - | - |
 | glooe-gw-sandbox | - | Gloo Edge | - | - | - |
 | ge-llb-sandbox | - | Gloo Edge | - | - | ✓ |
@@ -232,7 +254,7 @@ export REGISTRY_MIRROR=https://mirror.gcr.io
 ## Best Practices
 
 1. **Clean up regularly** - Run `cluster-destroy-k3d.sh` when done
-2. **One sandbox at a time** - Avoid port conflicts
+2. **Port prefixes are unique** - Multiple sandboxes can coexist without port conflicts
 3. **Check Docker resources** - Ensure sufficient CPU/memory
 4. **Update regularly** - Pull latest images and charts
 5. **Read the sandbox README** - Each has specific requirements
@@ -247,4 +269,4 @@ export REGISTRY_MIRROR=https://mirror.gcr.io
 ---
 
 Tom Dean
-Last updated: February 23, 2026
+Last updated: March 27, 2026

@@ -18,11 +18,11 @@ Edit `vars.sh` before running scripts:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `NUM_CLUSTERS` | 3 | Number of k3d clusters to create |
-| `CLUSTER_NAME_PREFIX` | `gloo-` | Prefix for cluster names |
-| `KUBECTX_NAME_PREFIX` | `gloo-` | Prefix for kubectl context names |
+| `CLUSTER_NAME_PREFIX` | `glooe-` | Prefix for cluster names |
+| `KUBECTX_NAME_PREFIX` | `glooe-` | Prefix for kubectl context names |
 | `GLOO_NAMESPACE` | `gloo-system` | Namespace for Gloo Gateway |
-| `GLOOCTL_VERSION` | `1.18.17` | Version of glooctl CLI to install |
-| `GLOO_VERSION` | `1.18.17` | Version of Gloo Gateway to install |
+| `GLOOCTL_VERSION` | `1.21.1` | Version of glooctl CLI to install |
+| `GLOO_VERSION` | `1.21.1` | Version of Gloo Gateway to install |
 | `LICENSE_KEY` | Required | Solo.io license key (set this before running) |
 
 ## Quick Start
@@ -53,9 +53,9 @@ This is useful for manually installing and experimenting with individual compone
 ### `cluster-setup-k3d-glooe-everything.sh` Step by Step
 
 1. **k3d clusters** - Creates 3 local Kubernetes clusters with:
-   - HTTP ports: 8001, 8002, 8003 (mapped to port 80 in cluster)
-   - HTTPS ports: 8401, 8402, 8403 (mapped to port 443 in cluster)
-   - API ports: 8601, 8602, 8603
+   - HTTP ports: 8801, 8802, 8803 (mapped to port 80 in cluster)
+   - HTTPS ports: 8901, 8902, 8903 (mapped to port 443 in cluster)
+   - API ports: 9801, 9802, 9803
 
 2. **Gloo Edge Enterprise Gateway** - Installs Gloo Gateway via Helm into `gloo-system` namespace on each cluster
 
@@ -115,9 +115,9 @@ After deployment, you can switch between cluster contexts:
 kubectx
 
 # Switch to a specific cluster
-kubectx gloo-01
-kubectx gloo-02
-kubectx gloo-03
+kubectx glooe-01
+kubectx glooe-02
+kubectx glooe-03
 
 # View resources in a cluster
 kubectl get all -n gloo-system
@@ -130,14 +130,14 @@ Each cluster has its own port mappings on localhost:
 
 | Cluster | HTTP Port | HTTPS Port | API Port |
 |---------|-----------|------------|----------|
-| gloo-01 | 8001 | 8401 | 8601 |
-| gloo-02 | 8002 | 8402 | 8602 |
-| gloo-03 | 8003 | 8403 | 8603 |
+| glooe-01 | 8801 | 8901 | 9801 |
+| glooe-02 | 8802 | 8902 | 9802 |
+| glooe-03 | 8803 | 8903 | 9803 |
 
 Access services via:
 ```bash
 # Example: Access cluster 1
-curl http://localhost:8001
+curl http://localhost:8801
 ```
 
 ## Troubleshooting

@@ -3,7 +3,7 @@
 **Gloo Edge Locality Load Balancing**
 
 Tom Dean
-Last edit: 2/23/2026
+Last edit: 3/27/2026
 
 ## Introduction
 
@@ -33,7 +33,7 @@ The `ge-llb-sandbox` provides a testing environment for Gloo Edge with locality-
 Edit `vars.sh` and set your Solo.io license key:
 
 ```bash
-vi vars.sh  # Set LICENSE_KEY
+vi vars.sh  # Set GLOO_MESH_LICENSE_KEY
 ```
 
 ### 2. Deploy the Full Stack
@@ -80,8 +80,22 @@ kubectl get pods -n movies
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `NUM_CLUSTERS` | 1 | Number of k3d clusters |
-| `CLUSTER_NAME_PREFIX` | `gme-llb-` | Prefix for cluster names |
-| `LICENSE_KEY` | Required | Solo.io license key |
+| `CLUSTER_NAME_PREFIX` | `ge-llb-` | Prefix for cluster names |
+| `GLOO_MESH_LICENSE_KEY` | Required | Gloo Mesh Enterprise license |
+| `GME_VERSION` | v2.12.1 | Gloo Mesh Enterprise version |
+| `ISTIO_VERSION` | 1.29.1 | Istio version (Solo distribution) |
+| `GATEWAY_API_VERSION` | v1.5.1 | Gateway API version |
+| `GLOO_OPERATOR_VERSION` | 0.5.0 | Gloo Operator version |
+| `K3S_VERSION` | v1.35.2-k3s1 | K3s version for cluster nodes |
+| `HTTP_PORT_PREFIX` | 91 | HTTP port prefix |
+| `HTTPS_PORT_PREFIX` | 95 | HTTPS port prefix |
+| `API_PORT_PREFIX` | 97 | API port prefix |
+
+### Port Mappings
+
+| Cluster | HTTP Port | HTTPS Port | API Port |
+|---------|-----------|------------|----------|
+| ge-llb-01 | 9101 | 9501 | 9701 |
 
 ## Use Cases
 
@@ -109,7 +123,7 @@ The sandbox deploys:
 
 ```bash
 # Verify license key is set
-echo $LICENSE_KEY
+echo $GLOO_MESH_LICENSE_KEY
 
 # Check Gloo Edge pods
 kubectl get pods -n gloo-system
@@ -167,4 +181,4 @@ kubectl get nodes --show-labels
 ---
 
 Tom Dean
-Last updated: February 23, 2026
+Last updated: March 27, 2026

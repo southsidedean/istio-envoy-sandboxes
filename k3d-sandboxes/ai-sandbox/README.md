@@ -3,7 +3,7 @@
 **Comprehensive AI Agent Platform Sandbox**
 
 Tom Dean
-Last edit: 2/23/2026
+Last edit: 3/27/2026
 
 ## Introduction
 
@@ -11,12 +11,12 @@ The `ai-sandbox` is a complete AI agent testing platform that combines service m
 
 ### Technology Stack
 
-- **Istio 1.29.0** (Ambient Mode) - Service mesh with mTLS for secure service-to-service communication
-- **Kagent 0.7.17** - AI agent framework for autonomous agent lifecycle management
-- **Kgateway 2.2.1** - Cloud-native API gateway implementing Kubernetes Gateway API
-- **Agentgateway 0.12.0** - Agent-to-agent gateway with MCP multiplexing and A2A protocol support
-- **Agentregistry 0.1.26** - Centralized agent discovery and governance platform
-- **Gateway API v1.4.1** - Kubernetes-native ingress/gateway specification
+- **Istio 1.29.1** (Ambient Mode) - Service mesh with mTLS for secure service-to-service communication
+- **Kagent 0.8.1** - AI agent framework for autonomous agent lifecycle management
+- **Kgateway 2.2.2** - Cloud-native API gateway implementing Kubernetes Gateway API
+- **Agentgateway 1.0.1** - Agent-to-agent gateway with MCP multiplexing and A2A protocol support
+- **Agentregistry 0.3.2** - Centralized agent discovery and governance platform
+- **Gateway API v1.5.1** - Kubernetes-native ingress/gateway specification
 
 ## Prerequisites
 
@@ -131,7 +131,7 @@ Deploys only Kagent and Kgateway (older configuration without Istio or agentgate
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                        Kgateway (API Gateway)                │
-│                     Gateway API v1.4.1                       │
+│                     Gateway API v1.5.1                       │
 │          ┌──────────────────────────────────────┐           │
 │          │        HTTP Gateway (port 80)         │           │
 │          └───────────────┬──────────────────────┘           │
@@ -195,7 +195,7 @@ Kagent is the first open-source agentic AI framework for Kubernetes, contributed
 **Access:**
 - UI: http://localhost:7001
 - Namespace: `kagent`
-- Version: 0.7.17
+- Version: 0.8.1
 
 ### Kgateway (API Gateway)
 
@@ -229,7 +229,7 @@ Agentgateway is an open-source data plane optimized for agentic AI connectivity,
 **Access:**
 - API: http://localhost:7001 (Host: agentgateway.local)
 - Namespace: `agentgateway-system`
-- Version: 0.12.0
+- Version: 1.0.1
 
 ### Agentregistry (Agent Discovery)
 
@@ -246,7 +246,7 @@ Agentregistry provides centralized governance and control for AI artifacts and i
 **Access:**
 - API: http://localhost:7001 (Host: agentregistry.local)
 - Namespace: `agentregistry-system`
-- Version: 0.1.26
+- Version: 0.3.2
 
 ### Movies Application (Demo Workload)
 
@@ -279,12 +279,12 @@ Frontend (Fortio Load Generators):
 |----------|---------|-------------|
 | `NUM_CLUSTERS` | 1 | Number of k3d clusters |
 | `CLUSTER_NAME_PREFIX` | `kagent-` | Prefix for cluster names |
-| `KAGENT_VERSION` | 0.7.17 | Kagent version |
-| `KGATEWAY_VERSION` | 2.2.1 | Kgateway version |
-| `GATEWAY_API_VERSION` | v1.4.1 | Gateway API version |
-| `ISTIO_VERSION` | 1.29.0 | Istio version |
-| `AGENTGATEWAY_VERSION` | 0.12.0 | Agentgateway version |
-| `AGENTREGISTRY_VERSION` | 0.1.26 | Agentregistry version |
+| `KAGENT_VERSION` | 0.8.1 | Kagent version |
+| `KGATEWAY_VERSION` | 2.2.2 | Kgateway version |
+| `GATEWAY_API_VERSION` | v1.5.1 | Gateway API version |
+| `ISTIO_VERSION` | 1.29.1 | Istio version |
+| `AGENTGATEWAY_VERSION` | 1.0.1 | Agentgateway version |
+| `AGENTREGISTRY_VERSION` | 0.3.2 | Agentregistry version |
 | `OPENAI_API_KEY` | **Required** | OpenAI API key for Kagent |
 
 ### Port Mappings

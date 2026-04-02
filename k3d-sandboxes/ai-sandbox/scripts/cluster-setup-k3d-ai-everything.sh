@@ -38,7 +38,7 @@ done
 for cluster in $(seq -f %02g 1 "$NUM_CLUSTERS")
 do
 clustername="$CLUSTER_NAME_PREFIX$cluster"
-k3d cluster create "$clustername" -c cluster-k3d/k3d-cluster.yaml --port "70${cluster}:80@loadbalancer" --port "74${cluster}:443@loadbalancer" --api-port "0.0.0.0:76${cluster}"
+k3d cluster create "$clustername" -c cluster-k3d/k3d-cluster.yaml --port "${HTTP_PORT_PREFIX}${cluster}:80@loadbalancer" --port "${HTTPS_PORT_PREFIX}${cluster}:443@loadbalancer" --api-port "0.0.0.0:${API_PORT_PREFIX}${cluster}"
 done
 
 k3d cluster list
@@ -169,8 +169,8 @@ echo
 # Enable ambient mode for application namespaces
 
 echo "Enabling ambient mode for movies namespace..."
-kubectl label ns movies istio.io/dataplane-mode=ambient --overwrite
-kubectl label ns movies istio.io/use-waypoint=auto --overwrite
+kubectl label ns "$MOVIES_NAMESPACE" istio.io/dataplane-mode=ambient --overwrite
+kubectl label ns "$MOVIES_NAMESPACE" istio.io/use-waypoint=auto --overwrite
 echo
 
 echo "Enabling ambient mode for kagent namespace..."
@@ -182,8 +182,8 @@ echo
 
 echo "Deploying waypoint proxy for movies namespace..."
 kubectl apply -f manifests/movies-waypoint.yaml
-kubectl wait --for=condition=Programmed gateway/waypoint -n movies --timeout=300s
-kubectl get gateway -n movies
+kubectl wait --for=condition=Programmed gateway/waypoint -n "$MOVIES_NAMESPACE" --timeout=300s
+kubectl get gateway -n "$MOVIES_NAMESPACE"
 echo
 
 echo
@@ -195,7 +195,7 @@ echo
 # Install the Kubernetes Gateway API CRDs
 
 echo "Installing Gateway API CRDs (${GATEWAY_API_VERSION})..."
-kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/"${GATEWAY_API_VERSION}"/standard-install.yaml
+kubectl apply --server-side --force-conflicts -f https://github.com/kubernetes-sigs/gateway-api/releases/download/"${GATEWAY_API_VERSION}"/experimental-install.yaml
 echo
 
 # Install kgateway CRDs using Helm
@@ -248,10 +248,14 @@ echo
 # Install agentgateway via Helm (OCI registry)
 
 echo "Installing agentgateway (${AGENTGATEWAY_VERSION})..."
-helm install agentgateway oci://ghcr.io/agentgateway/helm/agentgateway \
+helm install agentgateway-crds oci://ghcr.io/agentgateway/agentgateway/charts/agentgateway-crds \
+    --namespace "${AGENTGATEWAY_NAMESPACE}" \
+    --version "${AGENTGATEWAY_VERSION}"
+
+helm install agentgateway oci://ghcr.io/agentgateway/agentgateway/charts/agentgateway \
     --namespace "${AGENTGATEWAY_NAMESPACE}" \
     --version "${AGENTGATEWAY_VERSION}" \
-    -f manifests/agentgateway-values.yaml || echo "Note: Agentgateway Helm chart may need verification of registry path"
+    -f manifests/agentgateway-values.yaml
 
 echo "Waiting for agentgateway pods to be ready..."
 kubectl wait --for=condition=Ready pods --all -n "${AGENTGATEWAY_NAMESPACE}" --timeout=300s || echo "Warning: Agentgateway pods not ready yet"
@@ -277,20 +281,13 @@ kubectl create namespace "${AGENTREGISTRY_NAMESPACE}" || true
 kubectl label ns "${AGENTREGISTRY_NAMESPACE}" istio.io/dataplane-mode=ambient --overwrite
 echo
 
-# Add agentregistry Helm repository
-
-echo "Adding agentregistry Helm repository..."
-helm repo add agentregistry https://agentregistry-dev.github.io/helm-charts || echo "Note: Agentregistry Helm repo may need verification"
-helm repo update || true
-echo
-
-# Install agentregistry via Helm
+# Install agentregistry via Helm (OCI)
 
 echo "Installing agentregistry (${AGENTREGISTRY_VERSION})..."
-helm install agentregistry agentregistry/agentregistry \
+helm install agentregistry oci://ghcr.io/agentregistry-dev/agentregistry/charts/agentregistry \
     --namespace "${AGENTREGISTRY_NAMESPACE}" \
     --version "${AGENTREGISTRY_VERSION}" \
-    -f manifests/agentregistry-values.yaml || echo "Note: Agentregistry Helm chart may need verification"
+    -f manifests/agentregistry-values.yaml || echo "Warning: Agentregistry install failed — values file may need updating for this version"
 
 echo "Waiting for agentregistry pods to be ready..."
 kubectl wait --for=condition=Ready pods --all -n "${AGENTREGISTRY_NAMESPACE}" --timeout=300s || echo "Warning: Agentregistry pods not ready yet"
@@ -317,10 +314,10 @@ echo "  - Agentregistry ${AGENTREGISTRY_VERSION} (Agent Discovery)"
 echo "  - Gateway API ${GATEWAY_API_VERSION}"
 echo
 echo "Access Points:"
-echo "  - Kagent UI: http://localhost:7001"
-echo "  - Kgateway: http://localhost:7001 (with Host header routing)"
-echo "  - Agentgateway: http://localhost:7001 (Host: agentgateway.local)"
-echo "  - Agentregistry: http://localhost:7001 (Host: agentregistry.local)"
+echo "  - Kagent UI: http://localhost:${HTTP_PORT_PREFIX}01"
+echo "  - Kgateway: http://localhost:${HTTP_PORT_PREFIX}01 (with Host header routing)"
+echo "  - Agentgateway: http://localhost:${HTTP_PORT_PREFIX}01 (Host: agentgateway.local)"
+echo "  - Agentregistry: http://localhost:${HTTP_PORT_PREFIX}01 (Host: agentregistry.local)"
 echo
 echo "Verify installation:"
 echo "  kubectl get pods -n istio-system"
@@ -328,7 +325,7 @@ echo "  kubectl get pods -n kagent"
 echo "  kubectl get pods -n kgateway-system"
 echo "  kubectl get pods -n agentgateway-system"
 echo "  kubectl get pods -n agentregistry-system"
-echo "  kubectl get pods -n movies"
+echo "  kubectl get pods -n "$MOVIES_NAMESPACE""
 echo
 
 exit 0

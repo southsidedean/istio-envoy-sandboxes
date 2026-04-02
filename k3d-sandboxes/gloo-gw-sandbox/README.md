@@ -21,8 +21,8 @@ Edit `vars.sh` before running scripts:
 | `CLUSTER_NAME_PREFIX` | `gloo-` | Prefix for cluster names |
 | `KUBECTX_NAME_PREFIX` | `gloo-` | Prefix for kubectl context names |
 | `GLOO_NAMESPACE` | `gloo-system` | Namespace for Gloo Gateway |
-| `GLOOCTL_VERSION` | `1.18.17` | Version of glooctl CLI to install |
-| `GLOO_VERSION` | `1.18.17` | Version of Gloo Gateway to install |
+| `GLOOCTL_VERSION` | `1.21.1` | Version of glooctl CLI to install |
+| `GLOO_VERSION` | `1.21.1` | Version of Gloo Gateway to install |
 | `LICENSE_KEY` | Required | Solo.io license key (set this before running) |
 
 ## Quick Start
@@ -53,9 +53,9 @@ This is useful for manually installing and experimenting with individual compone
 ### `cluster-setup-k3d-gg-everything.sh` Step by Step
 
 1. **k3d clusters** - Creates 3 local Kubernetes clusters with:
-   - HTTP ports: 8001, 8002, 8003 (mapped to port 80 in cluster)
-   - HTTPS ports: 8401, 8402, 8403 (mapped to port 443 in cluster)
-   - API ports: 8601, 8602, 8603
+   - HTTP ports: 8101, 8102, 8103 (mapped to port 80 in cluster)
+   - HTTPS ports: 8501, 8502, 8503 (mapped to port 443 in cluster)
+   - API ports: 8701, 8702, 8703
 
 2. **Gloo Gateway OSS** - Installs Gloo Gateway Open Source via Helm into `gloo-system` namespace on each cluster
 
@@ -130,14 +130,14 @@ Each cluster has its own port mappings on localhost:
 
 | Cluster | HTTP Port | HTTPS Port | API Port |
 |---------|-----------|------------|----------|
-| gloo-01 | 8001 | 8401 | 8601 |
-| gloo-02 | 8002 | 8402 | 8602 |
-| gloo-03 | 8003 | 8403 | 8603 |
+| gloo-01 | 8101 | 8501 | 8701 |
+| gloo-02 | 8102 | 8502 | 8702 |
+| gloo-03 | 8103 | 8503 | 8703 |
 
 Access services via:
 ```bash
 # Example: Access cluster 1
-curl http://localhost:8001
+curl http://localhost:8101
 ```
 
 ## Troubleshooting

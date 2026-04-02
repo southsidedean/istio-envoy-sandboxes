@@ -21,7 +21,10 @@ Edit `vars.sh` before running scripts:
 | `CLUSTER_NAME_PREFIX` | `istio-` | Prefix for cluster names |
 | `KUBECTX_NAME_PREFIX` | `istio-` | Prefix for kubectl context names |
 | `CLUSTER_NETWORK` | `istio-network` | Network name for k3d clusters |
-| `LICENSE_KEY` | Required | Solo.io license key (if using Istio Enterprise features) |
+| `K3S_VERSION` | `v1.35.2-k3s1` | K3s version for cluster nodes |
+| `HTTP_PORT_PREFIX` | `71` | HTTP port prefix |
+| `HTTPS_PORT_PREFIX` | `75` | HTTPS port prefix |
+| `API_PORT_PREFIX` | `79` | API port prefix |
 
 ## Quick Start
 
@@ -41,9 +44,9 @@ Edit `vars.sh` before running scripts:
 ### `cluster-setup-k3d-naked.sh`
 
 Creates 3 local Kubernetes clusters with:
-- HTTP ports: 7001, 7002, 7003 (mapped to port 80 in cluster)
-- HTTPS ports: 7401, 7402, 7403 (mapped to port 443 in cluster)
-- API ports: 7601, 7602, 7603
+- HTTP ports: 7101, 7102, 7103 (mapped to port 80 in cluster)
+- HTTPS ports: 7501, 7502, 7503 (mapped to port 443 in cluster)
+- API ports: 7901, 7902, 7903
 
 **Note:** This script creates bare clusters without Istio installed. You'll need to install Istio manually using your preferred method (istioctl, Helm, or Operator).
 
@@ -85,14 +88,14 @@ Each cluster has its own port mappings on localhost:
 
 | Cluster | HTTP Port | HTTPS Port | API Port |
 |---------|-----------|------------|----------|
-| istio-01 | 7001 | 7401 | 7601 |
-| istio-02 | 7002 | 7402 | 7602 |
-| istio-03 | 7003 | 7403 | 7603 |
+| istio-01 | 7101 | 7501 | 7901 |
+| istio-02 | 7102 | 7502 | 7902 |
+| istio-03 | 7103 | 7503 | 7903 |
 
 Access services via:
 ```bash
 # Example: Access cluster 1
-curl http://localhost:7001
+curl http://localhost:7101
 ```
 
 ## Installing Istio

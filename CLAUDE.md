@@ -8,13 +8,15 @@ Collection of self-contained sandbox environments for testing service meshes (Is
 
 ## Repository Layout
 
-- `k3d-sandboxes/` — 9 local sandboxes using k3d (Kubernetes via k3s in Docker)
+- `k3d-sandboxes/` — 11 local sandboxes using k3d (Kubernetes via k3s in Docker)
   - `ai-sandbox/` — Full AI platform: Istio Ambient + Kagent + Kgateway + Agentgateway + Agentregistry
+  - `ent-ai-sandbox/` — Enterprise AI platform: Solo Istio + Enterprise Kagent/Kgateway/Agentgateway + Agentregistry
+  - `ent-kgateway-sandbox/` — Solo Enterprise for Kgateway (requires LICENSE_KEY)
   - `istio-llb-sandbox/` — Istio locality load balancing (ambient & sidecar modes)
   - `istio-sandbox/` — Basic Istio OSS
   - `gme-llb-sandbox/` — Gloo Mesh Enterprise with locality LB (requires LICENSE_KEY)
   - `kagent-sandbox/` — Dedicated Kagent AI framework
-  - `kgateway-sandbox/` — OSS Gateway API implementation
+  - `kgateway-sandbox/` — Kgateway OSS 2.x (Gateway API)
   - `gloo-gw-sandbox/` — Gloo Gateway v2
   - `glooe-gw-sandbox/` — Gloo Edge Gateway
   - `ge-llb-sandbox/` — Gloo Edge with locality LB
@@ -71,7 +73,21 @@ Each cluster creates 1 server + 3 agent nodes with zone labels:
 - `agent:2` → `topology.kubernetes.io/zone=east`
 
 ### Port Mapping Convention
-k3d sandboxes use port ranges by cluster number: HTTP `70XX`, HTTPS `74XX`, API `76XX` where XX is the cluster number (01, 02, 03).
+Each sandbox has unique port prefixes defined in `vars.sh` (`HTTP_PORT_PREFIX`, `HTTPS_PORT_PREFIX`, `API_PORT_PREFIX`). Ports are computed as `${PREFIX}${CLUSTER_NUM}` where CLUSTER_NUM is zero-padded (01, 02, 03).
+
+| Sandbox | HTTP | HTTPS | API |
+|---------|------|-------|-----|
+| ent-ai-sandbox | 60XX | 64XX | 68XX |
+| ent-kgateway-sandbox | 61XX | 65XX | 69XX |
+| ai-sandbox | 70XX | 74XX | 76XX |
+| istio-sandbox | 71XX | 75XX | 79XX |
+| istio-llb-sandbox | 72XX | 82XX | 92XX |
+| kagent-sandbox | 73XX | 83XX | 93XX |
+| kgateway-sandbox | 80XX | 84XX | 86XX |
+| gloo-gw-sandbox | 81XX | 85XX | 87XX |
+| glooe-gw-sandbox | 88XX | 89XX | 98XX |
+| gme-llb-sandbox | 90XX | 94XX | 96XX |
+| ge-llb-sandbox | 91XX | 95XX | 97XX |
 
 ### Istio Ambient Mode
 Most sandboxes use sidecar-less ambient mode: ztunnel DaemonSet handles L4 mTLS on each node, optional waypoint proxies for L7 policies. Namespaces opt in via `istio.io/dataplane-mode=ambient` label.

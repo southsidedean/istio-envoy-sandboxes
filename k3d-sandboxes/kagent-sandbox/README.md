@@ -3,7 +3,7 @@
 **Kagent AI Agent Framework**
 
 Tom Dean
-Last edit: 2/23/2026
+Last edit: 3/27/2026
 
 ## Introduction
 
@@ -67,8 +67,8 @@ kubectl get crds | grep kagent
 
 The Kagent dashboard is accessible at:
 
-- http://localhost:7001
-- http://YOUR_IP_ADDRESS:7001
+- http://localhost:7301
+- http://YOUR_IP_ADDRESS:7301
 
 ### 5. Tear Down
 
@@ -84,8 +84,8 @@ The Kagent dashboard is accessible at:
 |----------|---------|-------------|
 | `NUM_CLUSTERS` | 1 | Number of k3d clusters |
 | `CLUSTER_NAME_PREFIX` | `kagent-` | Prefix for cluster names |
-| `KAGENT_VERSION` | Latest | Kagent version to deploy |
-| `KGATEWAY_VERSION` | Latest | Kgateway version to deploy |
+| `KAGENT_VERSION` | 0.8.1 | Kagent version to deploy |
+| `KGATEWAY_VERSION` | 2.2.2 | Kgateway version to deploy |
 | `OPENAI_API_KEY` | Required | OpenAI API key for agent operations |
 
 ### Manifest Files
@@ -148,7 +148,7 @@ The Kagent UI provides:
 The sandbox uses Kgateway to expose the Kagent UI:
 
 ```
-Internet → Kgateway (port 7001) → Kagent Service → Kagent UI
+Internet → Kgateway (port 7301) → Kagent Service → Kagent UI
 ```
 
 The HTTPRoute configuration routes traffic based on hostname and path.
@@ -157,7 +157,7 @@ The HTTPRoute configuration routes traffic based on hostname and path.
 
 ### Create an Agent via UI
 
-1. Access http://localhost:7001
+1. Access http://localhost:7301
 2. Click "Create Agent"
 3. Select provider (OpenAI, Azure, etc.)
 4. Configure model and instructions
@@ -292,4 +292,4 @@ observability:
 ---
 
 Tom Dean
-Last updated: February 23, 2026
+Last updated: March 27, 2026

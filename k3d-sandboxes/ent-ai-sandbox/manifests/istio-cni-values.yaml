@@ -1,0 +1,22 @@
+# istio-cni-values.yaml
+# Solo Istio Distribution CNI plugin configuration for k3d/k3s
+#
+# Tom Dean
+# Last edit: 3/27/2026
+
+global:
+  hub: us-docker.pkg.dev/soloio-img/istio
+  tag: 1.29.1-solo
+
+# k3d/k3s specific paths
+cniConfDir: /var/lib/rancher/k3s/agent/etc/cni/net.d
+cniBinDir: /var/lib/rancher/k3s/data/cni/
+
+# Enable ambient mode DNS capture
+ambient:
+  dnsCapture: true
+
+# Exclude system namespaces from mesh
+excludeNamespaces:
+  - istio-system
+  - kube-system

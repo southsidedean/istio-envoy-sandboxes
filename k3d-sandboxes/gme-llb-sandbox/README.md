@@ -3,7 +3,7 @@
 **Gloo Mesh Enterprise Locality Load Balancing**
 
 Tom Dean
-Last edit: 2/23/2026
+Last edit: 3/27/2026
 
 ## Introduction
 
@@ -11,9 +11,9 @@ The `gme-llb-sandbox` provides an enterprise service mesh testing environment wi
 
 ## Technology Stack
 
-- **Gloo Mesh Enterprise v2.8.0** - Multi-cluster service mesh platform
-- **Istio 1.25.2** (Solo distribution) - Service mesh data plane
-- **Gateway API v1.2.1** - Kubernetes-native ingress specification
+- **Gloo Mesh Enterprise v2.12.1** - Multi-cluster service mesh platform
+- **Istio 1.29.1** (Solo distribution) - Service mesh data plane
+- **Gateway API v1.5.1** - Kubernetes-native ingress specification
 - **Movies app** - Multi-zone load testing application with zone affinity
 - **Multi-cluster support** - Scales to multiple Kubernetes clusters
 
@@ -91,9 +91,20 @@ kubectl get pods -n movies
 | `NUM_CLUSTERS` | 1 | Number of k3d clusters |
 | `CLUSTER_NAME_PREFIX` | `gme-llb-` | Prefix for cluster names |
 | `GLOO_MESH_LICENSE_KEY` | Required | Gloo Mesh Enterprise license |
-| `GME_VERSION` | v2.8.0 | Gloo Mesh Enterprise version |
-| `ISTIO_VERSION` | 1.25.2 | Istio version (Solo distribution) |
-| `GATEWAY_API_VERSION` | v1.2.1 | Gateway API version |
+| `GME_VERSION` | v2.12.1 | Gloo Mesh Enterprise version |
+| `ISTIO_VERSION` | 1.29.1 | Istio version (Solo distribution) |
+| `GATEWAY_API_VERSION` | v1.5.1 | Gateway API version |
+| `GLOO_OPERATOR_VERSION` | 0.5.0 | Gloo Operator version |
+| `K3S_VERSION` | v1.35.2-k3s1 | K3s version for cluster nodes |
+| `HTTP_PORT_PREFIX` | 90 | HTTP port prefix |
+| `HTTPS_PORT_PREFIX` | 94 | HTTPS port prefix |
+| `API_PORT_PREFIX` | 96 | API port prefix |
+
+### Port Mappings
+
+| Cluster | HTTP Port | HTTPS Port | API Port |
+|---------|-----------|------------|----------|
+| gme-llb-01 | 9001 | 9401 | 9601 |
 
 ## Use Cases
 
@@ -253,4 +264,4 @@ kubectl apply -f manifests/failover-policy.yaml
 ---
 
 Tom Dean
-Last updated: February 23, 2026
+Last updated: March 27, 2026

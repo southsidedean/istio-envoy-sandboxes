@@ -21,6 +21,9 @@ certs/
 *.swo
 *~
 
+# Helm chart tarballs (downloaded during testing)
+*.tgz
+
 # Build and temporary files
 *.bak
 *.orig

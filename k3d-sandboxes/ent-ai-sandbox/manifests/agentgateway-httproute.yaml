@@ -1,0 +1,26 @@
+# agentgateway-httproute.yaml
+# HTTPRoute for exposing agentgateway via kgateway
+#
+# Tom Dean
+# Last edit: 2/23/2026
+
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: agentgateway-httproute
+  namespace: agentgateway-system
+spec:
+  parentRefs:
+    - name: http-gateway
+      namespace: kgateway-system
+  hostnames:
+    - "agentgateway.local"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: agentgateway
+          namespace: agentgateway-system
+          port: 8080

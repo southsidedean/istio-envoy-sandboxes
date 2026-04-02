@@ -23,7 +23,7 @@ done
 for cluster in $(seq -f %02g 1 "$NUM_CLUSTERS")
 do
 clustername="$CLUSTER_NAME_PREFIX$cluster"
-k3d cluster create "$clustername" -c cluster-k3d/k3d-cluster.yaml --port "90${cluster}:80@loadbalancer" --port "94${cluster}:443@loadbalancer" --api-port "0.0.0.0:96${cluster}"
+k3d cluster create "$clustername" -c cluster-k3d/k3d-cluster.yaml --port "${HTTP_PORT_PREFIX}${cluster}:80@loadbalancer" --port "${HTTPS_PORT_PREFIX}${cluster}:443@loadbalancer" --api-port "0.0.0.0:${API_PORT_PREFIX}${cluster}"
 done
 
 k3d cluster list
@@ -48,8 +48,8 @@ kubectl apply -k movies
 # Label the 'movies' namespace to enable Istio Ambient mesh
 # Also, enable waypoint for the 'movies' namespace
 
-kubectl label ns movies istio.io/dataplane-mode=ambient
-kubectl label ns movies istio.io/use-waypoint=auto
+kubectl label ns "$MOVIES_NAMESPACE" istio.io/dataplane-mode=ambient
+kubectl label ns "$MOVIES_NAMESPACE" istio.io/use-waypoint=auto
 
 # Deploy Gloo Mesh Enterprise
 # Deploy 'meshctl'
@@ -87,15 +87,10 @@ echo
 #--set glooMgmtServer.createGlobalWorkspace=true \
 #--set licensing.glooMeshLicenseKey="${GLOO_MESH_LICENSE_KEY}"
 
-# Check our deployment after sleeping for 90 seconds
-
-sleep 90
-istioctl check
-
-# Using Helm
+# Install Istio using Helm
 
 helm upgrade --install istio-base oci://${HELM_REPO}/base \
---namespace istio-system \
+--namespace "$ISTIO_NAMESPACE" \
 --create-namespace \
 --version ${ISTIO_IMAGE} \
 -f - <<EOF
@@ -104,7 +99,7 @@ profile: ambient
 EOF
 
 helm upgrade --install istiod oci://${HELM_REPO}/istiod \
---namespace istio-system \
+--namespace "$ISTIO_NAMESPACE" \
 --version ${ISTIO_IMAGE} \
 -f - <<EOF
 global:
@@ -121,7 +116,7 @@ global:
         matchLabels:
           waypoint-for:
 istio_cni:
-  namespace: istio-system
+  namespace: ${ISTIO_NAMESPACE}
   enabled: true
 meshConfig:
   accessLogFile: /dev/stdout
@@ -139,7 +134,7 @@ license:
 EOF
 
 helm upgrade --install istio-cni oci://${HELM_REPO}/cni \
---namespace istio-system \
+--namespace "$ISTIO_NAMESPACE" \
 --version ${ISTIO_IMAGE} \
 -f - <<EOF
 ambient:
@@ -151,35 +146,39 @@ global:
   hub: ${REPO}
   tag: ${ISTIO_IMAGE}
 profile: ambient
+cni:
+  cniConfDir: /var/lib/rancher/k3s/agent/etc/cni/net.d
+  cniBinDir: /var/lib/rancher/k3s/data/cni/
 EOF
 
 # Using the Gloo Mesh Operator
 #helm install gloo-operator oci://us-docker.pkg.dev/solo-public/gloo-operator-helm/gloo-operator \
-#--version 0.2.3 \
-#-n gloo-mesh \
+#--version "${GLOO_OPERATOR_VERSION}" \
+#-n "$GLOO_MESH_NAMESPACE" \
 #--create-namespace \
 #--set manager.env.SOLO_ISTIO_LICENSE_KEY=${GLOO_MESH_LICENSE_KEY}
 
-#kubectl get pods -n gloo-mesh -l app.kubernetes.io/name=gloo-operator
+#kubectl get pods -n "$GLOO_MESH_NAMESPACE" -l app.kubernetes.io/name=gloo-operator
 
 # Create configmap in the 'gloo-mesh' namespace to fix CNI configuration for k3d/k3s nodes
 
+kubectl create namespace "$GLOO_MESH_NAMESPACE" 2>/dev/null || true
 kubectl apply -f manifests/gloo-extensions-config-cm.yaml
 
 # Deploy a managed Istio installation, using the Gloo Operator
 
-#kubectl apply -n gloo-mesh -f manifests/managed-istio-ambient.yaml
+#kubectl apply -n "$GLOO_MESH_NAMESPACE" -f manifests/managed-istio-ambient.yaml
 
 # Verify installation
 
 echo "Waiting for istio-system pods to be ready..."
-kubectl wait --for=condition=Ready pods --all -n "istio-system" --timeout=300s
-kubectl get all -n "istio-system"
+kubectl wait --for=condition=Ready pods --all -n "$ISTIO_NAMESPACE" --timeout=300s
+kubectl get all -n "$ISTIO_NAMESPACE"
 
 # Deploy the Ambient data plane
 
 helm upgrade --install ztunnel oci://${HELM_REPO}/ztunnel \
---namespace istio-system \
+--namespace "$ISTIO_NAMESPACE" \
 --version ${ISTIO_IMAGE} \
 -f - <<EOF
 configValidation: true
@@ -187,8 +186,8 @@ enabled: true
 env:
   L7_ENABLED: "true"
 hub: ${REPO}
-istioNamespace: istio-system
-namespace: istio-system
+istioNamespace: ${ISTIO_NAMESPACE}
+namespace: ${ISTIO_NAMESPACE}
 profile: ambient
 proxy:
   clusterDomain: cluster.local
@@ -200,23 +199,23 @@ EOF
 # Verify Ambient data plane deployment
 
 echo "Waiting for ztunnel daemonset to be ready..."
-kubectl rollout status daemonset/ztunnel -n istio-system --timeout=300s
+kubectl rollout status daemonset/ztunnel -n "$ISTIO_NAMESPACE" --timeout=300s
 kubectl get pods -A | grep ztunnel
 
 # Rollout restart the deployments in the 'movies' namespace, in case they didn't get injected
 
-#kubectl rollout restart deploy -n movies
+#kubectl rollout restart deploy -n "$MOVIES_NAMESPACE"
 
 # Verify the 'movies' app is good
 
 echo "Waiting for movies pods to be ready..."
-kubectl wait --for=condition=Ready pods --all -n "movies" --timeout=300s
-kubectl get all -n "movies"
+kubectl wait --for=condition=Ready pods --all -n "$MOVIES_NAMESPACE" --timeout=300s
+kubectl get all -n "$MOVIES_NAMESPACE"
 
 # Install Grafana
 
 helm repo add grafana https://grafana.github.io/helm-charts
-helm install grafana -n grafana --create-namespace grafana/grafana \
+helm install grafana -n "$GRAFANA_NAMESPACE" --create-namespace grafana/grafana \
   -f manifests/grafana-values.yaml --debug
 
 # Create ingress for UI and Grafana
