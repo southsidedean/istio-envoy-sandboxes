@@ -29,3 +29,7 @@ certs/
 *.orig
 *.backup
 *.tmp
+
+# Claude stuff
+claude-session.txt
+.claude
