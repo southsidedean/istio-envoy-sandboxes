@@ -1,20 +1,20 @@
 # istio-envoy-sandboxes
 
-**Comprehensive Collection of Service Mesh, API Gateway, and AI Agent Testing Environments**
+**Service mesh, API gateway, and AI agent testing environments**
 
 Tom Dean
 Last edit: 4/1/2026
 
+> **Status:** I'm not actively working on these sandboxes. The versions below are from April 2026 and may be out of date.
+
 ## Overview
 
-This repository provides production-ready sandbox environments for testing and learning about service meshes (Istio, Gloo Mesh), API gateways (Kgateway, Gloo Gateway, Gloo Edge), and AI agent frameworks (Kagent, Agentgateway, Agentregistry). All sandboxes are designed for rapid deployment, repeatable testing, and hands-on exploration of cloud-native technologies.
+This repository provides sandbox environments for testing and learning about service meshes (Istio, Gloo Mesh), API gateways (Kgateway, Gloo Gateway, Gloo Edge), and AI agent frameworks (Kagent, Agentgateway, Agentregistry). All sandboxes are designed for rapid deployment, repeatable testing, and hands-on exploration of cloud-native technologies.
 
 The sandboxes support multiple deployment targets:
 - **Local k3d clusters** - Fastest iteration for development and testing
 - **Local kind clusters** - Alternative local Kubernetes environment
 - **AWS EKS** - Production-like cloud deployments
-- **Azure AKS** - Azure cloud environments (coming soon)
-- **GCP GKE** - Google Cloud environments (coming soon)
 
 ## Repository Structure
 
@@ -78,7 +78,7 @@ kubectl get pods -A
 Local Kubernetes sandboxes using k3d for rapid iteration and testing.
 
 ### ai-sandbox
-**Comprehensive AI Agent Platform**
+**AI Agent Platform**
 
 The most complete AI agent testing environment, combining service mesh, API gateway, agent gateway, and agent discovery.
 
@@ -437,14 +437,6 @@ vi vars.sh  # Configure AWS profile, region, license keys
 
 ---
 
-### Azure
-Azure AKS sandboxes (coming soon)
-
-### GCP
-GCP GKE sandboxes (coming soon)
-
----
-
 ## Shared Applications
 
 ### movies-app
@@ -571,8 +563,6 @@ Quick reference for finding sandboxes by technology:
 
 ### Cloud Platforms
 - **AWS EKS**: eks-spiffe-spire-istio-sandbox
-- **Azure AKS**: Coming soon
-- **GCP GKE**: Coming soon
 
 ---
 
