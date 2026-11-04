@@ -14,7 +14,7 @@ external_services:
       username: ""
     enabled: true
     internal_url: 'http://grafana.grafana:3000/'
-    external_url: 'http://localhost:9001/grafana'
+    external_url: 'http://localhost:7201/grafana'
     is_core: false
     dashboards:
     - name: "Istio Service Dashboard"

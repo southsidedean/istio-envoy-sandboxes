@@ -5,7 +5,7 @@
 Tom Dean
 Last edit: 11/4/2026
 
-> **Status:** These sandboxes aren't actively developed, and a cleanup is in progress. No sandbox has been re-tested since the April 2026 versions were set, and the [known issues](#known-issues) below haven't been fixed yet. See [PLAN.md](PLAN.md).
+> **Status:** These sandboxes aren't actively developed, and a cleanup is in progress. `kgateway-sandbox` and `istio-llb-sandbox` were verified on 11/4/2026 with the versions in [PLAN.md](PLAN.md). `ai-sandbox` and `kagent-sandbox` haven't been re-tested and have [known issues](#known-issues).
 
 ## Sandboxes
 
@@ -38,14 +38,12 @@ Don't commit real credentials to `vars.sh`.
 
 ## Known Issues
 
-These come from reading the scripts and rendering the charts. No cluster was started. [PLAN.md](PLAN.md) has the full list.
+These come from reading the scripts and rendering the charts, not from running these sandboxes. [PLAN.md](PLAN.md) has the full list.
 
 | Sandbox | Issue |
 |---|---|
 | `ai-sandbox` | Setup is expected to stop at the `istiod` wait. Agentregistry 0.3.2 needs an external PostgreSQL, and the Agentgateway and Kagent routes point at Services or ports that don't exist. |
 | `kagent-sandbox` | The UI route points at a Service that the chart doesn't create. |
-| `kgateway-sandbox` | The default of 3 clusters fails on clusters 2 and 3. Set `NUM_CLUSTERS=1` in `vars.sh`. |
-| `istio-llb-sandbox` | The Kiali and Grafana URLs need Traefik, which the cluster config disables. Istio also installs a newer version than the scripts report. |
 | `scripts/yaml-collector.sh` | It deletes `./manifests`, so don't run it from inside a sandbox. |
 
 ## Older Content

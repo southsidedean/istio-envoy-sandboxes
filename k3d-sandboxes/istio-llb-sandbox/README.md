@@ -1,11 +1,13 @@
 # istio-llb-sandbox
 
 ## Tom Dean
-## Last edit: 3/27/2026
+## Last edit: 11/4/2026
 
 ## Introduction
 
 This sandbox demonstrates **Locality Load Balancing (LLB)** with **Istio**, keeping traffic within the same topology zone to reduce latency and improve reliability. The cluster is configured with three zones (central, west, east) and uses the **movies app** to generate cross-zone traffic that can be observed and controlled.
+
+> **Verified 11/4/2026** in ambient, sidecar, and naked modes with Istio 1.29.1, Kiali 2.23.0, Grafana chart 10.5.15, Traefik chart 39.0.2, and k3s v1.35.2-k3s1.
 
 ## Prerequisites
 
@@ -21,11 +23,11 @@ This sandbox demonstrates **Locality Load Balancing (LLB)** with **Istio**, keep
   - We're going to use the sandbox [here](https://github.com/southsidedean/istio-envoy-sandboxes/tree/main/k3d-sandboxes/istio-llb-sandbox)
 - Internet access to pull containers
 
-Everything else is self-contained, just run the script to create the cluster(s).
+Everything else is self-contained, just run the script to create the cluster.
 
 ## About the Sandbox
 
-This sandbox focuses on **Locality Load Balancing** and keeping traffic in-zone in **Istio**, with scripts to deploy both **sidecar** and **ambient** modes. Once the cluster is deployed, you can observe traffic with the in-cluster **Kiali** instance (`localhost:7201/kiali`) and use the in-cluster **Grafana** (`localhost:7201/grafana`). The Istio Grafana dashboards are deployed alongside Grafana.
+This sandbox focuses on **Locality Load Balancing** and keeping traffic in-zone in **Istio**, with scripts to deploy both **sidecar** and **ambient** modes. Once the cluster is deployed, you can observe traffic with the in-cluster **Kiali** instance (`localhost:7201/kiali`) and use the in-cluster **Grafana** (`localhost:7201/grafana`). The Istio Grafana dashboards are deployed alongside Grafana. Traefik serves both URLs.
 
 All the Helm `values` files and other YAML manifests live in the `manifests` directory:
 
@@ -41,9 +43,7 @@ manifests
 ├── kiali-ingress.yaml
 ├── kiali-values.yaml
 ├── movies-destination-rule.yaml
-├── movies-waypoint.yaml
-├── registries-bak.yaml
-└── registries.yaml
+└── movies-waypoint.yaml
 ```
 
 If you want to tweak the variables for the scripts, look in the `vars.sh` file.

@@ -2,7 +2,7 @@
 # cluster-setup-k3d-amb-everything.sh
 # Automates k3d cluster creation with Ambient mesh
 # Tom Dean
-# Last edit: 5/13/2025
+# Last edit: 11/4/2026
 
 set -e
 
@@ -23,7 +23,7 @@ done
 for cluster in $(seq -f %02g 1 "$NUM_CLUSTERS")
 do
 clustername="$CLUSTER_NAME_PREFIX$cluster"
-k3d cluster create "$clustername" -c cluster-k3d/k3d-cluster.yaml --registry-config manifests/registries.yaml --port "${HTTP_PORT_PREFIX}${cluster}:80@loadbalancer" --port "${HTTPS_PORT_PREFIX}${cluster}:443@loadbalancer" --api-port "0.0.0.0:${API_PORT_PREFIX}${cluster}"
+k3d cluster create "$clustername" -c cluster-k3d/k3d-cluster.yaml --port "${HTTP_PORT_PREFIX}${cluster}:80@loadbalancer" --port "${HTTPS_PORT_PREFIX}${cluster}:443@loadbalancer" --api-port "0.0.0.0:${API_PORT_PREFIX}${cluster}"
 done
 
 k3d cluster list
@@ -51,17 +51,6 @@ kubectl label ns "$MOVIES_NAMESPACE" istio.io/dataplane-mode=ambient --overwrite
 kubectl label ns "$MOVIES_NAMESPACE" istio.io/use-waypoint=waypoint --overwrite=true
 
 # Deploy OSS Istio
-# Deploy 'istioctl'
-# WARNING: The original script used: curl -L https://istio.io/downloadIstio | sh -
-# This is a security risk. For production, download and verify the binary manually.
-# Uncomment the following lines if you accept the security risk:
-# curl -L https://istio.io/downloadIstio | sh -
-# export PATH=$PWD/istio-${ISTIO_VERSION}/bin:$PATH
-
-# For now, assuming istioctl is already installed or will be installed manually
-export PATH=$PWD/istio-${ISTIO_VERSION}/bin:$PATH
-
-# Here we go!
 
 export CLUSTER_NAME="${CLUSTER_NAME_PREFIX}01"
 echo
@@ -80,14 +69,14 @@ helm repo update
 
 # Install Istio base
 
-helm install istio-base istio/base -n "$ISTIO_NAMESPACE" --set defaultRevision="${ISTIO_VERSION}" --create-namespace --wait
+helm install istio-base istio/base -n "$ISTIO_NAMESPACE" --version "$ISTIO_VERSION" --create-namespace --wait
 echo
 helm ls -n "$ISTIO_NAMESPACE"
 echo
 
 # Install Istio discovery chart (istiod)
 
-helm install istiod istio/istiod -n "$ISTIO_NAMESPACE" -f manifests/istiod-values.yaml --set profile=ambient --wait
+helm install istiod istio/istiod -n "$ISTIO_NAMESPACE" --version "$ISTIO_VERSION" -f manifests/istiod-values.yaml --set profile=ambient --wait
 echo
 helm ls -n "$ISTIO_NAMESPACE"
 echo
@@ -98,14 +87,14 @@ echo
 
 # Install Istio CNI
 
-helm install istio-cni istio/cni -n "$ISTIO_NAMESPACE" -f manifests/istio-cni-values.yaml --set profile=ambient --wait
+helm install istio-cni istio/cni -n "$ISTIO_NAMESPACE" --version "$ISTIO_VERSION" -f manifests/istio-cni-values.yaml --set profile=ambient --wait
 echo
 helm ls -n "$ISTIO_NAMESPACE"
 echo
 
 # Install ztunnel DaemonSet
 
-helm install ztunnel istio/ztunnel -n "$ISTIO_NAMESPACE" --wait
+helm install ztunnel istio/ztunnel -n "$ISTIO_NAMESPACE" --version "$ISTIO_VERSION" --wait
 
 # Verify installation
 
@@ -125,7 +114,10 @@ kubectl apply -f manifests/movies-waypoint.yaml
 # Verify the 'movies' app is good
 
 echo "Waiting for movies app deployments to be ready..."
-kubectl rollout status deployment -n "$MOVIES_NAMESPACE" --timeout=300s
+for deployment in $(kubectl get deployment -n "$MOVIES_NAMESPACE" -o name)
+do
+kubectl rollout status "$deployment" -n "$MOVIES_NAMESPACE" --timeout=300s
+done
 kubectl get all -n "$MOVIES_NAMESPACE"
 
 # Install Istio's Prometheus integration
@@ -143,13 +135,22 @@ helm repo update
 helm install \
     --namespace "$ISTIO_NAMESPACE" \
     kiali-server \
-    kiali/kiali-server -f manifests/kiali-values.yaml
+    kiali/kiali-server --version "$KIALI_VERSION" -f manifests/kiali-values.yaml --wait
 
 # Install Grafana
 
 helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update grafana
 helm install grafana -n "$GRAFANA_NAMESPACE" --create-namespace grafana/grafana \
-  -f manifests/grafana-values.yaml --debug
+  --version "$GRAFANA_CHART_VERSION" -f manifests/grafana-values.yaml --wait
+
+# Install Traefik for the Kiali and Grafana ingresses
+# The Traefik bundled with k3s can't install once the Gateway API CRDs exist
+
+helm repo add traefik https://traefik.github.io/charts
+helm repo update traefik
+helm install traefik traefik/traefik -n traefik --create-namespace --version "$TRAEFIK_CHART_VERSION" \
+  --skip-crds --set providers.kubernetesCRD.enabled=false --wait
 
 # Create ingress(es) for cluster
 

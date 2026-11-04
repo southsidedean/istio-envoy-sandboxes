@@ -30,7 +30,7 @@ Licensed and Gloo sandboxes were removed. They remain available at tag `pre-oss-
 │   └── cluster-destroy-k3d.sh                     # Teardown
 ├── manifests/                             # Helm values and Kubernetes YAML
 ├── cluster-k3d/k3d-cluster.yaml           # The k3d config the scripts use
-├── movies/                                # Movies app (symlink or copy)
+├── movies/                                # Movies app (symlink, or a copy in ai and kagent)
 └── README.md
 ```
 
@@ -59,7 +59,7 @@ helm template <release> <chart> --version <version> -f <values>
 
 - **Install order:** cluster → Gateway API CRDs → mesh (Istio base → istiod → CNI → ztunnel) → gateway → AI frameworks → demo apps → observability.
 - **Topology:** `k3d-cluster.yaml` creates 1 server and 3 agents, labeled `topology.kubernetes.io/zone` as `central`, `west`, and `east`. Movies has required affinity on those zones.
-- **Traefik:** the k3d configs set `--disable=traefik`.
+- **Traefik:** the k3d configs set `--disable=traefik`. `istio-llb` installs upstream Traefik from a pinned chart with `--skip-crds`, because the k3s Traefik CRD chart fails once Gateway API CRDs exist.
 - **Ambient:** namespaces opt in with `istio.io/dataplane-mode=ambient`. L7 policy needs a waypoint.
 
 ### Ports
@@ -83,4 +83,5 @@ Keep prefixes unique so sandboxes can run at the same time.
 - **Context:** in multi-cluster loops, every `kubectl` and `helm` call needs an explicit `--context` or `--kube-context`.
 - **Shell:** quote variables, and keep the flow: source `vars.sh` → check credentials → delete old cluster → create cluster → install → wait → print access info.
 - **Waits:** Deployments have `Available`, not `Ready`. Prefer `kubectl rollout status`.
+- **Testing:** a clean exit isn't enough. Send traffic through the path you changed, and read raw output before filtering it.
 - **Docs:** only claim what's been run. Say "verified" with a date and versions, and don't describe a sandbox as production-ready. When a fix lands, tick it off in `PLAN.md`.

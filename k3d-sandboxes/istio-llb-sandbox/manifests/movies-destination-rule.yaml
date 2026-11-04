@@ -6,9 +6,6 @@ metadata:
 spec:
   host: movieinfo.movies.svc.cluster.local
   trafficPolicy:
-    connectionPool:
-      http:
-        maxRequestsPerConnection: 1
     loadBalancer:
       simple: LEAST_REQUEST
       localityLbSetting:

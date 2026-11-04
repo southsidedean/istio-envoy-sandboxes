@@ -2,7 +2,7 @@
 # cluster-setup-k3d-kgw-everything.sh
 # Automates k3d cluster creation with kgateway (OSS) 2.x
 # Tom Dean
-# Last edit: 3/27/2026
+# Last edit: 11/4/2026
 
 set -e
 
@@ -43,10 +43,14 @@ kubectx
 
 # Install Gateway API CRDs
 
+for cluster in $(seq -f %02g 1 "$NUM_CLUSTERS")
+do
+kubectxname="$KUBECTX_NAME_PREFIX$cluster"
 echo
-echo "Installing Gateway API CRDs ${GATEWAY_API_VERSION}..."
-kubectl apply --server-side --force-conflicts -f "https://github.com/kubernetes-sigs/gateway-api/releases/download/${GATEWAY_API_VERSION}/experimental-install.yaml"
+echo "Installing Gateway API CRDs ${GATEWAY_API_VERSION} on cluster $cluster..."
+kubectl apply --server-side --force-conflicts -f "https://github.com/kubernetes-sigs/gateway-api/releases/download/${GATEWAY_API_VERSION}/experimental-install.yaml" --context "$kubectxname"
 echo
+done
 
 # Install kgateway using Helm (OCI)
 
@@ -83,6 +87,7 @@ do
 kubectxname="$KUBECTX_NAME_PREFIX$cluster"
 echo "Creating HTTP Gateway on cluster $cluster..."
 kubectl apply -f manifests/http-listener.yaml --context "$kubectxname"
+kubectl wait --for=condition=Programmed gateway/http-gateway -n "$KGATEWAY_NAMESPACE" --context "$kubectxname" --timeout=300s
 done
 
 # Deploy the 'movies' application
@@ -92,6 +97,7 @@ do
 kubectxname="$KUBECTX_NAME_PREFIX$cluster"
 echo
 kubectl apply -k movies --context "$kubectxname"
+kubectl wait --for=condition=Available deployment --all -n movies --context "$kubectxname" --timeout=300s
 echo
 done
 

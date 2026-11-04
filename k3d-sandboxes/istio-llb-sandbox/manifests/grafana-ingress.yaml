@@ -3,7 +3,6 @@ kind: Ingress
 metadata:
   annotations:
     ingress.kubernetes.io/ssl-redirect: "false"
-    kubernetes.io/ingress.class: traefik
   name: grafana-ingress
   namespace: grafana
 spec:

@@ -3,12 +3,12 @@
 # Environment variables for the sandbox
 #
 # Tom Dean
-# Last edit: 3/27/2026
+# Last edit: 11/4/2026
 #
 # Set variables here and then execute or source script
 # Do this before executing any sandbox scripts
 
-export NUM_CLUSTERS=3
+export NUM_CLUSTERS=1
 export CLUSTER_NAME_PREFIX=kgw-
 export KUBECTX_NAME_PREFIX=kgw-
 export CLUSTER_NETWORK=kgw-network

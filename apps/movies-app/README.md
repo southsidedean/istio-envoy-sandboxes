@@ -338,7 +338,7 @@ This application is used by:
 - **kagent-sandbox** - Sample workload alongside Kagent
 - **kgateway-sandbox** - Sample workload behind Kgateway
 
-`istio-llb-sandbox` symlinks to `single-cluster/`. The others currently hold copies of it.
+`istio-llb-sandbox` and `kgateway-sandbox` symlink to `single-cluster/`. The others currently hold copies of it.
 
 ## Cleanup
 

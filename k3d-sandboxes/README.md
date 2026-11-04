@@ -5,7 +5,7 @@
 Tom Dean
 Last edit: 11/4/2026
 
-> **Status:** Not re-tested since the April 2026 versions were set. See the [known issues](../README.md#known-issues) and [PLAN.md](../PLAN.md).
+> **Status:** `kgateway-sandbox` and `istio-llb-sandbox` were verified on 11/4/2026. `ai-sandbox` and `kagent-sandbox` haven't been re-tested. See the [known issues](../README.md#known-issues) and [PLAN.md](../PLAN.md).
 
 ## Sandboxes
 
