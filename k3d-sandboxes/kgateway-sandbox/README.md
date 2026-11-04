@@ -3,11 +3,13 @@
 **Kgateway (OSS) API Gateway**
 
 Tom Dean
-Last edit: 3/27/2026
+Last edit: 11/4/2026
 
 ## Introduction
 
 The `kgateway-sandbox` provides a testing environment for kgateway, the open source Kubernetes-native API gateway implementing the Gateway API specification. This sandbox deploys kgateway 2.x via OCI Helm charts with the movies app for load testing.
+
+> **Verified 11/4/2026** with kgateway 2.2.2, Gateway API v1.5.1, and k3s v1.35.2-k3s1.
 
 ## Prerequisites
 
@@ -24,7 +26,7 @@ Edit `vars.sh` before running scripts:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `NUM_CLUSTERS` | 3 | Number of k3d clusters to create |
+| `NUM_CLUSTERS` | 1 | Number of k3d clusters to create |
 | `CLUSTER_NAME_PREFIX` | `kgw-` | Prefix for cluster names |
 | `KUBECTX_NAME_PREFIX` | `kgw-` | Prefix for kubectl context names |
 | `KGATEWAY_VERSION` | 2.2.2 | Kgateway version |
@@ -59,12 +61,12 @@ To create just the k3d clusters without installing kgateway:
 
 ### `cluster-setup-k3d-kgw-everything.sh` Step by Step
 
-1. **k3d clusters** - Creates 3 local Kubernetes clusters with:
-   - HTTP ports: 8001, 8002, 8003 (mapped to port 80 in cluster)
-   - HTTPS ports: 8401, 8402, 8403 (mapped to port 443 in cluster)
-   - API ports: 8601, 8602, 8603
+1. **k3d clusters** - Creates `NUM_CLUSTERS` local Kubernetes clusters. The first cluster uses:
+   - HTTP port 8001 (mapped to port 80 in cluster)
+   - HTTPS port 8401 (mapped to port 443 in cluster)
+   - API port 8601
 
-2. **Gateway API CRDs** - Installs Kubernetes Gateway API standard CRDs
+2. **Gateway API CRDs** - Installs the Kubernetes Gateway API experimental CRDs on each cluster
 
 3. **kgateway** - Installs kgateway OSS via OCI Helm charts into `kgateway-system` namespace on each cluster
    - Chart: `oci://cr.kgateway.dev/kgateway-dev/charts/kgateway`
@@ -123,8 +125,6 @@ kubectx
 
 # Switch to a specific cluster
 kubectx kgw-01
-kubectx kgw-02
-kubectx kgw-03
 
 # View resources in a cluster
 kubectl get all -n kgateway-system
@@ -133,7 +133,7 @@ kubectl get all -n movies
 
 ## Port Mappings
 
-Each cluster has its own port mappings on localhost:
+Each cluster has its own port mappings on localhost. These are the first three, if you raise `NUM_CLUSTERS`:
 
 | Cluster | HTTP Port | HTTPS Port | API Port |
 |---------|-----------|------------|----------|
@@ -146,6 +146,8 @@ Access services via:
 # Example: Access cluster 1
 curl http://localhost:8001
 ```
+
+This returns a 404 until you add an HTTPRoute, because the sandbox creates the Gateway but no routes.
 
 ## Troubleshooting
 
@@ -188,4 +190,4 @@ This deletes all k3d clusters and cleans up kubectl contexts.
 ---
 
 Tom Dean
-Last updated: March 27, 2026
+Last updated: November 4, 2026

@@ -3,7 +3,6 @@ kind: Ingress
 metadata:
   annotations:
     ingress.kubernetes.io/ssl-redirect: "false"
-    kubernetes.io/ingress.class: traefik
   name: kiali-ingress
   namespace: istio-system
 spec:
