@@ -9,7 +9,7 @@ Make this repository presentable and useful without committing ongoing resources
 
 ## How these findings were produced
 
-The November 2026 review read every tracked file, ran `shellcheck`, built the Kustomize trees, and rendered the pinned Helm charts. **No cluster was started.** Runtime failures below are expected from that reading and still need to be confirmed in Phase 2.
+The November 2026 review read every tracked file, ran `shellcheck`, built the Kustomize trees, and rendered the pinned Helm charts. **No cluster was started.** The Phase 2 runs that followed confirmed or corrected those findings for the sandboxes that remain.
 
 ## Decisions
 
@@ -22,7 +22,8 @@ The November 2026 review read every tracked file, ran `shellcheck`, built the Ku
 | `gloo-gw-sandbox`, `istio-sandbox` | Cull |
 | `ai-sandbox`, `kagent-sandbox` | Cull. No further work planned on them |
 | Azure, GCP, kind | Cull. These were empty placeholders |
-| AWS EKS sandbox | Keep as a labeled exception: unverified, stale, needs a Solo license. Do not run it |
+| AWS EKS sandbox | Cull. It needs a Solo license, so it can't be tested |
+| `scripts/yaml-collector.sh` | Delete. It could remove a sandbox's manifests, and no sandbox uses it |
 | `istio-llb` `both` scripts | Delete. They were an unusable Gloo Mesh copy |
 
 ## Phase 0: Archive (done)
@@ -38,14 +39,14 @@ Everything removed below, including the Gloo screenshots, is still available fro
 - [x] Remove `k3d-sandboxes/{ent-ai,ent-kgateway,gme-llb,ge-llb,gloo-gw,glooe-gw,istio}-sandbox`
 - [x] Remove the `istio-llb` `both` setup and destroy scripts
 - [x] Remove unused license and Gloo variables from `ai`, `kagent`, and `istio-llb` `vars.sh`
-- [x] Label the AWS sandbox unverified and stale
+- [x] Remove the AWS sandbox and `scripts/yaml-collector.sh`
 - [x] Rewrite the root and `k3d-sandboxes` READMEs for the remaining content, listing known issues
-- [x] Rewrite root `CLAUDE.md`; remove the stale changelog from the AWS `CLAUDE.md`
+- [x] Rewrite root `CLAUDE.md`
 - [x] Write this plan
 - [x] Merge to `main`
 - [x] Update the GitHub description and topics. Remove `gloo-gateway`, `gloo-mesh`, `kind`
 
-Description, to update after the `ai` and `kagent` removal merges: *Scripted OSS sandboxes for Istio ambient, locality load balancing, and kgateway on k3d.* Also remove the `agentgateway`, `ai-agents`, and `kagent` topics.
+After the AWS removal merges, remove the `eks` topic.
 
 ## Phase 2: Fix and verify the OSS sandboxes
 
@@ -83,35 +84,17 @@ Verified: Istio 1.29.1, Kiali 2.23.0, Grafana chart 10.5.15, Traefik chart 39.0.
 
 ### `apps/movies-app`
 
+The open items here are known and left as is. They change the app both verified sandboxes depend on, so fixing them means re-running both.
+
 - [ ] Deployments share the selectors `app: movieinfo` and `app: frontend`. The overlap can skew the HPAs and confirmed misdirects `kubectl logs deploy/frontend-central` to another frontend's pod. Add a per-Deployment label
 - [ ] Under sidecars, the HPAs report `<unknown>` CPU. Find out why
 - [ ] Remove stale linkerd annotations from `lax` and `nyc`
-- [ ] README: wrong port (8080, actual 80), wrong `tier=frontend` selector, and a file layout that doesn't exist
-
-### `scripts/yaml-collector.sh`
-
-- [ ] `:45`: `rm -rf manifests` in the current directory deletes a sandbox's manifests if run from inside one. Use `mktemp`
-- [ ] `:18`: the default filter collects Solo resources only. Choose an OSS-appropriate default
+- [x] README: rewritten from the manifests. It had a wrong port, labels, selectors, Fortio settings, HPA names, and file layout
 
 ### Repository
 
 - [x] Add an MIT `LICENSE` file. The README had claimed MIT without one
-- [ ] Record the versions that passed in each sandbox README
-
-## Phase 3: AWS sandbox (not scheduled)
-
-Nothing here runs until someone chooses to return to it. If it stays unrun, either keep the label or cull it. The tag preserves it either way.
-
-Known issues:
-
-- Requires Solo Istio 1.25.3, `REPO_KEY`, and `SOLO_ISTIO_LICENSE_KEY`, so it can't run without a Solo license
-- EKS 1.33 is probably past standard support (not checked)
-- README says there are 4 SPIRE registrations (there are 3), mentions the deleted `istio-values.yaml`, and gives SPIRE 0.24.1 (`vars.sh` has 0.24.2)
-- `cluster-destroy-eks.sh` doesn't delete the kubectl context
-- Setup prints the Grafana password
-- Unused variables: `KUBECTX_NAME_PREFIX`, `ISTIO_NAMESPACE`, `ISTIOCTL_VERSION`, `SPIRE_APP_VERSION`
-
-Moving it to upstream Istio would be a separate project. Whether upstream supports this SPIRE integration hasn't been checked.
+- [x] Record the versions that passed in each sandbox README
 
 ## Out of scope
 

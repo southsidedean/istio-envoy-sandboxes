@@ -3,330 +3,88 @@
 **Multi-Zone Load Testing Application**
 
 Tom Dean
-Last edit: 2/23/2026
+Last edit: 11/4/2026
 
 ## Overview
 
-The `movies-app` is a demo application used across multiple sandboxes for testing traffic distribution, locality load balancing, and service mesh features. It simulates a multi-zone deployment with load generators and backends distributed across geographic regions.
+The `movies-app` is a demo application for testing traffic distribution, locality load balancing, and service mesh features. It has one load generator and one backend in each of three zones.
 
 ## Architecture
 
 ```
-Frontend (Fortio Load Generators):
-  - frontend-central (500 QPS) ──┐
-  - frontend-east (500 QPS)    ──┼─→ movieinfo Service (ClusterIP)
-  - frontend-west (500 QPS)    ──┘           │
-                                     ┌────────┼────────┐
-                                     │        │        │
-                              movieinfo-chi  -lax  -nyc
-                              (central)    (west)  (east)
+frontend-central (500 QPS) ──┐
+frontend-east    (500 QPS) ──┼─→ movieinfo Service (ClusterIP, port 80)
+frontend-west    (500 QPS) ──┘           │
+                               ┌─────────┼─────────┐
+                               │         │         │
+                         movieinfo-chi  -lax      -nyc
+                           (central)   (west)    (east)
 ```
+
+Zone placement uses required node affinity on `topology.kubernetes.io/zone`, so the cluster's nodes must carry the labels `central`, `west`, and `east`. The k3d configs in this repository set them.
 
 ## Components
 
-### Backend Services
+**Backends** (`movieinfo-chi`, `movieinfo-lax`, `movieinfo-nyc`) run `nginx:1.27-alpine` and serve an `index.html` from a ConfigMap that names the backend. Each has a HorizontalPodAutoscaler with 1 to 3 replicas and a 25% CPU target.
 
-Three nginx instances serving static content:
-- **movieinfo-chi** - Central zone (Chicago)
-- **movieinfo-lax** - West zone (Los Angeles)
-- **movieinfo-nyc** - East zone (New York)
+**Load generators** (`frontend-central`, `frontend-east`, `frontend-west`) run `fortio/fortio:1.63.0` continuously at 500 QPS each, 1500 QPS in total, against `http://movieinfo.movies.svc.cluster.local/index.html`.
 
-Each backend:
-- Runs nginx serving `index.html`
-- Labeled with `topology.kubernetes.io/zone`
-- Configured with HorizontalPodAutoscaler (1-3 replicas)
-- CPU target: 25%
+**Service:** `movieinfo` is a ClusterIP Service on port 80 that selects `app=movieinfo`.
 
-### Frontend Load Generators
+## Deployment
 
-Three Fortio instances generating continuous traffic:
-- **frontend-central** - 500 QPS
-- **frontend-east** - 500 QPS
-- **frontend-west** - 500 QPS
-
-**Total traffic: 1500 QPS**
-
-Each frontend:
-- Runs Fortio load testing tool
-- Labeled with matching zone affinity
-- Continuously requests `http://movieinfo:8080/index.html`
-
-### Service
-
-- **Name**: movieinfo
-- **Type**: ClusterIP
-- **Port**: 8080
-- **Selectors**: app=movieinfo
-- **Endpoints**: All 3 backends (chi, lax, nyc)
-
-## Deployment Variants
-
-### Single Cluster
-
-Located in `single-cluster/`:
+Run these from `apps/movies-app`.
 
 ```bash
-# Deploy to current cluster
-kubectl apply -k single-cluster/
-```
-
-Includes:
-- All 6 pods (3 backends + 3 frontends)
-- movieinfo service
-- HPA configurations
-- Zone labels for locality testing
-
-### Multi-Cluster
-
-Located in `multi-cluster/`:
-
-```bash
-# Deploy across multiple clusters
-kubectl apply -k multi-cluster/ --context cluster-01
-kubectl apply -k multi-cluster/ --context cluster-02
-```
-
-Designed for:
-- Multi-cluster service mesh testing
-- Cross-cluster traffic distribution
-- Federated service discovery
-
-## Use Cases
-
-### Locality Load Balancing
-
-Test zone-aware traffic distribution:
-
-```bash
-# Deploy the app
+# One cluster, with frontends and backends together
 kubectl apply -k single-cluster/
 
-# Check pod zones
-kubectl get pods -n movies --show-labels
-
-# Exec into frontend-central
-kubectl exec -n movies deploy/frontend-central -- sh
-
-# Generate traffic (should prefer chi backend)
-curl http://movieinfo:8080/index.html
+# Separate clusters for frontends and backends
+kubectl apply -k multi-cluster/frontend/ --context <cluster>
+kubectl apply -k multi-cluster/movieinfo/ --context <cluster>
 ```
 
-### Service Mesh Traffic Observation
-
-Monitor traffic patterns:
-
-```bash
-# View service endpoints
-kubectl get endpoints -n movies movieinfo
-
-# Check traffic distribution in Kiali/Grafana
-# Traffic should prefer same-zone backends
-```
-
-### Load Testing
-
-Stress test service mesh:
-
-```bash
-# Deploy with HPA enabled
-kubectl apply -k single-cluster/
-
-# Watch autoscaling
-kubectl get hpa -n movies --watch
-
-# Monitor resource usage
-kubectl top pods -n movies
-```
-
-### Multi-Zone Failover
-
-Test zone failure scenarios:
-
-```bash
-# Scale down central zone backend
-kubectl scale deploy/movieinfo-chi -n movies --replicas=0
-
-# Observe traffic shift to lax/nyc backends
-# Frontend-central should failover to other zones
-```
-
-## Configuration
-
-### Zone Labels
-
-Pods are labeled with Kubernetes topology labels:
-
-```yaml
-topology.kubernetes.io/zone: central  # or west, east
-topology.kubernetes.io/region: us     # all pods
-```
-
-### Load Generator Settings
-
-Fortio is configured with:
-- QPS: 500 per frontend (1500 total)
-- Connections: 100
-- Target: http://movieinfo:8080/index.html
-- Duration: Continuous (infinity loop)
-
-### HPA Settings
-
-```yaml
-minReplicas: 1
-maxReplicas: 3
-targetCPUUtilizationPercentage: 25
-```
-
-## Observing Traffic
-
-### Using kubectl
-
-```bash
-# View service endpoints
-kubectl get endpoints -n movies movieinfo -o yaml
-
-# Check pod distribution
-kubectl get pods -n movies -o wide
-
-# View logs from load generators
-kubectl logs -n movies deploy/frontend-central
-
-# Monitor HPA status
-kubectl get hpa -n movies
-```
-
-### Using Service Mesh UI (Kiali)
-
-1. Access Kiali (typically http://localhost:9001/kiali)
-2. Navigate to Graph view
-3. Select "movies" namespace
-4. Observe traffic distribution between frontends and backends
-5. Check if traffic stays within zones (locality preference)
-
-### Using Metrics (Grafana)
-
-1. Access Grafana (typically http://localhost:9001/grafana)
-2. View Istio dashboards
-3. Filter by "movies" namespace
-4. Observe request rates and latencies
-5. Compare cross-zone vs same-zone traffic
+The sandboxes use `single-cluster/`. `multi-cluster/` holds the same manifests split in two and isn't used or tested by any sandbox.
 
 ## Manifest Structure
 
 ```
 single-cluster/
-├── kustomization.yaml          # Kustomize config
-├── deployment-backends.yaml    # 3 nginx backends
-├── deployment-frontends.yaml   # 3 Fortio frontends
-├── service.yaml                # movieinfo ClusterIP service
-└── hpa.yaml                    # HorizontalPodAutoscaler
+├── kustomization.yaml
+├── namespace.yaml
+├── frontend-{central,east,west}.yaml   # Fortio load generators
+├── movieinfo-{chi,lax,nyc}.yaml        # Nginx backends and ConfigMaps
+├── movieinfo-service.yaml              # ClusterIP Service
+└── movieinfo-hpa.yaml                  # One HPA per backend
 
 multi-cluster/
-├── kustomization.yaml
-└── [cluster-specific configs]
+├── frontend/                           # Namespace and load generators
+└── movieinfo/                          # Namespace, backends, Service, and HPAs
 ```
 
-## Troubleshooting
-
-### Pods Not Starting
+## Observing Traffic
 
 ```bash
-# Check pod status
-kubectl get pods -n movies
-
-# View pod events
-kubectl describe pod <pod-name> -n movies
-
-# Check logs
-kubectl logs -n movies <pod-name>
-```
-
-### No Traffic Generation
-
-```bash
-# Check if frontends are running
-kubectl get pods -n movies -l tier=frontend
-
-# View Fortio logs
-kubectl logs -n movies deploy/frontend-central
-
-# Test service connectivity
-kubectl exec -n movies deploy/frontend-central -- curl -v http://movieinfo:8080/index.html
-```
-
-### HPA Not Scaling
-
-```bash
-# Check HPA status
+kubectl get pods -n movies -o wide      # Pod placement
+kubectl get endpoints -n movies movieinfo
 kubectl get hpa -n movies
-kubectl describe hpa movieinfo-hpa -n movies
-
-# Verify metrics-server is running
-kubectl get pods -n kube-system | grep metrics
-
-# Check CPU utilization
 kubectl top pods -n movies
 ```
 
-### Traffic Not Staying in Zone
+For a working locality walkthrough with Kiali and curl test pods, see [istio-llb-sandbox](../../k3d-sandboxes/istio-llb-sandbox/README.md).
 
-```bash
-# Verify zone labels
-kubectl get pods -n movies --show-labels | grep topology
+## Known Issues
 
-# Check service mesh configuration
-# For Istio: verify DestinationRule locality settings
-kubectl get destinationrule -n movies
+- All frontends share the selector `app: frontend`, and all backends share `app: movieinfo`. `kubectl logs deploy/frontend-central` can therefore return another frontend's logs, so use a pod name instead. The overlap can also skew the HPAs.
+- Under Istio sidecars, the HPAs report `<unknown>` CPU.
+- `movieinfo-lax` and `movieinfo-nyc` carry leftover linkerd annotations.
 
-# View endpoint distribution
-kubectl get endpoints -n movies movieinfo -o yaml
-```
+## Adjusting Load
 
-## Advanced Usage
-
-### Adjust Load
-
-Modify QPS in frontend deployments:
+Change the `-qps` value in the `args` of each `frontend-*.yaml`:
 
 ```yaml
-# In deployment-frontends.yaml, change -qps flag
-args:
-  - load
-  - -qps=1000  # Increase from 500
-  - -c=100
-  - -t=0s
-  - http://movieinfo:8080/index.html
-```
-
-### Add More Zones
-
-Create additional backends:
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: movieinfo-sea
-  labels:
-    zone: pacific-northwest
-spec:
-  template:
-    metadata:
-      labels:
-        topology.kubernetes.io/zone: pacific-northwest
-```
-
-### Custom Content
-
-Replace `index.html` in backends:
-
-```bash
-# Create ConfigMap with custom content
-kubectl create configmap movieinfo-content \
-  --from-file=index.html=./my-content.html \
-  -n movies
-
-# Mount in nginx pods (modify deployment)
+args: ["load", "-t", "0", "-qps", "500", "http://movieinfo.movies.svc.cluster.local/index.html"]
 ```
 
 ## Integration with Sandboxes
@@ -341,14 +99,10 @@ Both symlink to `single-cluster/`.
 ## Cleanup
 
 ```bash
-# Delete from current cluster
 kubectl delete -k single-cluster/
-
-# Or delete namespace
-kubectl delete namespace movies
 ```
 
 ---
 
 Tom Dean
-Last updated: February 23, 2026
+Last updated: November 4, 2026

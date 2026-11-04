@@ -6,16 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Self-contained local sandboxes for trying open source service mesh and gateway projects on k3d: Istio and Kgateway. The repository is **OSS-only** and low-maintenance. `PLAN.md` tracks the cleanup and lists known bugs, so read it before changing a sandbox.
 
-Licensed, Gloo, and AI agent sandboxes were removed. They remain available at tag `pre-oss-cleanup-2026-11`. Don't add anything that needs a commercial license or vendor credentials.
+Licensed, Gloo, AI agent, and AWS sandboxes were removed. They remain available at tag `pre-oss-cleanup-2026-11`. Don't add anything that needs a commercial license or vendor credentials.
 
 ## Repository Layout
 
 - `k3d-sandboxes/`
   - `kgateway-sandbox/` — Kgateway OSS (Gateway API)
   - `istio-llb-sandbox/` — Istio locality load balancing, ambient or sidecar, with Kiali and Grafana
-- `AWS/eks-spiffe-spire-istio-sandbox/` — **Unverified and stale.** Needs a Solo license, so it's the one exception to OSS-only. Has its own `CLAUDE.md`. Don't run it or spend effort on it unless asked.
 - `apps/movies-app/` — Shared load-test app: 3 Fortio frontends and 3 Nginx backends, 1500 QPS across 3 zones
-- `scripts/yaml-collector.sh` — Collects Kubernetes manifests for debugging. Don't run it from inside a sandbox until the `rm -rf manifests` bug in `PLAN.md` is fixed.
 
 ## Sandbox Structure
 
