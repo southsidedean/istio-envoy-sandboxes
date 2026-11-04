@@ -1,5 +1,7 @@
 # EKS SPIFFE/SPIRE Istio Ambient Sandbox
 
+> **Status: unverified and stale.** This sandbox hasn't been run recently and is kept as a reference only. It can't run as written without a Solo.io registry key and license, and its versions are out of date. Known issues are listed in [PLAN.md](../../PLAN.md#phase-3-aws-sandbox-not-scheduled).
+
 An automated sandbox for deploying an AWS EKS cluster with [SPIFFE/SPIRE](https://spiffe.io/) workload identity and [Istio Ambient mode](https://istio.io/latest/docs/ambient/) using [Solo.io's enterprise Istio distribution](https://www.solo.io/products/istio/). Includes a sample load-testing application to exercise the mesh.
 
 ## Architecture

@@ -334,11 +334,11 @@ kubectl create configmap movieinfo-content \
 This application is used by:
 
 - **istio-llb-sandbox** - Istio locality load balancing
-- **gme-llb-sandbox** - Gloo Mesh locality features
-- **ge-llb-sandbox** - Gloo Edge multi-zone routing
 - **ai-sandbox** - Service mesh testing with AI workloads
+- **kagent-sandbox** - Sample workload alongside Kagent
+- **kgateway-sandbox** - Sample workload behind Kgateway
 
-Each sandbox symlinks to this shared application directory.
+`istio-llb-sandbox` symlinks to `single-cluster/`. The others currently hold copies of it.
 
 ## Cleanup
 

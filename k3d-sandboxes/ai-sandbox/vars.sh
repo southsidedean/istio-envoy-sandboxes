@@ -43,4 +43,3 @@ export AGENTREGISTRY_NAMESPACE=agentregistry-system
 
 # Credentials
 export OPENAI_API_KEY="" # Replace with your OpenAI API key
-export LICENSE_KEY=""

@@ -48,28 +48,25 @@ manifests
 
 If you want to tweak the variables for the scripts, look in the `vars.sh` file.
 
-You should use the included scripts to create one or two clusters for local testing:
+You should use the included scripts to create a cluster for local testing:
 
 ```
 scripts
-├── cluster-destroy-k3d-both.sh
 ├── cluster-destroy-k3d.sh
 ├── cluster-setup-k3d-amb-everything.sh
-├── cluster-setup-k3d-both-everything.sh
 ├── cluster-setup-k3d-naked.sh
 └── cluster-setup-k3d-sc-everything.sh
 ```
 
-Several options exist for deploying cluster(s):
+Several options exist for deploying a cluster:
 
 - A *single cluster* with Istio in sidecar mode (`cluster-setup-k3d-sc-everything.sh`)
 - A *single cluster* with Istio in Ambient mode (`cluster-setup-k3d-amb-everything.sh`)
-- *Two clusters*, one with Istio in sidecar mode, one with Ambient mode (`cluster-setup-k3d-both-everything.sh`)
 - A "naked" cluster, no Istio/Prometheus/Kiali/Grafana, but with topology zones (`cluster-setup-k3d-naked.sh`)
   - You'll need to deploy Istio and the "extras" yourself
   - Great for building your own!
 
-Two scripts tear down your cluster(s).  Use the `both` script for two-cluster deployments.
+The `cluster-destroy-k3d.sh` script tears down your cluster.
 
 ## Keeping Traffic In-Zone Using Locality Load Balancing (LLB) With Sidecars
 

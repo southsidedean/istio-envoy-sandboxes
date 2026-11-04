@@ -4,106 +4,83 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Collection of self-contained sandbox environments for testing service meshes (Istio, Gloo Mesh), API gateways (Kgateway, Gloo Gateway, Gloo Edge), and AI agent frameworks (Kagent, Agentgateway, Agentregistry). Each sandbox is fully independent with its own scripts, manifests, and configuration.
+Self-contained local sandboxes for trying open source service mesh, gateway, and AI agent projects on k3d: Istio, Kgateway, and Kagent. The repository is **OSS-only** and low-maintenance. `PLAN.md` tracks the cleanup and lists known bugs, so read it before changing a sandbox.
+
+Licensed and Gloo sandboxes were removed. They remain available at tag `pre-oss-cleanup-2026-11`. Don't add anything that needs a commercial license or vendor credentials.
 
 ## Repository Layout
 
-- `k3d-sandboxes/` — 11 local sandboxes using k3d (Kubernetes via k3s in Docker)
-  - `ai-sandbox/` — Full AI platform: Istio Ambient + Kagent + Kgateway + Agentgateway + Agentregistry
-  - `ent-ai-sandbox/` — Enterprise AI platform: Solo Istio + Enterprise Kagent/Kgateway/Agentgateway + Agentregistry
-  - `ent-kgateway-sandbox/` — Solo Enterprise for Kgateway (requires LICENSE_KEY)
-  - `istio-llb-sandbox/` — Istio locality load balancing (ambient & sidecar modes)
-  - `istio-sandbox/` — Basic Istio OSS
-  - `gme-llb-sandbox/` — Gloo Mesh Enterprise with locality LB (requires LICENSE_KEY)
-  - `kagent-sandbox/` — Dedicated Kagent AI framework
-  - `kgateway-sandbox/` — Kgateway OSS 2.x (Gateway API)
-  - `gloo-gw-sandbox/` — Gloo Gateway v2
-  - `glooe-gw-sandbox/` — Gloo Edge Gateway
-  - `ge-llb-sandbox/` — Gloo Edge with locality LB
-- `AWS/eks-spiffe-spire-istio-sandbox/` — Production AWS EKS with SPIRE + Istio Ambient (has its own CLAUDE.md)
-- `apps/movies-app/` — Shared multi-zone load testing application (Fortio frontends + Nginx backends, 1500 QPS across 3 zones)
-- `scripts/yaml-collector.sh` — Utility to collect Kubernetes manifests for debugging
+- `k3d-sandboxes/`
+  - `ai-sandbox/` — Istio Ambient + Kagent + Kgateway + Agentgateway + Agentregistry
+  - `kagent-sandbox/` — Kagent + Kgateway
+  - `kgateway-sandbox/` — Kgateway OSS (Gateway API)
+  - `istio-llb-sandbox/` — Istio locality load balancing, ambient or sidecar, with Kiali and Grafana
+- `AWS/eks-spiffe-spire-istio-sandbox/` — **Unverified and stale.** Needs a Solo license, so it's the one exception to OSS-only. Has its own `CLAUDE.md`. Don't run it or spend effort on it unless asked.
+- `apps/movies-app/` — Shared load-test app: 3 Fortio frontends and 3 Nginx backends, 1500 QPS across 3 zones
+- `scripts/yaml-collector.sh` — Collects Kubernetes manifests for debugging. Don't run it from inside a sandbox until the `rm -rf manifests` bug in `PLAN.md` is fixed.
 
-## Sandbox Structure Convention
-
-Every sandbox follows the same internal layout:
+## Sandbox Structure
 
 ```
 <sandbox>/
-├── vars.sh                              # Environment variables (versions, names, credentials)
+├── vars.sh                                # Versions, names, port prefixes, placeholder credentials
 ├── scripts/
-│   ├── cluster-setup-k3d-*-everything.sh  # Full stack deployment
-│   ├── cluster-setup-k3d-naked.sh         # Bare cluster only
-│   └── cluster-destroy-k3d.sh             # Teardown
-├── manifests/                           # Helm values and Kubernetes YAML
-├── cluster-k3d/                         # k3d cluster configs (tiny/small/medium/large)
+│   ├── cluster-setup-k3d-<variant>-everything.sh  # Full stack
+│   ├── cluster-setup-k3d-naked.sh                 # Bare cluster
+│   └── cluster-destroy-k3d.sh                     # Teardown
+├── manifests/                             # Helm values and Kubernetes YAML
+├── cluster-k3d/k3d-cluster.yaml           # The k3d config the scripts use
+├── movies/                                # Movies app (symlink or copy)
 └── README.md
 ```
 
-**To use any sandbox**: `cd` into it, edit `vars.sh` with credentials, then run the desired setup script.
+Variants are `ai`, `kagent`, `kgw`, and, for `istio-llb`, `amb` and `sc`.
 
 ## Common Commands
 
+Run these from inside a sandbox directory. Setup scripts source `vars.sh` themselves.
+
 ```bash
-# All sandboxes require sourcing vars.sh first (setup scripts do this automatically)
-source vars.sh
-
-# Deploy full stack (script name varies by sandbox)
-./scripts/cluster-setup-k3d-<variant>-everything.sh
-
-# Deploy bare cluster only
-./scripts/cluster-setup-k3d-naked.sh
-
-# Destroy cluster
-./scripts/cluster-destroy-k3d.sh
-
-# Deploy movies app (from within a sandbox that uses it)
-kubectl apply -k ../apps/movies-app/single-cluster/
+./scripts/cluster-setup-k3d-<variant>-everything.sh   # Deploy full stack
+./scripts/cluster-setup-k3d-naked.sh                  # Deploy bare cluster
+./scripts/cluster-destroy-k3d.sh                      # Destroy cluster
+kubectl apply -k ../../apps/movies-app/single-cluster/  # Deploy movies app
 ```
 
-## Architecture Patterns
+There's no build system or test suite. To check changes without a cluster:
 
-### Deployment Stack Order
-Scripts install components in this order: cluster infrastructure → Gateway API CRDs → service mesh (Istio base → istiod → CNI → ztunnel) → API gateway → AI frameworks → demo apps → observability
+```bash
+shellcheck <script>
+kubectl kustomize apps/movies-app/single-cluster > /dev/null
+helm template <release> <chart> --version <version> -f <values>
+```
 
-### k3d Cluster Topology
-Each cluster creates 1 server + 3 agent nodes with zone labels:
-- `agent:0` → `topology.kubernetes.io/zone=central`
-- `agent:1` → `topology.kubernetes.io/zone=west`
-- `agent:2` → `topology.kubernetes.io/zone=east`
+## Architecture Notes
 
-### Port Mapping Convention
-Each sandbox has unique port prefixes defined in `vars.sh` (`HTTP_PORT_PREFIX`, `HTTPS_PORT_PREFIX`, `API_PORT_PREFIX`). Ports are computed as `${PREFIX}${CLUSTER_NUM}` where CLUSTER_NUM is zero-padded (01, 02, 03).
+- **Install order:** cluster → Gateway API CRDs → mesh (Istio base → istiod → CNI → ztunnel) → gateway → AI frameworks → demo apps → observability.
+- **Topology:** `k3d-cluster.yaml` creates 1 server and 3 agents, labeled `topology.kubernetes.io/zone` as `central`, `west`, and `east`. Movies has required affinity on those zones.
+- **Traefik:** the k3d configs set `--disable=traefik`.
+- **Ambient:** namespaces opt in with `istio.io/dataplane-mode=ambient`. L7 policy needs a waypoint.
+
+### Ports
+
+Ports are `${PREFIX}${CLUSTER_NUM}`, with a zero-padded cluster number, so prefix `72` on cluster `01` is `7201`.
 
 | Sandbox | HTTP | HTTPS | API |
 |---------|------|-------|-----|
-| ent-ai-sandbox | 60XX | 64XX | 68XX |
-| ent-kgateway-sandbox | 61XX | 65XX | 69XX |
 | ai-sandbox | 70XX | 74XX | 76XX |
-| istio-sandbox | 71XX | 75XX | 79XX |
 | istio-llb-sandbox | 72XX | 82XX | 92XX |
 | kagent-sandbox | 73XX | 83XX | 93XX |
 | kgateway-sandbox | 80XX | 84XX | 86XX |
-| gloo-gw-sandbox | 81XX | 85XX | 87XX |
-| glooe-gw-sandbox | 88XX | 89XX | 98XX |
-| gme-llb-sandbox | 90XX | 94XX | 96XX |
-| ge-llb-sandbox | 91XX | 95XX | 97XX |
 
-### Istio Ambient Mode
-Most sandboxes use sidecar-less ambient mode: ztunnel DaemonSet handles L4 mTLS on each node, optional waypoint proxies for L7 policies. Namespaces opt in via `istio.io/dataplane-mode=ambient` label.
+Keep prefixes unique so sandboxes can run at the same time.
 
-## Key Technical Details
+## Rules for Changes
 
-- **No build system or test framework** — this is an infrastructure-as-code repo. Shell scripts are the primary automation. Validation is done via `kubectl wait` for pod readiness.
-- **Credentials go in `vars.sh`** — never committed. Scripts validate required credentials before proceeding.
-- **All scripts use `set -e`** — they exit immediately on error.
-- **Helm is the primary installer** — components are installed via Helm charts with values files in `manifests/`.
-- **Kustomize** is used for the movies-app deployment.
-- **k3d cluster configs** disable Traefik (`--disable=traefik`) since sandboxes install their own ingress.
-
-## When Modifying Scripts
-
-- Always quote shell variables (`"$VAR"` not `$VAR`)
-- Use variables from `vars.sh` for versions and names — don't hardcode
-- Follow the existing pattern: source vars.sh → validate credentials → delete old cluster → create new → install components → wait for readiness → display access info
-- Port mappings must not conflict between sandboxes that might run simultaneously
+- **Secrets:** `vars.sh` is tracked, so it only ever holds empty values or placeholders. Never commit a real key or license, and don't print one in output or docs.
+- **Versions:** keep them in `vars.sh` and pass every one to `helm --version`. Don't leave a chart unpinned.
+- **Failures:** scripts use `set -e`. Don't hide failures with `|| echo` or `|| true`.
+- **Context:** in multi-cluster loops, every `kubectl` and `helm` call needs an explicit `--context` or `--kube-context`.
+- **Shell:** quote variables, and keep the flow: source `vars.sh` → check credentials → delete old cluster → create cluster → install → wait → print access info.
+- **Waits:** Deployments have `Available`, not `Ready`. Prefer `kubectl rollout status`.
+- **Docs:** only claim what's been run. Say "verified" with a date and versions, and don't describe a sandbox as production-ready. When a fix lands, tick it off in `PLAN.md`.

@@ -22,4 +22,3 @@ export OPENAI_API_KEY="" # Replace with your OpenAI API key
 export KGATEWAY_VERSION=2.2.2
 export KGATEWAY_NAMESPACE=kgateway-system
 export GATEWAY_API_VERSION="v1.5.1"
-export LICENSE_KEY=""
