@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Self-contained local sandboxes for trying open source service mesh and gateway projects on k3d: Istio and Kgateway. The repository is **OSS-only** and low-maintenance. `PLAN.md` tracks the cleanup and lists known bugs, so read it before changing a sandbox.
+Self-contained local sandboxes for trying open source service mesh and gateway projects on k3d: Istio and Kgateway. The repository is **OSS-only** and low-maintenance. `PLAN.md` records the cleanup decisions, what was verified, and the known issues left open, so read it before changing a sandbox.
 
 Licensed, Gloo, AI agent, and AWS sandboxes were removed. They remain available at tag `pre-oss-cleanup-2026-11`. Don't add anything that needs a commercial license or vendor credentials.
 
@@ -53,10 +53,15 @@ helm template <release> <chart> --version <version> -f <values>
 
 ## Architecture Notes
 
-- **Install order:** cluster → Gateway API CRDs → mesh (Istio base → istiod → CNI → ztunnel) → gateway → demo apps → observability.
+- **Install order:**
+  - `kgw`: cluster → Gateway API CRDs → kgateway → Gateway → movies.
+  - `amb`: cluster → movies → Gateway API CRDs → Istio base → istiod → CNI → ztunnel → waypoint → Prometheus → Kiali → Grafana → Traefik → ingresses.
+  - `sc`: same as `amb`, but with no Gateway API CRDs, ztunnel, or waypoint, and with CNI before istiod.
+- **Clusters:** `kgateway-sandbox` supports `NUM_CLUSTERS` above 1. `istio-llb-sandbox` installs only on the first cluster, so keep it at 1.
 - **Topology:** `k3d-cluster.yaml` creates 1 server and 3 agents, labeled `topology.kubernetes.io/zone` as `central`, `west`, and `east`. Movies has required affinity on those zones.
-- **Traefik:** the k3d configs set `--disable=traefik`. `istio-llb` installs upstream Traefik from a pinned chart with `--skip-crds`, because the k3s Traefik CRD chart fails once Gateway API CRDs exist.
+- **Traefik:** the k3d configs set `--disable=traefik`. `istio-llb` installs upstream Traefik from a pinned chart with `--skip-crds` and the CRD provider off. The k3s Traefik CRD chart fails once Gateway API CRDs exist, and Helm 4 conflicts with them if the upstream chart installs its CRDs.
 - **Ambient:** namespaces opt in with `istio.io/dataplane-mode=ambient`. L7 policy needs a waypoint.
+- **Movies:** both `movies/` directories symlink to `apps/movies-app/single-cluster`, so a change there affects both sandboxes and means re-verifying both.
 
 ### Ports
 
@@ -71,9 +76,9 @@ Keep prefixes unique so sandboxes can run at the same time.
 
 ## Rules for Changes
 
-- **Secrets:** `vars.sh` is tracked, so it only ever holds empty values or placeholders. Never commit a real key or license, and don't print one in output or docs.
-- **Versions:** keep them in `vars.sh` and pass every one to `helm --version`. Don't leave a chart unpinned.
-- **Failures:** scripts use `set -e`. Don't hide failures with `|| echo` or `|| true`.
+- **Secrets:** the sandboxes need no credentials, and `vars.sh` is tracked. Never commit a real key or license, and don't print one in output or docs.
+- **Versions:** keep them in `vars.sh`, and pass every chart version to `helm --version`. Don't leave a chart unpinned.
+- **Failures:** scripts use `set -e`. Don't hide failures with `|| echo` or `|| true`. The one exception is `kubectx -d`, which removes a context that may not exist.
 - **Context:** in multi-cluster loops, every `kubectl` and `helm` call needs an explicit `--context` or `--kube-context`.
 - **Shell:** quote variables, and keep the flow: source `vars.sh` → delete old cluster → create cluster → install → wait → print access info.
 - **Waits:** Deployments have `Available`, not `Ready`. Prefer `kubectl rollout status`.

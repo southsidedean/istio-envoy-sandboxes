@@ -3,9 +3,19 @@
 Tom Dean
 Last edit: 11/4/2026
 
+## Status
+
+**Cleanup complete as of 11/4/2026.** Nothing is scheduled. The repository is two verified OSS sandboxes and a shared app, and everything removed is at tag `pre-oss-cleanup-2026-11`.
+
+Known and left open, none of them blocking:
+
+- `apps/movies-app`: overlapping selectors, HPAs reporting `<unknown>` CPU under sidecars, and leftover linkerd annotations
+- `kgateway-sandbox`: multi-cluster teardown leaves a Docker network behind
+- `istio-llb-sandbox`: `NUM_CLUSTERS` above 1 isn't supported
+
 ## Goal
 
-Make this repository presentable and useful without committing ongoing resources to it. It becomes two OSS-only local sandboxes, Istio locality load balancing and Kgateway, that do what their docs say.
+Make this repository presentable and useful without committing ongoing resources to it: two OSS-only local sandboxes, Istio locality load balancing and Kgateway, that do what their docs say.
 
 ## How these findings were produced
 
@@ -44,9 +54,7 @@ Everything removed below, including the Gloo screenshots, is still available fro
 - [x] Rewrite root `CLAUDE.md`
 - [x] Write this plan
 - [x] Merge to `main`
-- [x] Update the GitHub description and topics. Remove `gloo-gateway`, `gloo-mesh`, `kind`
-
-After the AWS removal merges, remove the `eks` topic.
+- [x] Update the GitHub description and topics. Remove `gloo-gateway`, `gloo-mesh`, `kind`, `agentgateway`, `ai-agents`, `kagent`, `eks`
 
 ## Phase 2: Fix and verify the OSS sandboxes
 
@@ -79,6 +87,7 @@ Verified: kgateway 2.2.2, Gateway API v1.5.1, k3s v1.35.2-k3s1. With no route, `
 - [x] Remove the `istioctl` PATH leftovers and Grafana's `--debug`
 - [x] Delete unused k3d configs. `k3d-cluster.yaml` was a symlink to `k3d-medium.yaml` and is now the real file
 - [x] README: remove the `both` references and the nonexistent `registries-bak.yaml`
+- [ ] The setup scripts create `NUM_CLUSTERS` clusters but install only on the first, because their `kubectl` and `helm` calls have no explicit context. Only the default of 1 was tested
 
 Verified: Istio 1.29.1, Kiali 2.23.0, Grafana chart 10.5.15, Traefik chart 39.0.2, Gateway API v1.5.1, k3s v1.35.2-k3s1, k3d 5.9.0, Helm 4.3.1. In both modes, `/kiali` and `/grafana` returned 200, and traffic moved from mixed to 9 of 9 curl pods in-zone once the README's locality steps were applied. Removing the `DestinationRule` restored mixed traffic. The Kiali graph itself wasn't checked in a browser.
 
