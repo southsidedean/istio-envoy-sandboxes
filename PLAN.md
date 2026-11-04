@@ -5,7 +5,7 @@ Last edit: 11/4/2026
 
 ## Goal
 
-Make this repository presentable and useful without committing ongoing resources to it. It becomes a small, OSS-only set of local sandboxes that do what their docs say.
+Make this repository presentable and useful without committing ongoing resources to it. It becomes two OSS-only local sandboxes, Istio locality load balancing and Kgateway, that do what their docs say.
 
 ## How these findings were produced
 
@@ -20,6 +20,7 @@ The November 2026 review read every tracked file, ran `shellcheck`, built the Ku
 | Solo.io | No contact and no dependency on Solo access |
 | License-only sandboxes | Cull. Only OSS sandboxes stay |
 | `gloo-gw-sandbox`, `istio-sandbox` | Cull |
+| `ai-sandbox`, `kagent-sandbox` | Cull. No further work planned on them |
 | Azure, GCP, kind | Cull. These were empty placeholders |
 | AWS EKS sandbox | Keep as a labeled exception: unverified, stale, needs a Solo license. Do not run it |
 | `istio-llb` `both` scripts | Delete. They were an unusable Gloo Mesh copy |
@@ -31,7 +32,7 @@ The November 2026 review read every tracked file, ran `shellcheck`, built the Ku
 
 Everything removed below, including the Gloo screenshots, is still available from that tag.
 
-## Phase 1: Cull and document (this branch)
+## Phase 1: Cull and document (done)
 
 - [x] Remove `Azure/`, `GCP/`, `kind-sandboxes/`
 - [x] Remove `k3d-sandboxes/{ent-ai,ent-kgateway,gme-llb,ge-llb,gloo-gw,glooe-gw,istio}-sandbox`
@@ -44,38 +45,16 @@ Everything removed below, including the Gloo screenshots, is still available fro
 - [x] Merge to `main`
 - [x] Update the GitHub description and topics. Remove `gloo-gateway`, `gloo-mesh`, `kind`
 
-Suggested description: *Scripted OSS sandboxes for Istio ambient, locality load balancing, kgateway, and kagent on k3d.*
+Description, to update after the `ai` and `kagent` removal merges: *Scripted OSS sandboxes for Istio ambient, locality load balancing, and kgateway on k3d.* Also remove the `agentgateway`, `ai-agents`, and `kagent` topics.
 
 ## Phase 2: Fix and verify the OSS sandboxes
 
-Fix each sandbox, then run it from a clean start. A sandbox only counts as verified after setup, the documented access URLs, and destroy have all worked. `ai-sandbox` and `kagent-sandbox` also need an `OPENAI_API_KEY`.
+Fix each sandbox, then run it from a clean start. A sandbox only counts as verified after setup, the documented access URLs, and destroy have all worked.
 
 | Sandbox | Status |
 |---|---|
 | `kgateway-sandbox` | Verified 11/4/2026 |
 | `istio-llb-sandbox` | Verified 11/4/2026 in ambient, sidecar, and naked modes |
-| `kagent-sandbox` | Not started |
-| `ai-sandbox` | Not started |
-
-### `ai-sandbox`
-
-- [ ] `scripts/cluster-setup-k3d-ai-everything.sh:93`: `kubectl wait --for=condition=Ready deployment/istiod` targets a condition Deployments don't have. Use `Available` or `rollout status`
-- [ ] `:184`: the waypoint is applied before the Gateway API CRDs at `:198`. Swap the order
-- [ ] `:173`, `:178`: `istio.io/use-waypoint=auto` doesn't match the Gateway named `waypoint`, so the waypoint is probably bypassed
-- [ ] `:290`: `|| echo` hides agentregistry install failures
-- [ ] `:328`: quoting error (SC2027)
-- [ ] Remove agentregistry. Chart 0.3.2 won't render without an external PostgreSQL with pgvector
-- [ ] Agentgateway 1.0.1: the values keys `mcp`, `a2a`, `observability`, and `service` aren't in the chart, and the route targets port 8080 while the Service exposes 9978, 9093, and 9092. Install the controller only, with no route
-- [ ] `manifests/kagent-httproute.yaml`: see the shared kagent item below
-- [ ] Delete `scripts/cluster-setup-k3d-kagent-everything.sh`, a near-duplicate of the `kagent-sandbox` script
-- [ ] Delete unused manifests: `grafana-ingress`, `grafana-values`, `kagent-values`, `registries`
-- [ ] README: fix `kagent-` names and invented API examples; remove "Kubernetes CRD-based storage", "Full observability", and "production-like"
-
-### `kagent-sandbox`
-
-- [ ] Pin the kagent chart. `KAGENT_VERSION` is set but unused
-- [ ] Delete unused manifests: `grafana-ingress`, `grafana-values`, `kagent-values`, `registries`
-- [ ] README: check the `Agent` CRD example against the installed chart. It's probably outdated
 
 ### `kgateway-sandbox`
 
@@ -83,6 +62,7 @@ Fix each sandbox, then run it from a clean start. A sandbox only counts as verif
 - [x] Wait for the Gateway and the movies Deployments before reporting success
 - [x] Delete unused manifests: `grafana-*`, `registries`
 - [x] Replace the `movies/` copy with a symlink, and delete unused k3d configs
+- [ ] Multi-cluster teardown leaves the shared Docker network (seen with `kgw-network`). It's harmless, and `docker network rm` clears it
 
 Verified: kgateway 2.2.2, Gateway API v1.5.1, k3s v1.35.2-k3s1. With no route, `localhost:8001` returns 404. With a temporary HTTPRoute, requests reached all three backends.
 
@@ -100,17 +80,6 @@ Verified: kgateway 2.2.2, Gateway API v1.5.1, k3s v1.35.2-k3s1. With no route, `
 - [x] README: remove the `both` references and the nonexistent `registries-bak.yaml`
 
 Verified: Istio 1.29.1, Kiali 2.23.0, Grafana chart 10.5.15, Traefik chart 39.0.2, Gateway API v1.5.1, k3s v1.35.2-k3s1, k3d 5.9.0, Helm 4.3.1. In both modes, `/kiali` and `/grafana` returned 200, and traffic moved from mixed to 9 of 9 curl pods in-zone once the README's locality steps were applied. Removing the `DestinationRule` restored mixed traffic. The Kiali graph itself wasn't checked in a browser.
-
-### Shared across sandboxes
-
-- [ ] kagent: `manifests/kagent-httproute.yaml` (`ai`, `kagent`) points at `kagent:80`, but chart 0.8.1 creates `kagent-ui`, `kagent-controller`, and others, with no `kagent` Service. Fix the route and the READMEs' `svc/kagent` and `deployment/kagent` commands
-- [ ] Istio (`ai` only, `istio-llb` is done): Helm installs have no `--version`, so 1.30.7 installs while the scripts report 1.29.1. Pass `--version "$ISTIO_VERSION"`
-- [ ] Istio (`ai` only, `istio-llb` is done): `--set defaultRevision="${ISTIO_VERSION}"` points the validation webhook at `istiod-1.29.1` with `failurePolicy: Ignore`, which effectively turns validation off. Remove it
-- [ ] Pin `kagent-crds`
-- [ ] Make the `movies/` copies in `ai` and `kagent` symlinks to `../../apps/movies-app/single-cluster`, as `istio-llb` and `kgateway` do. They are byte-identical today
-- [ ] Delete unused `k3d-tiny`, `k3d-small`, `k3d-medium`, and `k3d-large` configs in `ai` and `kagent`. Tiny and small lack the zones that movies requires, and most large configs disable the load balancer
-- [ ] Multi-cluster teardown leaves the shared Docker network (seen with `kgw-network`). It's harmless, and `docker network rm` clears it
-- [ ] Make `vars.sh` load an ignored `.env`. `.gitignore` says to use `.env`, but nothing reads it
 
 ### `apps/movies-app`
 
@@ -153,15 +122,12 @@ Moving it to upstream Istio would be a separate project. Whether upstream suppor
 
 ## Versions
 
-Pinned today, against the latest seen during the review. Upgrade only during Phase 2 verification.
+Pinned today, against the latest seen during the review. Upgrade only when re-verifying.
 
 | Component | Pinned | Latest seen |
 |---|---|---|
-| Istio | 1.29.1 (`ai` actually installs 1.30.7) | 1.30.7 |
-| kagent | 0.8.1 | 0.10.4 |
+| Istio | 1.29.1 | 1.30.7 |
 | kgateway | 2.2.2 | 2.5.0 |
-| agentgateway | 1.0.1 | 1.0.1 |
-| agentregistry | 0.3.2 | 0.4.0 |
 | Gateway API | v1.5.1 | v1.7.0 |
 | Kiali | 2.23.0 | v2.34.1 |
 | Grafana chart | 10.5.15 | Not compared |
