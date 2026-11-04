@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Status
+
+**Unverified and stale.** This is the one exception to the repository's OSS-only rule, because it needs Solo.io credentials the maintainer no longer has. Don't run it, or spend effort updating it, unless asked. Known issues are in the root `PLAN.md`.
+
 ## Project Overview
 
 AWS EKS sandbox for testing SPIFFE/SPIRE identity with Istio Ambient mode, using Solo.io's enterprise Istio distribution. The full stack deploys: EKS cluster -> SPIRE (identity) -> Istio Ambient (mesh) -> movies sample app (load test).
@@ -40,7 +44,7 @@ kubectl apply -k movies                 # Deploy movies app independently
 3. **Gateway API CRDs** (standard + experimental, version configurable via `GATEWAY_API_VERSION`)
 4. **kgateway** (OSS Gateway API controller) via Helm from `oci://cr.kgateway.dev/kgateway-dev/charts` (`kgateway-crds` + `kgateway`), with experimental Gateway API features enabled
 5. **SPIRE** via Helm (`spire-crds` + `spire`) using `--repo` from `https://spiffe.github.io/helm-charts-hardened/` into `spire-server` namespace, configured in `manifests/spire-values.yaml`
-6. **ClusterSPIFFEID registrations** applied from `manifests/istio-gateway-spiffeid.yaml` (ztunnel, ambient workloads, waypoints, ingress gateway)
+6. **ClusterSPIFFEID registrations** applied from `manifests/istio-gateway-spiffeid.yaml` (ztunnel, ambient workloads, waypoints)
 7. **Istio Ambient mode** via 4 Helm charts from Solo OCI registry: `base`, `istiod`, `cni`, `ztunnel` (values inline in script)
 8. **Prometheus** via `prometheus-community/prometheus` Helm chart into `istio-system`, configured in `manifests/prometheus-values.yaml`
 9. **Movies app** via Kustomize, then labeled for ambient mode (`istio.io/dataplane-mode=ambient`)
@@ -56,7 +60,7 @@ kubectl apply -k movies                 # Deploy movies app independently
 
 - `manifests/eks-cluster.yaml` - eksctl template using env vars (cluster name, region, version, node type)
 - `manifests/spire-values.yaml` - SPIRE config with trust domain `example.org`, ztunnel authorized as delegate, agent socket on host
-- `manifests/istio-gateway-spiffeid.yaml` - ClusterSPIFFEID registrations for ztunnel, ambient workloads, waypoint proxies, and ingress gateway
+- `manifests/istio-gateway-spiffeid.yaml` - ClusterSPIFFEID registrations for ztunnel, ambient workloads, and waypoint proxies
 - `manifests/prometheus-values.yaml` - Prometheus server config (service named `prometheus` on port 9090, sub-charts disabled)
 - `manifests/grafana-values.yaml` - Grafana with 7 pre-configured Istio/ztunnel dashboards (admin credentials passed via `--set` from `vars.sh`)
 - `manifests/grafana-gateway.yaml` - Gateway + HTTPRoute to expose Grafana on `/grafana` via kgateway
@@ -68,29 +72,4 @@ SPIRE is wired into Istio Ambient so that ztunnel fetches workload certificates 
 - **SPIRE agent** authorizes ztunnel as a delegate (`spiffe://example.org/ns/istio-system/sa/ztunnel`) and exposes its socket at `/run/spire/agent/sockets`
 - **ztunnel** has `spire.enabled: true` in its Helm values (inline in setup script)
 - **istiod** has `gateways.spire.workloads: true` so waypoint proxies use the SPIRE CSI driver for identity
-- **ClusterSPIFFEID resources** register four workload classes with SPIRE: ztunnel, ambient-labeled namespaces, waypoint proxies, and the ingress gateway
-
-## Recent Fixes (2/23/2026)
-
-All critical and high-priority issues have been resolved:
-
-### Critical Fixes
-- ✅ Fixed broken file path in `cluster-setup-everything.sh` line 168 (was `data/steps/spire/spire-config.yaml`, now correctly `manifests/spire-values.yaml`)
-- ✅ Fixed SPIRE trust domain to use `example.org` consistently (was using `$CLUSTER_NAME` variable)
-- ✅ Updated all shell scripts to properly quote variables (`"$VAR"` instead of `$VAR`) for security and reliability
-- ✅ Fixed hardcoded SPIRE version to use `${SPIRE_VERSION}` variable
-
-### Configuration Fixes
-- ✅ Fixed ClusterSPIFFEID ambient registration to use `namespaceSelector` instead of `podSelector` (correct for namespace-level labels)
-- ✅ Updated namespace references in README and CLAUDE.md from `spire-mgmt` to `spire-server`
-
-### Optimization Improvements
-- ✅ Pinned fortio image version to `1.63.0` (was untagged)
-- ✅ Changed frontend `imagePullPolicy` from `Always` to `IfNotPresent` for better performance
-- ✅ Increased movieinfo resource limits (now 50m/200m CPU, 64Mi/128Mi memory) to prevent throttling under 1500 QPS load
-
-### Cleanup
-- ✅ Removed unused `manifests/istio-values.yaml` file
-- ✅ Removed backup files (`manifests/istio-gateway-spiffeid-orig.yaml`, `manifests/spire-values-orig.yaml`)
-- ✅ Added `.gitignore` for generated certificates and OS/editor files
-- ✅ Added certificate cleanup to `cluster-destroy-eks.sh` script
+- **ClusterSPIFFEID resources** register three workload classes with SPIRE: ztunnel, ambient-labeled namespaces, and waypoint proxies
